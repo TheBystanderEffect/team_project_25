@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Bson.IO;
 
 namespace API.Controllers
 {
@@ -13,15 +14,14 @@ namespace API.Controllers
     {
         // GET api/values
         [HttpGet]
-        public List<string> Get()
+        public List<String> Get()
         {
             var client = new MongoClient();
-            var db = client.GetDatabase("team");
+            var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("testing");
-            var filter = Builders<BsonDocument>.Filter.Eq("name","dieska");
-            var names = coll.Find(filter).ToList();
-            
-            List<string> wanted = new List<string>();
+            var filter = Builders<BsonDocument>.Filter.Eq("name","Bambi");
+            var names = coll.Find(filter).ToList();            
+            List<String> wanted = new List<String>();
             foreach (var person in names)
             {
                 wanted.Add(person.ToJson());
@@ -31,11 +31,22 @@ namespace API.Controllers
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public String Get(int id)
         {
-            
-           
-            return null;
+            var client = new MongoClient();
+            var db = client.GetDatabase("tp");
+            var coll = db.GetCollection<BsonDocument>("diagrams");
+            var filter = Builders<BsonDocument>.Filter.Eq("id", id);
+
+
+
+
+            var diagram = coll.FindAsync(filter).ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript });
+
+
+
+
+            return diagram;
         }
 
         // POST api/values
