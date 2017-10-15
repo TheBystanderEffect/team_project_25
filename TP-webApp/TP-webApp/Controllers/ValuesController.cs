@@ -31,20 +31,14 @@ namespace API.Controllers
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public String Get(int id)
+        public async Task<String> Get(int id)
         {
             var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
             var filter = Builders<BsonDocument>.Filter.Eq("id", id);
-
-
-
-
-            var diagram = coll.FindAsync(filter).ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript });
-
-
-
+            var data = await coll.Find(filter).SingleAsync();
+            var diagram = data.ToJson();
 
             return diagram;
         }
