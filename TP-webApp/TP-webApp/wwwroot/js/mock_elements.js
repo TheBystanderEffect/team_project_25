@@ -16,33 +16,19 @@ new Promise((resolve, reject) => {
     var camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 3000);
     var scene = new THREE.Scene();
 
-    new layer(0,0,-1000,500,600).draw(scene)
-    new layer(0,0,-2000,500,600).draw(scene)
-    new layer_simple(3).draw(scene)
-
-
-    new lifeline(-100,250,-1000, 500).draw(scene)
-    new lifeline(100,250,-1000, 500).draw(scene)
-
-    new lifeline(-100,250,-2000, 500).draw(scene)
-    new lifeline(100,250,-2000, 500).draw(scene)
-
-
-    new message(-100,200,-1000,-100,200,-2000).draw(scene)
-
-    new message(-100,150,-2000,100,150,-2000).draw(scene)
-    new message(100,100,-2000,-100,100,-2000).draw(scene)
-
-    new message(-100,50,-2000,-100,50,-1000).draw(scene)
-
-    new message(-100,0,-1000,100,0,-1000).draw(scene)
-    new message(100,-50,-1000,-100,-50,-1000).draw(scene)
-
-
-    new text(-250,300,-1000, "Layer1", font, 12).draw(scene)
-    new text(-50,5,-1000, "Sample call(params)", font, 8).draw(scene)
-    new text(-120,250,-1000, "Lifeline1", font, 8).draw(scene)
-    new text(80,250,-1000, "Lifeline2", font, 8).draw(scene)
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                var diagram = JSON.parse(xhr.responseText);
+                diagram.elements.map(json2elm.bind(null, font)).forEach((x) => { x.draw(scene); });
+            } else {
+                alert(`XHR returned ${xhr.status}`);
+            }
+        }
+    }
+    xhr.open('GET','diagrams/1');
+    xhr.send();
 
 
     //RENDER
@@ -62,6 +48,22 @@ new Promise((resolve, reject) => {
 //*********************************************************************************
 //************************************FUNCTIONS************************************
 //*********************************************************************************
+
+// JSON to elements
+function json2elm(font, obj) {
+
+    switch(obj.type) {
+        case 'LAYER':
+        return new layer(obj.x, obj.y, obj.z, obj.width, obj.height);
+        case 'LIFELINE':
+        return new lifeline(obj.source_x, obj.source_y, obj.source_z, obj.length);
+        case 'MESSAGE':
+        return new message(obj.source_x, obj.source_y, obj.source_z, destination_x, destination_y, destination_z);
+        case 'TEXT':
+        return new text(obj.source_x, obj.source_y, obj.source_z, obj.text_string, font, obj.text_size);
+    }
+
+}
 
 //LAYER
 function layer(x, y, z, width, height) {
@@ -87,8 +89,8 @@ function lifeline(source_x, source_y, source_z, length) {
     this.center_y = source_y - length/2
     this.center_z = source_z
 
-    this.geometry = new THREE.CylinderGeometry( 1, 1, this.length, 8 );
-    this.material = new THREE.MeshBasicMaterial( {color: 0x000000} );
+    this.geometry = new THREE.CylinderGeometry( 3, 3, this.length, 8 );
+    this.material = new THREE.MeshBasicMaterial( {color: 0xFF0000} );
     this.mesh = new THREE.Mesh( this.geometry, this.material );
     this.mesh.position.set(this.center_x, this.center_y, this.center_z)
 
@@ -105,8 +107,8 @@ function message(source_x, source_y, source_z, destination_x, destination_y, des
     this.center_y = (source_y + destination_y)/2
     this.center_z = (source_z + destination_z)/2
 
-    this.geometry = new THREE.CylinderGeometry( 1, 2, this.length, 8 );
-    this.material = new THREE.MeshBasicMaterial( {color: 0x000000} );
+    this.geometry = new THREE.CylinderGeometry( 0.5, 2.5, this.length, 8 );
+    this.material = new THREE.MeshBasicMaterial( {color: 0x00FF00} );
     this.mesh = new THREE.Mesh( this.geometry, this.material );
     this.mesh.position.set(this.center_x, this.center_y, this.center_z)
     this.mesh.rotateZ(Math.atan2(destination_y-source_y, destination_x-source_x)-Math.PI/2)
