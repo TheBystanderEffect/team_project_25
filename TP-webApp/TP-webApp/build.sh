@@ -1,3 +1,3 @@
 #!bash
 
-dotnet build TP-webApp.csproj
+dotnet build TP_webApp.csproj
