@@ -38,7 +38,7 @@ namespace API.Controllers
             var coll = db.GetCollection<BsonDocument>("diagrams");
             var filter = Builders<BsonDocument>.Filter.Eq("id", id);
             var data = await coll.Find(filter).SingleAsync();
-            var diagram = data.ToJson();
+            var diagram = data.ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
 
             return diagram;
         }

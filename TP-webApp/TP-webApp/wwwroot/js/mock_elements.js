@@ -16,19 +16,23 @@ new Promise((resolve, reject) => {
     var camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 3000);
     var scene = new THREE.Scene();
 
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                var diagram = JSON.parse(xhr.responseText);
-                diagram.elements.map(json2elm.bind(null, font)).forEach((x) => { x.draw(scene); });
-            } else {
-                alert(`XHR returned ${xhr.status}`);
+    function xhrSend() {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var diagram = JSON.parse(xhr.responseText);
+                    diagram.elements.map(json2elm.bind(null, font)).forEach((x) => { x.draw(scene); });
+                } else {
+                    alert(`XHR returned ${xhr.status}`);
+                }
             }
         }
+        xhr.open('GET','/api/values/1');
+        xhr.send();
     }
-    xhr.open('GET','diagrams/1');
-    xhr.send();
+
+    xhrSend();
 
 
     //RENDER
@@ -39,6 +43,13 @@ new Promise((resolve, reject) => {
         renderer.render(scene,camera)
         requestAnimationFrame(render)
     }
+
+    document.getElementById("reloadBtn").addEventListener("click", function() {
+        while(scene.children.length > 0){ 
+            scene.remove(scene.children[0]); 
+        }
+        xhrSend();
+    });
 
 }).catch((error) => {
     console.log(error);
@@ -51,14 +62,13 @@ new Promise((resolve, reject) => {
 
 // JSON to elements
 function json2elm(font, obj) {
-
     switch(obj.type) {
         case 'LAYER':
         return new layer(obj.x, obj.y, obj.z, obj.width, obj.height);
         case 'LIFELINE':
         return new lifeline(obj.source_x, obj.source_y, obj.source_z, obj.length);
         case 'MESSAGE':
-        return new message(obj.source_x, obj.source_y, obj.source_z, destination_x, destination_y, destination_z);
+        return new message(obj.source_x, obj.source_y, obj.source_z, obj.destination_x, obj.destination_y, obj.destination_z);
         case 'TEXT':
         return new text(obj.source_x, obj.source_y, obj.source_z, obj.text_string, font, obj.text_size);
     }
