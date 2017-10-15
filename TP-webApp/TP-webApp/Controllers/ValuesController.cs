@@ -33,15 +33,9 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public string Get(int id)
         {
-            var client = new MongoClient();
-            var db = client.GetDatabase("team");
-            var coll = db.GetCollection<BsonDocument>("testing");
-            string test_js = "{\"name\" : \"unknown\", \"height\" : \"180\" }";
-
-            var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_js);
-            coll.InsertOneAsync(doc);
+            
            
-            return test_js + '\n' + "Successfully added to database";
+            return null;
         }
 
         // POST api/values
@@ -73,27 +67,9 @@ namespace API.Controllers
         {
         }
 
-        public ActionResult Insert()
-        {
-            var client = new MongoClient();
-            var db = client.GetDatabase("team");
-            var coll = db.GetCollection<BsonDocument>("testing");
-
-            var doc = new BsonDocument {
-                {"name","Pista"},
-                {"height","170"}
-            };
-            coll.InsertOneAsync(doc);
-
-           return View();
-        }
+        
    
     }
 
-    public class Person
-    {
-        public ObjectId Id { get; set; }
-        public string name { get; set; }
-        public string height { get; set; }
-    }
+   
 }
