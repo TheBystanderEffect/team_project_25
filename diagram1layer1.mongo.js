@@ -11,14 +11,6 @@ db.diagrams.replaceOne({ id: 1 },
 			height: 600
 		},
 		{
-			type: "LAYER",
-			x: 0,
-			y: 0,
-			z: -2000,
-			width: 500,
-			height: 600
-		},
-		{
 			type: "LIFELINE",
 			source_x: -100,
 			source_y: 250,
@@ -31,56 +23,6 @@ db.diagrams.replaceOne({ id: 1 },
 			source_y: 250,
 			source_z: -1000,
 			length: 500
-		},
-		{
-			type: "LIFELINE",
-			source_x: -100,
-			source_y: 250,
-			source_z: -2000,
-			length: 500
-		},
-		{
-			type: "LIFELINE",
-			source_x: 100,
-			source_y: 250,
-			source_z: -2000,
-			length: 500
-		},
-		{
-			type: "MESSAGE",
-			source_x: -100,
-			source_y: 200,
-			source_z: -1000,
-			destination_x: -100,
-			destination_y: 200,
-			destination_z: -2000
-		},
-		{
-			type: "MESSAGE",
-			source_x: -100,
-			source_y: 150,
-			source_z: -2000,
-			destination_x: 100,
-			destination_y: 150,
-			destination_z: -2000
-		},
-		{
-			type: "MESSAGE",
-			source_x: 100,
-			source_y: 100,
-			source_z: -2000,
-			destination_x: -100,
-			destination_y: 100,
-			destination_z: -2000
-		},
-		{
-			type: "MESSAGE",
-			source_x: -100,
-			source_y: 50,
-			source_z: -2000,
-			destination_x: -100,
-			destination_y: 50,
-			destination_z: -1000
 		},
 		{
 			type: "MESSAGE",
