@@ -15,11 +15,13 @@ namespace TP_webApp
         public static void Main(string[] args)
         {
             BuildWebHost(args).Run();
+            
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+                .UseContentRoot(Directory.GetCurrentDirectory())
                 .Build();
     }
 }
