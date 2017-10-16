@@ -1,0 +1,24 @@
+{
+  "name": "3duml",
+  "version": "1.0.0",
+  "description": "Team project for subject TP in FIIT STUBA ",
+  "main": "null",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheBystanderEffect/team_project_25.git"
+  },
+  "keywords": [
+    "3d",
+    "UML",
+    "sequence"
+  ],
+  "author": "Ronald Demeter, Martin Dieska, Marcel Furucz, Martin Gembec, Stefan Motko, Peter Psota, Patrik Scensny",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TheBystanderEffect/team_project_25/issues"
+  },
+  "homepage": "https://github.com/TheBystanderEffect/team_project_25#readme"
+}
