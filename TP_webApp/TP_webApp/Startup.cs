@@ -37,6 +37,10 @@ namespace TP_webApp
                 app.UseExceptionHandler("/Error");
             }
 
+            DefaultFilesOptions DefaultFile = new DefaultFilesOptions();
+            DefaultFile.DefaultFileNames.Clear();
+            DefaultFile.DefaultFileNames.Add("html/mock.html");
+            app.UseDefaultFiles(DefaultFile);
             app.UseStaticFiles();
 
             app.UseMvc(routes =>

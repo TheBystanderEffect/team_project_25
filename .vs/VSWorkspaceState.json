@@ -1,10 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\TP-webApp",
-    "\\TP-webApp\\TP-webApp",
-    "\\TP-webApp\\TP-webApp\\wwwroot"
+    "\\TP_webApp",
+    "\\TP_webApp\\TP_webApp"
   ],
-  "SelectedNode": "\\TP-webApp\\TP-webApp\\start.sh",
+  "SelectedNode": "\\TP_webApp\\TP_webApp.sln",
   "PreviewInSolutionExplorer": false
 }
