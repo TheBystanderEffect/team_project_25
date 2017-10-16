@@ -94,6 +94,7 @@ function layer_simple(layer_number){
 
 //Lifeline
 function lifeline(source_x, source_y, source_z, length) {
+    test();
     this.length = length
     this.center_x = source_x
     this.center_y = source_y - length/2
