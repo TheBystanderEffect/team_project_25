@@ -1,4 +1,4 @@
 #!bash
 
-tsc 
+tsc --watch &
 dotnet run --project TP_webApp.csproj
