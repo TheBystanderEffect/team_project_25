@@ -37,14 +37,47 @@ new Promise((resolve, reject) => {
     xhrSend();
 
 
-    //RENDER
-    renderer.render(scene,camera);
 
-    requestAnimationFrame(render)
+    //ON CLICK
+    var has_clicked =0;
+    function onMouseDown( event ){
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        has_clicked=1;
+    }
+    window.addEventListener( 'mousedown', onMouseDown, false );
+
+    //raycast
+    var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+
+    ///RENDER
+    renderer.render(scene,camera);
+    requestAnimationFrame(render);
+
     function render(){
+
+        if(has_clicked==1){
+            raycaster.setFromCamera( mouse, camera );
+            var intersects = raycaster.intersectObjects( scene.children );
+            has_clicked=0
+
+            for ( var i = 0; i < intersects.length; i++ ) {
+                //console.log(intersects[i]);
+                //console.log(Object.keys(intersects[i].point));
+                //console.log(Object.keys(intersects[i].object));
+                if(intersects[i].object.metadata.parent.type == 1){
+                    new lifeline(intersects[i].point.x,intersects[i].point.y,intersects[i].point.z,300).draw(scene); 
+                    break;
+                }             
+            }
+        }
+
         renderer.render(scene,camera)
         requestAnimationFrame(render)
     }
+
+
 
     document.getElementById("reloadBtn").addEventListener("click", function() {
         while(scene.children.length > 0){
@@ -252,6 +285,9 @@ function layer(x, y, z, width, height) {
     this.material = new THREE.MeshLambertMaterial({color:0xffffff, transparent:true, opacity:0.1});
     this.mesh = new THREE.Mesh(this.geometry,this.material);
     this.mesh.position.set(x,y,z)
+    this.mesh.metadata = {}
+    this.mesh.metadata.parent=this
+    this.type = 1
 
     this.draw = function(target_scene){
         target_scene.add(this.mesh)
@@ -265,7 +301,6 @@ function layer_simple(layer_number){
 
 //Lifeline
 function lifeline(source_x, source_y, source_z, length) {
-    test();
     this.length = length
     this.center_x = source_x
     this.center_y = source_y - length/2
@@ -275,6 +310,10 @@ function lifeline(source_x, source_y, source_z, length) {
     this.material = new THREE.MeshBasicMaterial( {color: 0xFF0000} );
     this.mesh = new THREE.Mesh( this.geometry, this.material );
     this.mesh.position.set(this.center_x, this.center_y, this.center_z)
+
+    this.mesh.metadata = {}
+    this.mesh.metadata.parent=this
+    this.type = 2
 
     this.draw = function(target_scene){
         target_scene.add(this.mesh)
@@ -297,6 +336,10 @@ function message(source_x, source_y, source_z, destination_x, destination_y, des
     this.mesh.rotateZ(Math.atan2(destination_y-source_y, destination_x-source_x)-Math.PI/2)
     this.mesh.rotateX(Math.atan2(destination_z-source_z, destination_y-source_y))
 
+    this.mesh.metadata = {}
+    this.mesh.metadata.parent=this
+    this.type = 3
+
     this.draw = function(target_scene){
         target_scene.add(this.mesh)
     }
@@ -314,6 +357,10 @@ function text(source_x, source_y, source_z, text_string, font, text_size) {
     this.material = new THREE.MeshBasicMaterial({color: 0x000000});
     this.mesh = new THREE.Mesh(this.geometry,this.material)
     this.mesh.position.set(source_x, source_y, source_z)
+
+    this.mesh.metadata = {}
+    this.mesh.metadata.parent=this
+    this.type = 4
 
     this.draw = function(target_scene){
         target_scene.add(this.mesh)
