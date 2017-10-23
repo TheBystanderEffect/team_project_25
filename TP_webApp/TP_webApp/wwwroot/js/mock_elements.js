@@ -111,6 +111,7 @@ function lifeline(source_x, source_y, source_z, length) {
 }
 
 
+
 //MSG
 function message(source_x, source_y, source_z, destination_x, destination_y, destination_z) {
     this.length = Math.sqrt(Math.pow(source_x-destination_x,2)+Math.pow(source_y-destination_y,2)+Math.pow(source_z-destination_z,2))
