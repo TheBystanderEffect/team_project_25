@@ -9,6 +9,7 @@ export class Message{
     kind:kinds;
     start:Lifeline;
     end:Lifeline;
+
     constructor(name:string,sort:sorts,kind:kinds,start:Lifeline,end:Lifeline){
         this.name = name;   
         this.kind = kind;
@@ -16,5 +17,7 @@ export class Message{
         this.start = start;
         this.end = end;
     }
+
+    
 }
 
