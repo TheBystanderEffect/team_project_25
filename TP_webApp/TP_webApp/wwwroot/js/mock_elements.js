@@ -98,6 +98,11 @@ new Promise((resolve, reject) => {
 
         };
 
+        this.getPitchObject = function() {
+
+            return pitchObject;
+        };
+
         this.getDirection = function() {
 
             // assumes the camera itself is not rotated
@@ -135,12 +140,14 @@ new Promise((resolve, reject) => {
             case 87:
                 // console.log('pressed w key');
                 cameraSpeedVectorW.x = -CAMERA_SPEED*Math.sin(controls.getObject().rotation.y);
+                cameraSpeedVectorW.y = CAMERA_SPEED*Math.sin(controls.getPitchObject().rotation.x);
                 cameraSpeedVectorW.z = -CAMERA_SPEED*Math.cos(controls.getObject().rotation.y);
 
                 break;
             case 83:
                 // console.log('pressed s key');
                 cameraSpeedVectorS.x = CAMERA_SPEED*Math.sin(controls.getObject().rotation.y);
+                cameraSpeedVectorW.y = -CAMERA_SPEED*Math.sin(controls.getPitchObject().rotation.x);
                 cameraSpeedVectorS.z = CAMERA_SPEED*Math.cos(controls.getObject().rotation.y);
                 break;
             case 65:
