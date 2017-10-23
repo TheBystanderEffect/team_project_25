@@ -11,6 +11,6 @@
         
     },
     "includes": [
-        "TP_webApp/TP_webApp/scripts/*.ts"
+        "TP_webApp/TP_webApp/app/*.ts"
     ]
   }

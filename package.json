@@ -22,9 +22,11 @@
   },
   "homepage": "https://github.com/TheBystanderEffect/team_project_25#readme",
   "dependencies": {
-    "assert": "^1.4.1", // assertion library for testing
-    "mocha": "^4.0.1", // test runner
-    "typescript": "^2.5.3", // typescript compiler
-    "webpack": "^3.8.0" // javascript packager
+    "@types/three": "^0.84.27",
+    "assert": "^1.4.1",
+    "mocha": "^4.0.1",
+    "three": "^0.87.1",
+    "typescript": "^2.5.3",
+    "webpack": "^3.8.0"
   }
 }
