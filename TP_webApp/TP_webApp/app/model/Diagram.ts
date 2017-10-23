@@ -1,4 +1,7 @@
-
+import {Lifeline} from "./Lifeline";
+import {CombinedFragment} from "./CombinedFragment";
+import {Message} from "./Message";
+import {Layer} from "./Layer";
 
 export class Diagram {
 

@@ -70,7 +70,9 @@ new Promise((resolve, reject) => {
 
         var onMouseMove = function ( event ) {
 
-            if ( scope.enabled === false ) return;
+            if ( scope.enabled === false ) {
+                return;
+            }
 
             var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
             var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
@@ -278,6 +280,7 @@ function lifeline(source_x, source_y, source_z, length) {
         target_scene.add(this.mesh)
     }
 }
+
 
 
 //MSG
