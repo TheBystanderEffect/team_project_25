@@ -103,7 +103,9 @@ new Promise((resolve, reject) => {
 
         var onMouseMove = function ( event ) {
 
-            if ( scope.enabled === false ) return;
+            if ( scope.enabled === false ) {
+                return;
+            }
 
             var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
             var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
@@ -129,6 +131,11 @@ new Promise((resolve, reject) => {
 
             return yawObject;
 
+        };
+
+        this.getPitchObject = function() {
+
+            return pitchObject;
         };
 
         this.getDirection = function() {
@@ -168,12 +175,14 @@ new Promise((resolve, reject) => {
             case 87:
                 // console.log('pressed w key');
                 cameraSpeedVectorW.x = -CAMERA_SPEED*Math.sin(controls.getObject().rotation.y);
+                cameraSpeedVectorW.y = CAMERA_SPEED*Math.sin(controls.getPitchObject().rotation.x);
                 cameraSpeedVectorW.z = -CAMERA_SPEED*Math.cos(controls.getObject().rotation.y);
 
                 break;
             case 83:
                 // console.log('pressed s key');
                 cameraSpeedVectorS.x = CAMERA_SPEED*Math.sin(controls.getObject().rotation.y);
+                cameraSpeedVectorW.y = -CAMERA_SPEED*Math.sin(controls.getPitchObject().rotation.x);
                 cameraSpeedVectorS.z = CAMERA_SPEED*Math.cos(controls.getObject().rotation.y);
                 break;
             case 65:
@@ -297,8 +306,8 @@ function lifeline(source_x, source_y, source_z, length) {
     this.center_y = source_y - length/2
     this.center_z = source_z
 
-    this.geometry = new THREE.CylinderGeometry( 1, 1, this.length, 8 );
-    this.material = new THREE.MeshBasicMaterial( {color: 0x000000} );
+    this.geometry = new THREE.CylinderGeometry( 3, 3, this.length, 8 );
+    this.material = new THREE.MeshBasicMaterial( {color: 0xFF0000} );
     this.mesh = new THREE.Mesh( this.geometry, this.material );
     this.mesh.position.set(this.center_x, this.center_y, this.center_z)
 
@@ -320,8 +329,8 @@ function message(source_x, source_y, source_z, destination_x, destination_y, des
     this.center_y = (source_y + destination_y)/2
     this.center_z = (source_z + destination_z)/2
 
-    this.geometry = new THREE.CylinderGeometry( 1, 2, this.length, 8 );
-    this.material = new THREE.MeshBasicMaterial( {color: 0x000000} );
+    this.geometry = new THREE.CylinderGeometry( 0.5, 2.5, this.length, 8 );
+    this.material = new THREE.MeshBasicMaterial( {color: 0x00FF00} );
     this.mesh = new THREE.Mesh( this.geometry, this.material );
     this.mesh.position.set(this.center_x, this.center_y, this.center_z)
     this.mesh.rotateZ(Math.atan2(destination_y-source_y, destination_x-source_x)-Math.PI/2)
