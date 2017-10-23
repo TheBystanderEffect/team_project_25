@@ -1,6 +1,7 @@
 import {Lifeline} from "./Lifeline";
 import {CombinedFragment} from "./CombinedFragment";
 import {Message} from "./Message";
+
 export class Layer{
     
         lifelines:Lifeline[];
