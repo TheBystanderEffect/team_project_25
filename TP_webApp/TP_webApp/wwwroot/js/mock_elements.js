@@ -275,6 +275,8 @@ function json2elm(font, obj) {
         return new message(obj.source_x, obj.source_y, obj.source_z, obj.destination_x, obj.destination_y, obj.destination_z);
         case 'TEXT':
         return new text(obj.source_x, obj.source_y, obj.source_z, obj.text_string, font, obj.text_size);
+    	case 'INTERACTIONFRAGMENT' :
+        return new interactionfragment(obj.source_x, obj.source_y, obj.source_z, obj.destination_x, obj.destination_y, obj.destination_z);
     }
 
 }
@@ -298,6 +300,17 @@ function layer_simple(layer_number){
     return new layer(0,0,-1000*layer_number,500,600)
 }
 
+//INTERACTIONFRAGMENT
+function interactionfragment(source_x, source_y, source_z, destination_x, destination_y, destination_z) {
+    this.geometry = new THREE.PlaneGeometry((Math.abs(destination_x)+Math.abs(source_x)),(Math.abs(destination_y)+Math.abs(source_y)));
+    this.material = new THREE.MeshLambertMaterial({color:0x000000, transparent:true, opacity:0.3});
+    this.mesh = new THREE.Mesh(this.geometry,this.material);
+    this.mesh.position.set(source_x,source_y,source_z)
+
+    this.draw = function(target_scene){
+        target_scene.add(this.mesh)
+    }
+}
 
 //Lifeline
 function lifeline(source_x, source_y, source_z, length) {
