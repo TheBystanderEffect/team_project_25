@@ -1,5 +1,4 @@
-<<<<<<< HEAD
 node_modules
-=======
-node_modules
->>>>>>> d63a4724ec1fde59cd342b493311807a010cb011
+package-lock.json
+
+.vs
