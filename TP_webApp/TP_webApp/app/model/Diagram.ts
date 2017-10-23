@@ -8,7 +8,7 @@ export class Diagram {
         return this._layers;
     }
 
-    public set layers(layers: Layer[]): void {
+    public set layers(layers: Layer[]) {
         this._layers = layers;
     }
 
