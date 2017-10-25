@@ -6,12 +6,7 @@
         "noImplicitAny": true,
         "noEmitOnError": true,
         "sourceMap": true,
-<<<<<<< HEAD
-        "target": "es5",
-        "lib": ["es2016","dom"],
-=======
         "target": "es6",
->>>>>>> 67202150dd54f9bebc4098bb92f2464d58579a43
         "outDir": "TP_webApp/TP_webApp/wwwroot/js"
         
     },
