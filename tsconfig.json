@@ -7,10 +7,12 @@
         "noEmitOnError": true,
         "sourceMap": true,
         "target": "es5",
+        "lib": ["es2016","dom"],
         "outDir": "TP_webApp/TP_webApp/wwwroot/js"
         
     },
     "includes": [
-        "TP_webApp/TP_webApp/app/*.ts"
+        "TP_webApp/TP_webApp/app/*.ts",
+        "TP_webApp/TP_webApp/app/model/*.ts"
     ]
   }

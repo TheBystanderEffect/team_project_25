@@ -13,6 +13,9 @@ var Diagram = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Diagram.prototype.addLayer = function (layer) {
+        this._layers.push(layer);
+    };
     return Diagram;
 }());
 exports.Diagram = Diagram;
