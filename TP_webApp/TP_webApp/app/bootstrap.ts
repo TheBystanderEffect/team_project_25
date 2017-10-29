@@ -1,10 +1,27 @@
 /*
 The entry point of the application
 */
-import { OccurenceSpecification } from './model/OccurenceSpecification';
-import { Vector3 } from 'three';
+import * as Globals from './globals';
+import { Font, FontLoader } from 'three';
 
-new OccurenceSpecification();
-new Vector3();
+function loadFont(font_url: string): Promise<Font> {
 
-console.log("Its working differently");
+    let font_loader: FontLoader = new FontLoader();
+
+    return new Promise<Font>((resolve, reject) => {
+        font_loader.load(font_url, (font: Font): void => {
+            resolve(font);
+        },
+        null,
+        (error) => {
+            reject(error);
+        });
+    });
+}
+
+// load a font and set it on resolve
+loadFont(Globals.FONT_URL).then((font: Font) => {
+    Globals.setFont(font);
+}).catch((error) => {
+    console.log(error);
+});
