@@ -2,7 +2,7 @@ import { Camera } from 'three';
 import { Object3D } from "three";
 import { Vector3 } from "three";
 import { Euler } from "three";
-export class CameraControls{
+export class CameraControls {
 
         camera:Camera;
         self:CameraControls;

@@ -9,10 +9,10 @@ export class MessageView extends GraphicElement{
     public length: number;
     public center: Vector3;
 
-    public constructor(source_x, source_y, source_z, text_string, font, text_size) {
+    public constructor(source_x:number, source_y:number, source_z:number, text_string:string, text_size:number) {
         super();
         this.geometry = new TextGeometry( text_string, {
-                font: font,
+                font: FONT,
                 size: text_size,
                 height: 1,
                 curveSegments: 12,
