@@ -13,6 +13,8 @@ export class CameraControls {
         constructor(camera:Camera){
             this.camera=camera;
             this.self = this;
+
+            document.addEventListener('mousemove', this.onmousemove, false );
         }
         
         init(camera:Camera):void{

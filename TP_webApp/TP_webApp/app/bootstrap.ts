@@ -3,6 +3,11 @@ The entry point of the application
 */
 import * as Globals from './globals';
 import { Font, FontLoader } from 'three';
+import { initializeScene } from './view/scene-init';
+
+/*
+Load resources
+*/
 
 function loadFont(font_url: string): Promise<Font> {
 
@@ -19,7 +24,7 @@ function loadFont(font_url: string): Promise<Font> {
     });
 }
 
-// load a font and set it on resolve
+// load a font and set it upon load
 let fontLoad = loadFont(Globals.FONT_URL).then((font: Font) => {
     Globals.setFont(font);
 }).catch((error) => {
@@ -41,12 +46,19 @@ function loadDiagramList(): Promise<undefined> {
 
 let diagramListLoad = loadDiagramList();
 
+/*
+Synchronize completion of loading
+*/
+
 Promise.all([
     fontLoad, 
     diagramListLoad
 ]).then(([
     fontResult,
-    diagramListResult
+    undefined
 ]) => {
-    console.log("alldone");
+    /*
+    Initialize application
+    */
+    initializeScene();
 });
