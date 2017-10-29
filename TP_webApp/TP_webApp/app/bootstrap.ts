@@ -12,7 +12,7 @@ function loadFont(font_url: string): Promise<Font> {
         font_loader.load(font_url, (font: Font): void => {
             resolve(font);
         },
-        null,
+        () => {},
         (error) => {
             reject(error);
         });
@@ -26,8 +26,27 @@ let fontLoad = loadFont(Globals.FONT_URL).then((font: Font) => {
     console.log(error);
 });
 
-function loadDiagramList() {
-    
+function loadDiagramList(): Promise<undefined> {
+
+    return new Promise((resolve, reject) => {
+        let req: XMLHttpRequest = new XMLHttpRequest();
+        req.open('GET','/api/data/diagram/');
+        req.addEventListener("load", ( ev: Event ) => {
+            console.log(JSON.parse(req.responseText));
+            resolve();
+        });
+        req.send();
+    });
 }
 
 let diagramListLoad = loadDiagramList();
+
+Promise.all([
+    fontLoad, 
+    diagramListLoad
+]).then(([
+    fontResult,
+    diagramListResult
+]) => {
+    console.log("alldone");
+});

@@ -59,13 +59,17 @@ namespace API.Controllers
         // GET api/data/diagram/
         [HttpGet("")]
         [ActionName("diagram")]
-        public async Task<String> GetAll()
+        public async Task<String> GetAll([FromQuery]string[] select)
         {
             var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
-            var filter = new BsonDocument();
-            var data = await coll.Find(filter).ToListAsync();
+            Dictionary<string, int> dict = new Dictionary<string, int>();
+            foreach(string i in select) {
+                dict.Add(i,1);
+            }
+            var filter = new BsonDocument(dict);
+            var data = await coll.Find(new BsonDocument()).Project(filter).ToListAsync();
             var diagram = data.ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
 
             return diagram;
