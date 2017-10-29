@@ -56,6 +56,21 @@ namespace API.Controllers
         }
         /*****************************ZISKANIE A ULOZENIE DIAGRAMU****************************************/
 
+        // GET api/data/diagram/
+        [HttpGet("")]
+        [ActionName("diagram")]
+        public async Task<String> GetAll()
+        {
+            var client = new MongoClient();
+            var db = client.GetDatabase("tp");
+            var coll = db.GetCollection<BsonDocument>("diagrams");
+            var filter = new BsonDocument();
+            var data = await coll.Find(filter).ToListAsync();
+            var diagram = data.ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
+
+            return diagram;
+        }
+
         // GET api/data/diagram/5
         [HttpGet("{id}")]
         [ActionName("diagram")]

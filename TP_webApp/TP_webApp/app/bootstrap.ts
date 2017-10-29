@@ -20,8 +20,14 @@ function loadFont(font_url: string): Promise<Font> {
 }
 
 // load a font and set it on resolve
-loadFont(Globals.FONT_URL).then((font: Font) => {
+let fontLoad = loadFont(Globals.FONT_URL).then((font: Font) => {
     Globals.setFont(font);
 }).catch((error) => {
     console.log(error);
 });
+
+function loadDiagramList() {
+    
+}
+
+let diagramListLoad = loadDiagramList();
