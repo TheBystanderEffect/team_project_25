@@ -7,7 +7,7 @@ namespace TP_webApp.Model
 {
     public class Position
     {
-        public Position(Double x, Double y, Double z)
+       /* public Position(Double x, Double y, Double z)
         {
             this.x = x;
             this.y = y;
@@ -20,7 +20,7 @@ namespace TP_webApp.Model
             this.y = y;
             this.z = z;
             this.length = length;
-        }
+        }*/
 
         public Position(Double x, Double y, Double z, Double width, Double heigh)
         {

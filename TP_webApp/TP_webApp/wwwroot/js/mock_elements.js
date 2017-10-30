@@ -30,7 +30,7 @@ new Promise((resolve, reject) => {
                 }
             }
         }
-        xhr.open('GET','/api/values/1');
+        xhr.open('GET','/api/data/diagram/1');
         xhr.send();
     }
 

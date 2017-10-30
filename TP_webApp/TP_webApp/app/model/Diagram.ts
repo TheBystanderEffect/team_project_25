@@ -15,4 +15,8 @@ export class Diagram {
         this._layers = layers;
     }
 
+    addLayer(layer:Layer){
+        this._layers.push(layer);
+    }
+
 }
