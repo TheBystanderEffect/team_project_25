@@ -1,4 +1,4 @@
-import { PerspectiveCamera, Object3D, Vector3, Euler } from 'three';
+import { PerspectiveCamera, Object3D, Vector3, Euler, Scene } from 'three';
 
 export class CameraControls {
 
@@ -18,20 +18,25 @@ export class CameraControls {
 
         constructor(camera:PerspectiveCamera){
             this.camera=camera;
+            this.camera.rotation.set( 0, 0, 0 );
+            this.camera.position.set( 500, 500, 500 );
             this.self = this;
             document.addEventListener('mousemove', this.onmousemove.bind(this), false );
             document.addEventListener('mousedown', this.onmousedown.bind(this), false );
             document.addEventListener('mouseup', this.onmouseup.bind(this), false );
             document.addEventListener('keydown', this.onkeydown.bind(this), false );
             document.addEventListener('keyup', this.onkeyup.bind(this), false );
-
-        }
-        
-        init(camera:PerspectiveCamera):void{
+            // this.init(this.camera);
+            console.log(camera);
+            console.log(this.camera);
             this.pitchObject.add(camera);
             this.yawObject.position.y = 10;
             this.yawObject.add(this.pitchObject);
+
         }
+        
+        // init(camera:PerspectiveCamera):void{
+        // }
         
         public set enabled(v : boolean) {
             this._enabled = v;
@@ -46,18 +51,12 @@ export class CameraControls {
             if( !this.enabled ){
                 return;
             }
-           
             let movementX = event.movementX || 0;
             let movementY = event.movementY || 0;
-            
             this.yawObject.rotation.y -= movementX * 0.002;
             this.pitchObject.rotation.x -= movementY * 0.002;
-
-            this.pitchObject.rotation.x = Math.max(-(Math.PI / 2),Math.min((Math.PI,this.pitchObject.rotation.x)));
-            console.log(this.camera);
-            
+            this.pitchObject.rotation.x = Math.max(-(Math.PI / 2),Math.min(Math.PI,this.pitchObject.rotation.x));
             this.camera.updateProjectionMatrix();
-            
         }
 
         onmousedown(event:MouseEvent){
@@ -80,7 +79,11 @@ export class CameraControls {
                     this.cameraSpeedVectorW.x = -this.CAMERA_SPEED*Math.sin(this.yawObject.rotation.y);
                     this.cameraSpeedVectorW.y = this.CAMERA_SPEED*Math.sin(this.pitchObject.rotation.x);
                     this.cameraSpeedVectorW.z = -this.CAMERA_SPEED*Math.cos(this.yawObject.rotation.y);
-    
+                    
+                    
+                    this.camera.position.set( 100, 100, 100 );
+                    this.camera.position.x += 100;
+                    console.log(this.camera);
                     break;
                 case 83:
                     this.cameraSpeedVectorS.x = this.CAMERA_SPEED*Math.sin(this.yawObject.rotation.y);
@@ -110,7 +113,7 @@ export class CameraControls {
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorQ);
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorE);
             this.pitchObject.position.add(this.cameraSpeedVector);
-       
+
             this.camera.updateProjectionMatrix();
         }
         
@@ -130,11 +133,9 @@ export class CameraControls {
                     this.cameraSpeedVectorD = new Vector3( 0, 0, 0 );
                     break;
                 case 81:
-                    // console.log('pressed q key');
                     this.cameraSpeedVectorQ = new Vector3( 0, 0, 0 );
                     break;
                 case 69:
-                    // console.log('pressed e key');
                     this.cameraSpeedVectorE = new Vector3( 0, 0, 0 );
                     break;
             }
