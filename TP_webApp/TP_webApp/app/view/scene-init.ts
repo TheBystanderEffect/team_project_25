@@ -1,5 +1,6 @@
 import { Scene, WebGLRenderer, PerspectiveCamera } from 'three';
 import { CameraControls } from '../model/CameraControls';
+import { RaycasterControl } from '../controler/RaycastControl'
 
 export function initializeScene(): Scene {
 
@@ -21,6 +22,7 @@ export function initializeScene(): Scene {
     requestAnimationFrame(render);
 
     function render(): void {
+        RaycasterControl.instance.cast(camera,scene);
         renderer.render(scene,camera);
         requestAnimationFrame(render);
     }
