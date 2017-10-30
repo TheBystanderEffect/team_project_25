@@ -19,12 +19,12 @@ export class CameraControls {
         constructor(camera:PerspectiveCamera){
             this.camera=camera;
             this.self = this;
-            
             document.addEventListener('mousemove', this.onmousemove.bind(this), false );
             document.addEventListener('mousedown', this.onmousedown.bind(this), false );
             document.addEventListener('mouseup', this.onmouseup.bind(this), false );
             document.addEventListener('keydown', this.onkeydown.bind(this), false );
             document.addEventListener('keyup', this.onkeyup.bind(this), false );
+
         }
         
         init(camera:PerspectiveCamera):void{
@@ -36,12 +36,17 @@ export class CameraControls {
         public set enabled(v : boolean) {
             this._enabled = v;
         }
+
+        public get enabled(): boolean {
+            return this._enabled;
+        }
         
         onmousemove(event:MouseEvent){
+              
             if( !this.enabled ){
                 return;
             }
-
+           
             let movementX = event.movementX || 0;
             let movementY = event.movementY || 0;
             
@@ -49,10 +54,14 @@ export class CameraControls {
             this.pitchObject.rotation.x -= movementY * 0.002;
 
             this.pitchObject.rotation.x = Math.max(-(Math.PI / 2),Math.min((Math.PI,this.pitchObject.rotation.x)));
+            console.log(this.camera);
+            
             this.camera.updateProjectionMatrix();
+            
         }
 
         onmousedown(event:MouseEvent){
+            
             if(event.which == 3) {
                 this.enabled = true;
                 event.preventDefault();
@@ -61,7 +70,6 @@ export class CameraControls {
 
         onmouseup(event:MouseEvent){
             if(event.which == 3) {
-                this.enabled = false;
                 event.preventDefault();
             }
         }
@@ -69,34 +77,28 @@ export class CameraControls {
         onkeydown(event:KeyboardEvent){
             switch(event.keyCode) {
                 case 87:
-                    // console.log('pressed w key');
                     this.cameraSpeedVectorW.x = -this.CAMERA_SPEED*Math.sin(this.yawObject.rotation.y);
                     this.cameraSpeedVectorW.y = this.CAMERA_SPEED*Math.sin(this.pitchObject.rotation.x);
                     this.cameraSpeedVectorW.z = -this.CAMERA_SPEED*Math.cos(this.yawObject.rotation.y);
     
                     break;
                 case 83:
-                    // console.log('pressed s key');
                     this.cameraSpeedVectorS.x = this.CAMERA_SPEED*Math.sin(this.yawObject.rotation.y);
                     this.cameraSpeedVectorW.y = -this.CAMERA_SPEED*Math.sin(this.pitchObject.rotation.x);
                     this.cameraSpeedVectorS.z = this.CAMERA_SPEED*Math.cos(this.yawObject.rotation.y);
                     break;
                 case 65:
-                    // console.log('pressed a key');
                     this.cameraSpeedVectorA.x = -this.CAMERA_SPEED*Math.cos(this.yawObject.rotation.y);
                     this.cameraSpeedVectorA.z = this.CAMERA_SPEED*Math.sin(this.yawObject.rotation.y);
                     break;
                 case 68:
-                    // console.log('pressed d key');
                     this.cameraSpeedVectorD.x = this.CAMERA_SPEED*Math.cos(this.yawObject.rotation.y);
                     this.cameraSpeedVectorD.z = -this.CAMERA_SPEED*Math.sin(this.yawObject.rotation.y);
                     break;
                 case 81:
-                    // console.log('pressed q key');
                     this.cameraSpeedVectorQ.y = this.CAMERA_SPEED;
                     break;
                 case 69:
-                    // console.log('pressed e key');
                     this.cameraSpeedVectorE.y = -this.CAMERA_SPEED;
                     break;
             }
@@ -108,10 +110,7 @@ export class CameraControls {
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorQ);
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorE);
             this.pitchObject.position.add(this.cameraSpeedVector);
-            console.log(this.cameraSpeedVector);
-            console.log(this.pitchObject.position);
-            console.log(this.camera.position);
-            console.log(this.yawObject.getObjectByName("pitchObject").getObjectByName("camera").position)
+       
             this.camera.updateProjectionMatrix();
         }
         
@@ -119,19 +118,15 @@ export class CameraControls {
         //87 - W, 65 - A, 83 - S, 68 -D, 81 - Q, 69 - E
             switch(event.keyCode) {
                 case 87:
-                    // console.log('pressed w key');
                     this.cameraSpeedVectorW = new Vector3( 0, 0, 0 );
                     break;
                 case 83:
-                    // console.log('pressed s key');
                     this.cameraSpeedVectorS = new Vector3( 0, 0, 0 );
                     break;
                 case 65:
-                    // console.log('pressed a key');
                     this.cameraSpeedVectorA = new Vector3( 0, 0, 0 );
                     break;
                 case 68:
-                    // console.log('pressed d key');
                     this.cameraSpeedVectorD = new Vector3( 0, 0, 0 );
                     break;
                 case 81:
