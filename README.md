@@ -7,11 +7,13 @@ zdrojove kody timoveho projektu 25
 - MongoDB 3.4
 
 ##  Návod
+### Stiahnute Node_Modules
+V koreňovom priečinku cez bash zavolať "npm install"
 
-Kompilácia
+### Kompilácia
 V priečinku TP-webApp/TP-webApp
 ./build.sh
 
-Spustenie:
+### Spustenie:
 V priečinku TP-webApp/TP-webApp
 ./start.sh
