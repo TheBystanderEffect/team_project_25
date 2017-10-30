@@ -23,6 +23,7 @@ export function initializeScene(): Scene {
 
     function render(): void {
         RaycasterControl.instance.cast(camera,scene);
+        camera.updateProjectionMatrix();
         renderer.render(scene,camera);
         requestAnimationFrame(render);
     }

@@ -4,6 +4,7 @@ import { LayerView } from './LayerView';
 import { LifelineView } from './LifelineView';
 import { MessageView } from './MessageView';
 import { TextView } from './TextView';
+import { setOpenDiagram } from '../globals';
 
 export function toggleNav() {
     let side = document.getElementById("mySidenav");
@@ -43,7 +44,9 @@ function loadDiagram(scene: Scene, id: number) {
             }
         }
 
-        JSON.parse(req.responseText).elements.map(json2elm).forEach((elm: GraphicElement) => {
+        let diagram = JSON.parse(req.responseText);
+        setOpenDiagram(diagram);
+        diagram.elements.map(json2elm).forEach((elm: GraphicElement) => {
             elm.draw(scene);
         });
     });
