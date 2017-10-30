@@ -4,7 +4,7 @@ The entry point of the application
 import * as Globals from './globals';
 import { Font, FontLoader, Scene } from 'three';
 import { initializeScene } from './view/scene-init';
-import { toggleNav, makeButton } from './view/side-menu'; 
+import { toggleNav, makeButton, addClick} from './view/side-menu'; 
 
 /*
 Load resources
@@ -61,6 +61,10 @@ Promise.all([
     // Initialize application
     let scene: Scene = initializeScene();
     document.getElementById("openMenu").addEventListener("click", toggleNav);
+    document.getElementById("sideLife").addEventListener("click", addClick);
+    document.getElementById("sideMessage").addEventListener("click", addClick);
+    document.getElementById("sideLayer").addEventListener("click", addClick);
+    
 
     // populate diagram list
     diagramList.forEach((item: any) => {

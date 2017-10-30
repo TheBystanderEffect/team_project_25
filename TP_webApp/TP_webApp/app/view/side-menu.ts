@@ -5,6 +5,13 @@ import { LifelineView } from './LifelineView';
 import { MessageView } from './MessageView';
 import { TextView } from './TextView';
 import { setOpenDiagram } from '../globals';
+import { RaycasterControl } from '../controler/RaycastControl'
+
+export function addClick(){
+    RaycasterControl.instance.toDo = 1;
+
+}
+
 
 export function toggleNav() {
     let side = document.getElementById("mySidenav");

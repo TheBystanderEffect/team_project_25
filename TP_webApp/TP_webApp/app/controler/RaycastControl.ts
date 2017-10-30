@@ -11,6 +11,8 @@ export class RaycasterControl{
     private mouse: Vector2;
     private hasClicked: Boolean;
 
+    public toDo:number;
+
     private onMouseDown( event:any ):any{
         console.log("mouse down"+event.which);
         if(event.which==1){
@@ -38,18 +40,20 @@ export class RaycasterControl{
         return this._instance;
     }
 
+    
     public cast(camera:Camera,scene:Scene){
-        if(this.hasClicked){
+        console.log(this.toDo)
+        if(this.hasClicked && this.toDo > 0){
             this.raycaster.setFromCamera( this.mouse, camera );
             var intersects = this.raycaster.intersectObjects( scene.children );
             this.hasClicked=false
-
+            // this.toDo = 0;
             //do stuff with intersects
             for ( var i = 0; i < intersects.length; i++ ) {
                 //console.log(intersects[i]);
                 if(intersects[i].object instanceof CustomMesh) {
                     let cmesh: CustomMesh = intersects[i].object as CustomMesh;
-                    if(cmesh.metadata.parent instanceof LayerView){console.log('yey!');
+                    if(cmesh.metadata.parent instanceof LayerView){console.log('yey!');this.toDo = 0;
                         let lifeline = new LifelineView(intersects[i].point.x,intersects[i].point.y,intersects[i].point.z,300);
                         let lifeline_persist = {
                             type: 'LIFELINE',
