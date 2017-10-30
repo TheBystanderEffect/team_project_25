@@ -4,7 +4,7 @@
   "description": "Team project for subject TP in FIIT STUBA ",
   "main": "null",
   "scripts": {
-    "test": "mocha"
+    "test": "./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
