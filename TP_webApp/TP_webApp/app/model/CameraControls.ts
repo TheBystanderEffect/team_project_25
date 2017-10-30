@@ -2,12 +2,14 @@ import { Camera } from 'three';
 import { Object3D } from "three";
 import { Vector3 } from "three";
 import { Euler } from "three";
+
 export class CameraControls {
 
         camera:Camera;
         self:CameraControls;
         pitchObject: Object3D;
         yawObject:Object3D;
+        _enabled: boolean = false;
         
 
         constructor(camera:Camera){
@@ -26,7 +28,7 @@ export class CameraControls {
 
         
         public set enabled(v : boolean) {
-            this.enabled = v;
+            this._enabled = v;
         }
         
 

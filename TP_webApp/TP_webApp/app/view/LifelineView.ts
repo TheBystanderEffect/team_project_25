@@ -2,7 +2,7 @@ import { CylinderGeometry, MeshBasicMaterial, Mesh, Scene, Vector3 } from 'three
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
 
-export class MessageView extends GraphicElement{
+export class LifelineView extends GraphicElement{
     //mesh.metadata.parent: MessageView;
     //parent: Layer;//binis objekt already defined in GraphicElement
     public length: number;

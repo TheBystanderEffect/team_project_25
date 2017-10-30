@@ -3,7 +3,7 @@ import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
 import { FONT } from "../globals"
 
-export class MessageView extends GraphicElement{
+export class TextView extends GraphicElement{
     //mesh.metadata.parent: MessageView;
     //parent: Layer;//binis objekt already defined in GraphicElement
     public length: number;

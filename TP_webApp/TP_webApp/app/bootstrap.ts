@@ -2,8 +2,9 @@
 The entry point of the application
 */
 import * as Globals from './globals';
-import { Font, FontLoader } from 'three';
+import { Font, FontLoader, Scene } from 'three';
 import { initializeScene } from './view/scene-init';
+import { toggleNav, makeButton } from './view/side-menu'; 
 
 /*
 Load resources
@@ -31,14 +32,14 @@ let fontLoad = loadFont(Globals.FONT_URL).then((font: Font) => {
     console.log(error);
 });
 
-function loadDiagramList(): Promise<undefined> {
+function loadDiagramList(): Promise<any[]> {
 
     return new Promise((resolve, reject) => {
         let req: XMLHttpRequest = new XMLHttpRequest();
-        req.open('GET','/api/data/diagram/');
+        req.open('GET','/api/data/diagram/?select=id');
         req.addEventListener("load", ( ev: Event ) => {
-            console.log(JSON.parse(req.responseText));
-            resolve();
+            let arr = JSON.parse(req.responseText);
+            resolve(arr);
         });
         req.send();
     });
@@ -55,10 +56,14 @@ Promise.all([
     diagramListLoad
 ]).then(([
     fontResult,
-    undefined
+    diagramList
 ]) => {
-    /*
-    Initialize application
-    */
-    initializeScene();
+    // Initialize application
+    let scene: Scene = initializeScene();
+    document.getElementById("openMenu").addEventListener("click", toggleNav);
+
+    // populate diagram list
+    diagramList.forEach((item: any) => {
+        makeButton(scene, item.id);
+    });
 });
