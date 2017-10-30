@@ -15,4 +15,7 @@
   <ItemGroup>
     <Folder Include="Controllers\" />
   </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="call &quot;.\vs_webpack.bat&quot;" />
+  </Target>
 </Project>

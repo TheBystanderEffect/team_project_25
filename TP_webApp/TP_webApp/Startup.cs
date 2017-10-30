@@ -39,7 +39,7 @@ namespace TP_webApp
 
             DefaultFilesOptions DefaultFile = new DefaultFilesOptions();
             DefaultFile.DefaultFileNames.Clear();
-            DefaultFile.DefaultFileNames.Add("html/mock.html");
+            DefaultFile.DefaultFileNames.Add("html/webpack.html");
             app.UseDefaultFiles(DefaultFile);
             app.UseStaticFiles();
 
