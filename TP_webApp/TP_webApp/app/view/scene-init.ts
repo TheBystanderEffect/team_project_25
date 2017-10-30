@@ -16,7 +16,11 @@ export function initializeScene(): Scene {
     let camera: PerspectiveCamera = new PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 3000);
     let scene: Scene = new Scene();
     let cameraControls: CameraControls = new CameraControls(camera);
- 
+    scene.add(cameraControls.yawObject);
+    console.log("test camera")
+    console.log(camera);
+    console.log("cameracontrols")
+    console.log(cameraControls.camera);
 
     renderer.render(scene,camera);
     requestAnimationFrame(render);
