@@ -7,6 +7,6 @@ export class CombinedFragment{
         constructor(operator:string,operands:InteractionOperand[]){
             this.interactionOperands = operands;
             this.interactionOperator = operator;
-
+            
         }
     }

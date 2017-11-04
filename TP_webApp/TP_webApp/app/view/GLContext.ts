@@ -1,7 +1,7 @@
 import {  CameraControls } from "./CameraControls";
 import { Scene, PerspectiveCamera, WebGLRenderer } from "three";
 import * as Config from "../config";
-import { RaycasterControl } from "../controler/RaycastControl";
+import { RaycasterControl } from "../controller/RaycastControl";
 
 
 export class GLContext {
