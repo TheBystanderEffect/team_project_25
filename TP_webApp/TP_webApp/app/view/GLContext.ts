@@ -20,6 +20,8 @@ export class GLContext {
     private _camera: PerspectiveCamera = null;
     private _renderer: WebGLRenderer = null;
     private _cameraControls: CameraControls = null;
+    private _canvas: HTMLCanvasElement = null;
+
     private _renderPaused: boolean = false;
 
     public get cameraControls(): CameraControls {
@@ -48,9 +50,11 @@ export class GLContext {
 
     public initializeScene(): void {
 
+        this._canvas = document.getElementById(Config.canvasId) as HTMLCanvasElement
+
         // initialize renderer
         this._renderer = new WebGLRenderer({
-            canvas: document.getElementById(Config.canvasId) as HTMLCanvasElement,
+            canvas: this._canvas,
             antialias: true
         });
 
