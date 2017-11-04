@@ -1,7 +1,7 @@
 import {  CameraControls } from "./CameraControls";
 import { Scene, PerspectiveCamera, WebGLRenderer } from "three";
 import * as Config from "../config";
-
+import { RaycasterControl } from "../controler/RaycastControl";
 
 
 export class GLContext {
@@ -77,6 +77,7 @@ export class GLContext {
         // execute rendering and scene interaction
         if (!this.renderPaused) {
 
+            RaycasterControl.instance.cast(this.camera,this.scene)
             this.cameraControls.updateCamera();
             this.renderer.render(this.scene, this.camera);
         }

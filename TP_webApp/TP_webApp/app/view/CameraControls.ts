@@ -59,6 +59,7 @@ export class CameraControls {
 
         onmouseup(event: MouseEvent) {
             if (event.which == 3) {
+                this.enabled = false;
                 event.preventDefault();
             }
         }
@@ -69,10 +70,6 @@ export class CameraControls {
                     this.cameraSpeedVectorW.x = -this.CAMERA_SPEED * Math.sin(this.yawObject.rotation.y);
                     this.cameraSpeedVectorW.y = this.CAMERA_SPEED * Math.sin(this.pitchObject.rotation.x);
                     this.cameraSpeedVectorW.z = -this.CAMERA_SPEED * Math.cos(this.yawObject.rotation.y);
-                    
-                    
-                    this.camera.position.set( 100, 100, 100 );
-                    this.camera.position.x += 100;
                     break;
                 case 83:
                     this.cameraSpeedVectorS.x = this.CAMERA_SPEED * Math.sin(this.yawObject.rotation.y);
