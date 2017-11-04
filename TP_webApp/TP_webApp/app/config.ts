@@ -1,0 +1,1 @@
+export let canvasId: string = "webglCanvas";

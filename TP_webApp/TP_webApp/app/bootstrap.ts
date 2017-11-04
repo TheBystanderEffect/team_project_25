@@ -2,8 +2,8 @@
 The entry point of the application
 */
 import * as Globals from './globals';
-import { Font, FontLoader, Scene } from 'three';
-import { initializeScene } from './view/scene-init';
+import { Font, FontLoader } from 'three';
+import { GLContext } from './view/GLContext';
 import { toggleNav, makeButton, addClick} from './view/side-menu'; 
 
 /*
@@ -59,7 +59,7 @@ Promise.all([
     diagramList
 ]) => {
     // Initialize application
-    let scene: Scene = initializeScene();
+    GLContext.instance.initializeScene();
     document.getElementById("openMenu").addEventListener("click", toggleNav);
     document.getElementById("sideLife").addEventListener("click", addClick);
     document.getElementById("sideMessage").addEventListener("click", addClick);
@@ -68,6 +68,6 @@ Promise.all([
 
     // populate diagram list
     diagramList.forEach((item: any) => {
-        makeButton(scene, item.id);
+        makeButton(item.id);
     });
 });

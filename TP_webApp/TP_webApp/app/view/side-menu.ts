@@ -6,6 +6,7 @@ import { MessageView } from './MessageView';
 import { TextView } from './TextView';
 import { setOpenDiagram } from '../globals';
 import { RaycasterControl } from '../controler/RaycastControl'
+import { GLContext } from './GLContext';
 
 export function addClick(){
     RaycasterControl.instance.toDo = 1;
@@ -29,9 +30,9 @@ export function toggleNav() {
     }
 }
 
-function loadDiagram(scene: Scene, id: number) {
-    while(scene.children.length > 0){
-        scene.remove(scene.children[0]);
+function loadDiagram(id: number) {
+    while(GLContext.instance.scene.children.length > 0){
+        GLContext.instance.scene.remove(GLContext.instance.scene.children[0]);
     }
 
     let req: XMLHttpRequest = new XMLHttpRequest();
@@ -54,16 +55,16 @@ function loadDiagram(scene: Scene, id: number) {
         let diagram = JSON.parse(req.responseText);
         setOpenDiagram(diagram);
         diagram.elements.map(json2elm).forEach((elm: GraphicElement) => {
-            elm.draw(scene);
+            elm.draw(GLContext.instance.scene);
         });
     });
     req.send();
 }
 
-export function makeButton(scene: Scene, diagramId: number) {
+export function makeButton(diagramId: number) {
     let btn = document.createElement("BUTTON");
     let text = document.createTextNode(`Diagram ${diagramId}`);
     btn.appendChild(text);
-    btn.onclick = loadDiagram.bind(null, scene, diagramId);
+    btn.onclick = loadDiagram.bind(null, diagramId);
     document.getElementById("mySidenav").appendChild(btn);
 }
