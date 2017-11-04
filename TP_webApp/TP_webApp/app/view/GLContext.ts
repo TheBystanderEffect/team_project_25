@@ -1,3 +1,4 @@
+import {  CameraControls } from "./CameraControls";
 import { Scene, PerspectiveCamera, WebGLRenderer } from "three";
 import * as Config from "../config";
 
@@ -18,14 +19,11 @@ export class GLContext {
     private _scene: Scene = null;
     private _camera: PerspectiveCamera = null;
     private _renderer: WebGLRenderer = null;
+    private _cameraControls: CameraControls = null;
     private _renderPaused: boolean = false;
 
-    public get renderPaused(): boolean {
-        return this._renderPaused;
-    }
-
-    public set renderPaused(renderPaused: boolean) {
-        this._renderPaused = renderPaused;
+    public get cameraControls(): CameraControls {
+        return  this._cameraControls;
     }
 
     public get scene(): Scene {
@@ -38,6 +36,14 @@ export class GLContext {
 
     public get renderer(): WebGLRenderer {
         return this._renderer;
+    }
+
+    public get renderPaused(): boolean {
+        return this._renderPaused;
+    }
+
+    public set renderPaused(renderPaused: boolean) {
+        this._renderPaused = renderPaused;
     }
 
     public initializeScene(): void {
@@ -58,6 +64,9 @@ export class GLContext {
         // initialize scene
         this._scene = new Scene();
 
+        // initialize camera controls
+        this._cameraControls = new CameraControls(this.camera);
+
         // start rendering
         requestAnimationFrame(this.renderLoop.bind(this));
 
@@ -68,6 +77,7 @@ export class GLContext {
         // execute rendering and scene interaction
         if (!this.renderPaused) {
 
+            this.cameraControls.updateCamera();
             this.renderer.render(this.scene, this.camera);
         }
 
