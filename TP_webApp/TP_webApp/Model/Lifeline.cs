@@ -7,12 +7,17 @@ namespace TP_webApp.Model
 {
     public class Lifeline
     {
+        
 
-        public Lifeline(Position position)
+        public Lifeline(String name, String type, OccuranceSpecification occuranceSpecification)
         {
-            this.position = position;
+            this.name = name;
+            this.type = type;
+            this.occuranceSpecification = occuranceSpecification;
         }
 
-        public Position position { get; set; }
+        public String name { get; set; }
+        public String type { get; set; }
+        OccuranceSpecification occuranceSpecification { get; set; }
     }
 }

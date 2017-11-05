@@ -8,17 +8,15 @@ namespace TP_webApp.Model
     public class Layer
     {
 
-        public Layer(List<Lifeline> lifelines, List<CombinedFragment> combinedFragments, List<Message> messages, Position position)
+        public Layer(List<Lifeline> lifelines, List<CombinedFragment> combinedFragments, List<Message> messages)
         {
             this.lifelines = lifelines;
             this.combinedFragments = combinedFragments;
-            this.messages = messages;
-            this.position = position;
+            this.messages = messages;            
         }
 
         public List<Lifeline> lifelines { get; set; }
         public List<CombinedFragment> combinedFragments { get; set; }
-        public List<Message> messages { get; set; }
-        public Position position { get; set; }
+        public List<Message> messages { get; set; }        
     }
 }
