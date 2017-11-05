@@ -9,7 +9,7 @@ namespace TP_webApp.Model
     {
         
 
-        public Lifeline(String name, String type, OccuranceSpecification occuranceSpecification)
+        public Lifeline(String name, String type, OccurenceSpecification occuranceSpecification)
         {
             this.name = name;
             this.type = type;
@@ -18,6 +18,6 @@ namespace TP_webApp.Model
 
         public String name { get; set; }
         public String type { get; set; }
-        OccuranceSpecification occuranceSpecification { get; set; }
+        OccurenceSpecification occuranceSpecification { get; set; }
     }
 }
