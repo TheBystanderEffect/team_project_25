@@ -48,7 +48,7 @@ namespace API.Controllers
         {
             
             Message message = new Message("sprava", kinds.complete, sorts.createMessage, 
-                new Lifeline(new Position(12,13.5,22.1,0,0)), new Lifeline(new Position(12, 18.55, 22.1,0,0)));
+                new Lifeline("","",new OccurenceSpecification()), new Lifeline("", "", new OccurenceSpecification()));
 
             var jsonik= Newtonsoft.Json.JsonConvert.SerializeObject(message);
 
