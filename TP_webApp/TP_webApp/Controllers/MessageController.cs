@@ -19,7 +19,7 @@ namespace TP_webApp.Controllers
         }
 
         // GET: api/Message/5
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}", Name = "GetMessage")]
         public string Get(int id)
         {
             return "value";

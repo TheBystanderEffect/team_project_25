@@ -19,7 +19,7 @@ namespace TP_webApp.Controllers
         }
 
         // GET: api/CombinedFragment/5
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}", Name = "GetCombinedFragment")]
         public string Get(int id)
         {
             return "value";
