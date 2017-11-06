@@ -19,7 +19,7 @@ namespace TP_webApp.Controllers
         }
 
         // GET: api/Layer/5
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}", Name = "GetLayer")]
         public string Get(int id)
         {
             return "value";

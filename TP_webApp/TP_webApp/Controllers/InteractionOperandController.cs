@@ -19,7 +19,7 @@ namespace TP_webApp.Controllers
         }
 
         // GET: api/InteractionOperand/5
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}", Name = "GetInteractionOperand")]
         public string Get(int id)
         {
             return "value";

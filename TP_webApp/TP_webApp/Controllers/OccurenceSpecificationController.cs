@@ -19,7 +19,7 @@ namespace TP_webApp.Controllers
         }
 
         // GET: api/OccurenceSpecification/5
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}", Name = "GetOccurenceSpecification")]
         public string Get(int id)
         {
             return "value";
