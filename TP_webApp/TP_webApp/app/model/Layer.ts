@@ -7,13 +7,11 @@ export class Layer{
         lifelines:Lifeline[];
         combinedFragments:CombinedFragment[];
         messages:Message[];
-        position:Position;
     
-        constructor(lifelines:Lifeline[],combinedFragments:CombinedFragment[],messages:Message[],position:Position){
+        constructor(lifelines:Lifeline[],combinedFragments:CombinedFragment[],messages:Message[]){
             this.lifelines = lifelines;
             this.combinedFragments = combinedFragments;
             this.messages = messages;
-            this.position = position;
     
         }
     
