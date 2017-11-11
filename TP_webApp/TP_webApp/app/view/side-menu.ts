@@ -11,7 +11,7 @@ import { State } from "../controller/State";
 export function addLifeline(){
 
     if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-      
+        GLContext.instance.stateMachine.changeState = new State("MODIFYING");
     }
 }
 export function addMessage(){
