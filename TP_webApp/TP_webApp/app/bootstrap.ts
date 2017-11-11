@@ -6,7 +6,7 @@ import { Font, FontLoader } from 'three';
 import { GLContext } from './view/GLContext';
 import { toggleNav, makeButton, addLifeline, addLayer, addMessage} from './view/side-menu'; 
 
-import { LayoutControl } from "./controler/LayoutControl" //testing layout
+import { LayoutControl } from "./controller/LayoutControl" //testing layout
 import { Diagram } from "./model/Diagram" //testing layout
 import { Layer } from "./model/Layer" //testing layout
 import { Lifeline } from "./model/Lifeline" //testing layout
