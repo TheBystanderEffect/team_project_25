@@ -15,4 +15,10 @@ export class StateMachine {
         this._currentState = initialState;
     }
 
+     
+    public set changeState(v : State) {
+        this._currentState = v;
+    }
+    
+
 }

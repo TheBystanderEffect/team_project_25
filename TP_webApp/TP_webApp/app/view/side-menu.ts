@@ -7,10 +7,22 @@ import { TextView } from './TextView';
 import { setOpenDiagram } from '../globals';
 import { RaycasterControl } from '../controller/RaycastControl'
 import { GLContext } from './GLContext';
+import { State } from "../controller/State";
+export function addLifeline(){
 
-export function addClick(){
-    RaycasterControl.instance.toDo = 1;
-
+    if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
+      
+    }
+}
+export function addMessage(){
+    if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
+        
+     }
+}
+export function addLayer(){
+    if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
+        
+     }
 }
 
 

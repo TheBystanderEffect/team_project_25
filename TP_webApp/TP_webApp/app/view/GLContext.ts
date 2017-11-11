@@ -2,7 +2,8 @@ import {  CameraControls } from "./CameraControls";
 import { Scene, PerspectiveCamera, WebGLRenderer } from "three";
 import * as Config from "../config";
 import { RaycasterControl } from "../controller/RaycastControl";
-
+import { StateMachine } from "../controller/StateMachine";
+import { State } from "../controller/State";
 
 export class GLContext {
 
@@ -21,6 +22,8 @@ export class GLContext {
     private _renderer: WebGLRenderer = null;
     private _cameraControls: CameraControls = null;
     private _canvas: HTMLCanvasElement = null;
+    private _stateMachine : StateMachine = null;
+
 
     private _renderPaused: boolean = false;
 
@@ -39,10 +42,16 @@ export class GLContext {
     public get renderer(): WebGLRenderer {
         return this._renderer;
     }
-
+ 
     public get renderPaused(): boolean {
         return this._renderPaused;
     }
+
+    
+    public get stateMachine() : StateMachine {
+        return this._stateMachine;
+    }
+    
 
     public set renderPaused(renderPaused: boolean) {
         this._renderPaused = renderPaused;
@@ -71,6 +80,9 @@ export class GLContext {
         // initialize camera controls
         this._cameraControls = new CameraControls(this.camera);
 
+        // initialize state machine
+        this._stateMachine = new StateMachine(this._canvas,new State('NEUTRAL'));
+        
         // start rendering
         requestAnimationFrame(this.renderLoop.bind(this));
 

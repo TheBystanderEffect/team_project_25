@@ -4,7 +4,7 @@ The entry point of the application
 import * as Globals from './globals';
 import { Font, FontLoader } from 'three';
 import { GLContext } from './view/GLContext';
-import { toggleNav, makeButton, addClick} from './view/side-menu'; 
+import { toggleNav, makeButton, addLifeline, addLayer, addMessage} from './view/side-menu'; 
 
 /*
 Load resources
@@ -61,10 +61,9 @@ Promise.all([
     // Initialize application
     GLContext.instance.initializeScene();
     document.getElementById("openMenu").addEventListener("click", toggleNav);
-    document.getElementById("sideLife").addEventListener("click", addClick);
-    document.getElementById("sideMessage").addEventListener("click", addClick);
-    document.getElementById("sideLayer").addEventListener("click", addClick);
-    
+    document.getElementById("sideLife").addEventListener("click", addLifeline);
+    document.getElementById("sideMessage").addEventListener("click", addMessage);
+    document.getElementById("sideLayer").addEventListener("click", addLayer);
 
     // populate diagram list
     diagramList.forEach((item: any) => {
