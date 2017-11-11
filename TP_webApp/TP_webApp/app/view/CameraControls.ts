@@ -98,7 +98,7 @@ export class CameraControls {
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorD);
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorQ);
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorE);
-            this.pitchObject.position.add(this.cameraSpeedVector);
+            this.yawObject.position.add(this.cameraSpeedVector);
         }
         
         onkeyup(event: KeyboardEvent) {
@@ -139,7 +139,9 @@ export class CameraControls {
         }
 
         public updateCamera(): void {
+            this.pitchObject.updateMatrixWorld(false)
             this.yawObject.updateMatrixWorld(false);
+            this.camera.updateMatrixWorld(false)
             this.camera.updateProjectionMatrix();
         }
         
