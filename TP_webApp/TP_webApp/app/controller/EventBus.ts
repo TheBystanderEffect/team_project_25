@@ -7,6 +7,7 @@ import { Layer } from "../model/Layer";
 import { LayoutControl } from "./LayoutControl";
 import { CustomMesh } from "../view/CustomMesh";
 import { State } from "./State";
+import { Message } from "../model/Message";
 
 export class EventBus {
 
@@ -68,7 +69,7 @@ export class EventBus {
                     GLContext.instance.scene.children = [];
                     GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
                     GLContext.instance.stateMachine.changeState = new State("NEUTRAL");
-                    this._intersection = null;
+                    
                     
                     
                 }
@@ -84,8 +85,10 @@ export class EventBus {
                             lifelinesinDiagram.push(element2);
                         });
                     });
-                    console.log(lifelinesinDiagram);
+                  
                     this._intersection = raycaster.intersectObjects(lifelinesinDiagram);
+                  
+
                 }
                 break;
             case 2:
@@ -117,9 +120,10 @@ export class EventBus {
                 });
             });
             let endIntersection = raycaster.intersectObjects(lifelinesinDiagram);
+            let newMessage = new Message("general Message",null,null,null,null);
 
-            console.log(this._intersection);
-            console.log(endIntersection);
+            console.log((this._intersection[0].object as CustomMesh).metadata.parent.parent)
+            
 
         }
 

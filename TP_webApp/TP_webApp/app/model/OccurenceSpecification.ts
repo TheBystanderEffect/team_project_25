@@ -1,7 +1,12 @@
 import {Lifeline} from "./Lifeline";
+import { Message } from "./Message";
 
 export class OccurenceSpecification{
     
-	at:Lifeline;
+	constructor(
+		private _at:Lifeline,
+		private _message:Message
+	){}
+
 
 }
