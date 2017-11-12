@@ -6,6 +6,7 @@ import { Diagram } from "../model/Diagram";
 import { Layer } from "../model/Layer";
 import { LayoutControl } from "./LayoutControl";
 import { CustomMesh } from "../view/CustomMesh";
+import { State } from "./State";
 
 export class EventBus {
 
@@ -39,7 +40,11 @@ export class EventBus {
         }
     }
 
-    
+    // To do refactor
+    private _intersection:any = null;
+
+
+
     public handleMouseDown(event: MouseEvent) {
         if (this.sendMouseDown) {
 
@@ -56,14 +61,31 @@ export class EventBus {
                     vector2.y = - ( event.clientX / window.innerWidth ) * 2 + 1;
                     raycaster.setFromCamera(vector2,GLContext.instance.camera);
                     let layersinDiagram = GLContext.instance.scene.children[0].children;
-                    let intersection = raycaster.intersectObjects(layersinDiagram);
+                    this._intersection = raycaster.intersectObjects(layersinDiagram);
                     let lifelineNew = new Lifeline('Standard name','',[]);
-                   (intersection[0].object as CustomMesh).metadata.parent.parent.AddLifeline(lifelineNew);
-                   LayoutControl.magic((window as any).diag);
+                    (this._intersection[0].object as CustomMesh).metadata.parent.parent.AddLifeline(lifelineNew);
+                    LayoutControl.magic((window as any).diag);
+                    GLContext.instance.scene.children = [];
+                    GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
+                    GLContext.instance.stateMachine.changeState = new State("NEUTRAL");
+                    this._intersection = null;
                     
-
                     
-                    
+                }
+                if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_Message" ){
+                    let raycaster = new Raycaster();
+                    let vector2 = new Vector2(0,0)
+                    vector2.x =   ( event.clientX / window.innerWidth ) * 2 - 1;
+                    vector2.y = - ( event.clientX / window.innerWidth ) * 2 + 1;
+                    raycaster.setFromCamera(vector2,GLContext.instance.camera);
+                    let lifelinesinDiagram :any[]= [];
+                    GLContext.instance.scene.children[0].children.forEach(element => {
+                        element.children.forEach(element2 => {
+                            lifelinesinDiagram.push(element2);
+                        });
+                    });
+                    console.log(lifelinesinDiagram);
+                    this._intersection = raycaster.intersectObjects(lifelinesinDiagram);
                 }
                 break;
             case 2:
@@ -79,6 +101,25 @@ export class EventBus {
     
     public handleMouseUp(event: MouseEvent) {
         if (this.sendMouseUp) {
+
+        }
+
+        if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_Message" && this._intersection !== null){
+            let raycaster = new Raycaster();
+            let vector2 = new Vector2(0,0)
+            vector2.x =   ( event.clientX / window.innerWidth ) * 2 - 1;
+            vector2.y = - ( event.clientX / window.innerWidth ) * 2 + 1;
+            raycaster.setFromCamera(vector2,GLContext.instance.camera);
+            let lifelinesinDiagram :any[]= [];
+            GLContext.instance.scene.children[0].children.forEach(element => {
+                element.children.forEach(element2 => {
+                    lifelinesinDiagram.push(element2);
+                });
+            });
+            let endIntersection = raycaster.intersectObjects(lifelinesinDiagram);
+
+            console.log(this._intersection);
+            console.log(endIntersection);
 
         }
 

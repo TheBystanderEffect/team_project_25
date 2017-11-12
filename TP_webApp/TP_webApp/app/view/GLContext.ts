@@ -99,7 +99,7 @@ export class GLContext {
         // execute rendering and scene interaction
         if (!this.renderPaused) {
 
-            RaycasterControl.instance.cast(this.camera,this.scene)
+            RaycasterControl.instance.cast(this.camera,this.scene);
             this.cameraControls.updateCamera();
             this.renderer.render(this.scene, this.camera);
         }
