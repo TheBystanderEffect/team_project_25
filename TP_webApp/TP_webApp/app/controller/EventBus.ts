@@ -42,7 +42,7 @@ export class EventBus {
             case 1:
                 
                 if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_lifeline" ){
-                    
+                    console.log()
                 }
                 break;
             case 2:
