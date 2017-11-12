@@ -10,6 +10,8 @@ import { LayoutControl } from "./controller/LayoutControl" //testing layout
 import { Diagram } from "./model/Diagram" //testing layout
 import { Layer } from "./model/Layer" //testing layout
 import { Lifeline } from "./model/Lifeline" //testing layout
+import { Message } from "./model/Message" //testing layout
+import { OccurenceSpecification } from "./model/OccurenceSpecification" //testing layout
 
 /*
 Load resources
@@ -82,10 +84,18 @@ Promise.all([
     var ll1 = new Lifeline("ll1"," ",[]);
     var ll2 = new Lifeline("ll2"," ",[]);
     var ll3 = new Lifeline("ll3"," ",[]);
-    var l1 = new Layer([ll1,ll2],[],[]);
-    var l2 = new Layer([ll3],[],[]);
+    var l1 = new Layer([ll1,ll2,ll3],[],[]);
+    //var l2 = new Layer([ll3],[],[]);
+    var m1 = new Message("test",1,1,new OccurenceSpecification(ll1), new OccurenceSpecification(ll2));
+    l1.AddMessage(m1);
+    var m2 = new Message("test2",1,1,new OccurenceSpecification(ll2), new OccurenceSpecification(ll3));
+    l1.AddMessage(m2);
+    var m3 = new Message("test3",1,1,new OccurenceSpecification(ll3), new OccurenceSpecification(ll2));
+    l1.AddMessage(m3);
+    var m4 = new Message("test4",1,1,new OccurenceSpecification(ll2), new OccurenceSpecification(ll1));
+    l1.AddMessage(m4);
     diag.addLayer(l1);
-    diag.addLayer(l2);
+    //diag.addLayer(l2);
     LayoutControl.magic(diag);
     GLContext.instance.scene.add(diag.diagramView);
     console.log(diag.diagramView);

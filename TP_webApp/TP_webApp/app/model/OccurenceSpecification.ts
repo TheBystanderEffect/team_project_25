@@ -8,5 +8,12 @@ export class OccurenceSpecification{
 		private _message:Message
 	){}
 
+	public get at():Lifeline{
+		return this._at;
+	}
+
+	public set at(at:Lifeline){
+		this._at = at;
+	}
 
 }
