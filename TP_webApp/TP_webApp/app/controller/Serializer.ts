@@ -18,7 +18,7 @@ export class Serializer{
     lifeline: Lifeline = new Lifeline("TestLifeline", "TestType", null)
     layer: Layer = new Layer([this.lifeline], null, null);
     message: Message = new Message("testMessage", null, null, null, null);
-    occurenceSpecification: OccurenceSpecification = new OccurenceSpecification();
+    occurenceSpecification: OccurenceSpecification = new OccurenceSpecification(null, null);
 
     private constructor(){
     }

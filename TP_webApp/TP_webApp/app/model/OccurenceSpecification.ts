@@ -16,4 +16,12 @@ export class OccurenceSpecification{
 		this._at = at;
 	}
 
+	public get message(): Message {
+		return this._message;
+	}
+
+	public set message(message: Message) {
+		this._message = message;
+	}
+
 }

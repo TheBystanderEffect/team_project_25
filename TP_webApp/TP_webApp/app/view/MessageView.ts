@@ -27,8 +27,8 @@ export class MessageView extends GraphicElement{
         return this;
     }    
 
-    public messageViewByVectors(source: Vector3, destination:Vector3):MessageView {
-        return new MessageView(source.x,source.y,source.z,destination.x,destination.y,destination.z)
+    public messageViewByVectors(parent: Object, source: Vector3, destination:Vector3):MessageView {
+        return new MessageView(parent, source.x,source.y,source.z,destination.x,destination.y,destination.z)
     }
 
 }
