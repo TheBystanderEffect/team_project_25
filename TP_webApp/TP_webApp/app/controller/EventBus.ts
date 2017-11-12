@@ -137,7 +137,7 @@ export class EventBus {
             GLContext.instance.scene.children = [];
             GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
             console.log("finish")
-
+            GLContext.instance.stateMachine.changeState = new State("NEUTRAL");
         }
 
     }
