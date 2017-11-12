@@ -51,6 +51,12 @@ export class GLContext {
     public get stateMachine() : StateMachine {
         return this._stateMachine;
     }
+
+    
+    public get canvas() : HTMLCanvasElement {
+        return this._canvas;
+    }
+    
     
 
     public set renderPaused(renderPaused: boolean) {

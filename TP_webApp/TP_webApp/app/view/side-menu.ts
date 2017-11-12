@@ -8,20 +8,21 @@ import { setOpenDiagram } from '../globals';
 import { RaycasterControl } from '../controller/RaycastControl'
 import { GLContext } from './GLContext';
 import { State } from "../controller/State";
+
 export function addLifeline(){
 
     if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-        GLContext.instance.stateMachine.changeState = new State("MODIFYING");
+        GLContext.instance.stateMachine.changeState = new State("MODIFYING").specialize('lifeline');
     }
 }
 export function addMessage(){
     if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-        
+        GLContext.instance.stateMachine.changeState = new State("MODIFYING").specialize('Message');;
      }
 }
 export function addLayer(){
     if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-        
+        GLContext.instance.stateMachine.changeState = new State("MODIFYING").specialize('Message');;
      }
 }
 

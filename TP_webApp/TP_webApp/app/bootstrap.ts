@@ -10,7 +10,7 @@ import { LayoutControl } from "./controller/LayoutControl" //testing layout
 import { Diagram } from "./model/Diagram" //testing layout
 import { Layer } from "./model/Layer" //testing layout
 import { Lifeline } from "./model/Lifeline" //testing layout
-
+import { EventBus } from "./controller/EventBus";
 /*
 Load resources
 */
@@ -69,6 +69,9 @@ Promise.all([
     document.getElementById("sideLife").addEventListener("click", addLifeline);
     document.getElementById("sideMessage").addEventListener("click", addMessage);
     document.getElementById("sideLayer").addEventListener("click", addLayer);
+
+
+    
 
     // populate diagram list
     diagramList.forEach((item: any) => {

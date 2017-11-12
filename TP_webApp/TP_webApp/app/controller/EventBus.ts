@@ -1,7 +1,7 @@
 export class EventBus {
 
     public constructor(
-        private canvas: HTMLCanvasElement
+        private _canvas: HTMLCanvasElement
     ) {}
 
     public handleMouseMove(event: MouseEvent) {
@@ -14,6 +14,12 @@ export class EventBus {
 
     public handleMouseUp(event: MouseEvent) {
 
+    }
+
+    public initializeEvents(){
+        this._canvas.addEventListener('mousemove',this.handleMouseMove,false);
+        this._canvas.addEventListener('mousedown',this.handleMouseDown,false);
+        this._canvas.addEventListener('mouseup',this.handleMouseUp,false);
     }
 
 }
