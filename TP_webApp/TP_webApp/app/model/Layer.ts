@@ -18,6 +18,10 @@ export class Layer{
         AddMessage(message:Message) {
                 this.messages.push(message)
         }
+
+        AddLifeline(lifelines:Lifeline){
+            this.lifelines.push(lifelines);
+        }
     
     
     

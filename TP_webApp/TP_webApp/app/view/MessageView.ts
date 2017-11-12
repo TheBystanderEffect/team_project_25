@@ -8,8 +8,8 @@ export class MessageView extends GraphicElement{
     public length: number;
     public center: Vector3;
 
-    public constructor(source_x:number, source_y:number, source_z:number, destination_x:number, destination_y:number, destination_z:number) {
-        super();
+    public constructor(parent:Object,source_x:number, source_y:number, source_z:number, destination_x:number, destination_y:number, destination_z:number) {
+        super(parent);
         this.length = Math.sqrt(Math.pow(source_x-destination_x,2)+Math.pow(source_y-destination_y,2)+Math.pow(source_z-destination_z,2))
         this.center = new Vector3((source_x + destination_x)/2, (source_y + destination_y)/2, (source_z + destination_z)/2)
         //maybe keep start and end as V3 as well

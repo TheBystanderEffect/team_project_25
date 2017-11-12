@@ -11,11 +11,12 @@ export class LayoutControl{
         diagram.diagramView=new DiagramView(diagram);
 
         diagram.layers.forEach((layer, index) => {
-            var templayerptr = new LayerView(0,0,-1000*index,500,600);
+            var templayerptr = new LayerView(layer,0,0,-1000*index,500,600);
             diagram.diagramView.add(templayerptr.mesh);
             console.log(layer);
             layer.lifelines.forEach((lifeline, index) =>{
                 var templifelineptr = new LifelineView(
+                        lifeline,
                         templayerptr.getPosition().x - templayerptr.width/2 + 100 + index*250,
                         templayerptr.getPosition().y + templayerptr.height/2,
                         0,

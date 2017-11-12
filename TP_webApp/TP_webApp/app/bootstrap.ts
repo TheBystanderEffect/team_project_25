@@ -78,6 +78,7 @@ Promise.all([
     //testing of layout
     console.log("testing layout");
     var diag = new Diagram();
+    (window as any).diag = diag;
     var ll1 = new Lifeline("ll1"," ",[]);
     var ll2 = new Lifeline("ll2"," ",[]);
     var ll3 = new Lifeline("ll3"," ",[]);
@@ -87,6 +88,7 @@ Promise.all([
     diag.addLayer(l2);
     LayoutControl.magic(diag);
     GLContext.instance.scene.add(diag.diagramView);
+    console.log(diag.diagramView);
     console.log("did it work?")
 
 });

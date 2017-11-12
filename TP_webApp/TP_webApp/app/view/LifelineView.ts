@@ -8,8 +8,8 @@ export class LifelineView extends GraphicElement{
     public length: number;
     public center: Vector3;
 
-    public constructor(source_x:number, source_y:number, source_z:number, length:number) {
-        super();
+    public constructor(parent:Object,source_x:number, source_y:number, source_z:number, length:number) {
+        super(parent);
         this.length = length;
         this.center = new Vector3(source_x, source_y - length/2, source_z);
     

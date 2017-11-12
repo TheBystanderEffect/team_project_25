@@ -8,8 +8,8 @@ export class LayerView extends GraphicElement{
     public width:number;
     public height:number;
 
-    public constructor(x: number, y: number, z: number, width: number, height: number) {
-        super();
+    public constructor(parent:Object,x: number, y: number, z: number, width: number, height: number) {
+        super(parent);
         this.width=width;
         this.height=height;
         this.geometry = new PlaneGeometry(width,height);
@@ -26,8 +26,8 @@ export class LayerView extends GraphicElement{
     }    
 
 
-    public layer_simple(layerNumber: number): LayerView{
-        return new LayerView(0,0,-1000*layerNumber,500,600);
+    public layer_simple(parent:Object,layerNumber: number): LayerView{
+        return new LayerView(parent,0,0,-1000*layerNumber,500,600);
     }
 
     

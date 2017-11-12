@@ -1,4 +1,11 @@
 import { GLContext } from "../view/GLContext";
+import { Lifeline } from "../model/Lifeline";
+import { Raycaster, Vector2, Scene, Camera } from 'three';
+import { DiagramView } from "../view/DiagramView";
+import { Diagram } from "../model/Diagram";
+import { Layer } from "../model/Layer";
+import { LayoutControl } from "./LayoutControl";
+import { CustomMesh } from "../view/CustomMesh";
 
 export class EventBus {
 
@@ -42,7 +49,21 @@ export class EventBus {
             case 1:
                 
                 if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_lifeline" ){
-                    console.log()
+                    console.log("fuck")
+                    let raycaster = new Raycaster();
+                    let vector2 = new Vector2(0,0)
+                    vector2.x =   ( event.clientX / window.innerWidth ) * 2 - 1;
+                    vector2.y = - ( event.clientX / window.innerWidth ) * 2 + 1;
+                    raycaster.setFromCamera(vector2,GLContext.instance.camera);
+                    let layersinDiagram = GLContext.instance.scene.children[0].children;
+                    let intersection = raycaster.intersectObjects(layersinDiagram);
+                    let lifelineNew = new Lifeline('Standard name','',[]);
+                   (intersection[0].object as CustomMesh).metadata.parent.parent.AddLifeline(lifelineNew);
+                   LayoutControl.magic((window as any).diag);
+                    
+
+                    
+                    
                 }
                 break;
             case 2:
@@ -53,7 +74,6 @@ export class EventBus {
                 break;
         }
         
-        console.log(event);
     }
 
     
@@ -61,6 +81,7 @@ export class EventBus {
         if (this.sendMouseUp) {
 
         }
+
     }
 
 }
