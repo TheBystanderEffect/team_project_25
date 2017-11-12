@@ -7,10 +7,12 @@ export class LifelineView extends GraphicElement{
     //parent: Layer;//binis objekt already defined in GraphicElement
     public length: number;
     public center: Vector3;
+    _source: Vector3; //source in relation to layer
 
     public constructor(source_x:number, source_y:number, source_z:number, length:number) {
         super();
         this.length = length;
+        this._source = new Vector3(source_x,source_y,source_z);
         this.center = new Vector3(source_x, source_y - length/2, source_z);
     
         this.geometry = new CylinderGeometry( 3, 3, this.length, 8 );
@@ -22,6 +24,14 @@ export class LifelineView extends GraphicElement{
         this.mesh.metadata.parent=this
 
         return this;
-    }    
+    }  
+    
+    get source():Vector3{
+        return this._source;
+    }
+
+    set source(newSource: Vector3){
+        this._source=newSource;
+    }
 
 }
