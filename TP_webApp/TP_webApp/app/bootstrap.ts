@@ -85,6 +85,9 @@ Promise.all([
     var ll2 = new Lifeline("ll2"," ",[]);
     var ll3 = new Lifeline("ll3"," ",[]);
     var l1 = new Layer([ll1,ll2,ll3],[],[]);
+    ll1.layer=l1;
+    ll2.layer=l1;
+    ll3.layer=l1;
     //var l2 = new Layer([ll3],[],[]);
     var m1 = new Message("test",1,1,new OccurenceSpecification(ll1, null), new OccurenceSpecification(ll2, null));
     l1.AddMessage(m1);

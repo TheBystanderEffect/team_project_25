@@ -1,6 +1,7 @@
 import { OccurenceSpecification } from "./OccurenceSpecification";
 import { LifelineView } from "../view/LifelineView";
 import { TextView } from "../view/TextView";
+import { Layer } from "./Layer";
 
 export class Lifeline{
     name:string;
@@ -9,6 +10,7 @@ export class Lifeline{
 
     _lifelineView: LifelineView;
     _lable: TextView;
+    private _layer: Layer;
 
     constructor(name:string,type:string,occurence:OccurenceSpecification[]){
         this.name = name;
@@ -32,6 +34,18 @@ export class Lifeline{
     set lable(lable: TextView){
         this._lable = lable;
     }
+
+    
+    public get layer() : Layer {
+        return this._layer;
+    }
+
+    
+    public set layer(v : Layer) {
+        this._layer = v;
+    }
+    
+    
 }
 
 

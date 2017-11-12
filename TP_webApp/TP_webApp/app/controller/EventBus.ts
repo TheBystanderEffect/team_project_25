@@ -8,6 +8,7 @@ import { LayoutControl } from "./LayoutControl";
 import { CustomMesh } from "../view/CustomMesh";
 import { State } from "./State";
 import { Message } from "../model/Message";
+import { OccurenceSpecification } from "../model/OccurenceSpecification";
 
 export class EventBus {
 
@@ -87,7 +88,7 @@ export class EventBus {
                     });
                   
                     this._intersection = raycaster.intersectObjects(lifelinesinDiagram);
-                  
+                    console.log((this._intersection[0].object as CustomMesh).metadata.parent.parent);
 
                 }
                 break;
@@ -106,7 +107,7 @@ export class EventBus {
         if (this.sendMouseUp) {
 
         }
-
+        console.log("begin");
         if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_Message" && this._intersection !== null){
             let raycaster = new Raycaster();
             let vector2 = new Vector2(0,0)
@@ -119,11 +120,23 @@ export class EventBus {
                     lifelinesinDiagram.push(element2);
                 });
             });
+            console.log("before raycast");
             let endIntersection = raycaster.intersectObjects(lifelinesinDiagram);
-            let newMessage = new Message("general Message",null,null,null,null);
-
-            console.log((this._intersection[0].object as CustomMesh).metadata.parent.parent)
+            console.log("after raycast");
+            console.log("begin Message creation");
+            let newMessage = new Message("general Message",null,null,new OccurenceSpecification((this._intersection[0].object as CustomMesh).metadata.parent.parent,null),new OccurenceSpecification((endIntersection[0].object as CustomMesh).metadata.parent.parent,null));
             
+           
+            (this._intersection[0].object as CustomMesh).metadata.parent.parent.layer.AddMessage(newMessage);
+            newMessage.start.message = newMessage;
+            newMessage.end.message = newMessage;
+            console.log("end of Message creation");
+
+            LayoutControl.magic((window as any).diag);
+            console.log("after magic");
+            GLContext.instance.scene.children = [];
+            GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
+            console.log("finish")
 
         }
 
