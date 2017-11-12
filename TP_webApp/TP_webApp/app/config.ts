@@ -1,1 +1,1 @@
-export let canvasId: string = "webglCanvas";
+export const canvasId: string = "webglCanvas";

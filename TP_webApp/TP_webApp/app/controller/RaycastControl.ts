@@ -42,7 +42,7 @@ export class RaycasterControl{
 
     
     public cast(camera:Camera,scene:Scene){
-
+        
         if(this.hasClicked && this.toDo > 0){
             this.raycaster.setFromCamera( this.mouse, camera );
             var intersects = this.raycaster.intersectObjects( scene.children );
