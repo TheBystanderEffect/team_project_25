@@ -1,3 +1,5 @@
+import { GLContext } from "../view/GLContext";
+
 export class EventBus {
 
     public constructor(
@@ -35,6 +37,23 @@ export class EventBus {
         if (this.sendMouseDown) {
 
         }
+        
+        switch (event.which) {
+            case 1:
+                
+                if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_lifeline" ){
+                    
+                }
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            default:
+                break;
+        }
+        
+        console.log(event);
     }
 
     

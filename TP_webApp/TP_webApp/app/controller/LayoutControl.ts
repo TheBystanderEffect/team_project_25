@@ -7,12 +7,13 @@ import {Geometry} from "three"
 export class LayoutControl{
  
     public static magic(diagram:Diagram){
+        console.log("magic")
         diagram.diagramView=new DiagramView(diagram);
 
         diagram.layers.forEach((layer, index) => {
             var templayerptr = new LayerView(0,0,-1000*index,500,600);
             diagram.diagramView.add(templayerptr.mesh);
-
+            console.log(layer);
             layer.lifelines.forEach((lifeline, index) =>{
                 var templifelineptr = new LifelineView(
                         templayerptr.getPosition().x - templayerptr.width/2 + 100 + index*250,

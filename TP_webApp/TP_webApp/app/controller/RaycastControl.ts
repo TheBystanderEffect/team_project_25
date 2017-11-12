@@ -14,9 +14,7 @@ export class RaycasterControl{
     public toDo:number;
 
     private onMouseDown( event:any ):any{
-        console.log("mouse down"+event.which);
         if(event.which==1){
-            console.log(this);
             this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
             this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
             this.hasClicked=true;
@@ -24,11 +22,9 @@ export class RaycasterControl{
     }
 
     private constructor(){
-        console.log('started constructor');
         this.raycaster = new Raycaster();
         this.hasClicked = false;
         this.mouse = new Vector2(0,0);
-        console.log('mouse is'+this.mouse);
         window.addEventListener( 'mousedown', this.onMouseDown.bind(this), false );
         
     }
@@ -50,10 +46,9 @@ export class RaycasterControl{
             // this.toDo = 0;
             //do stuff with intersects
             for ( var i = 0; i < intersects.length; i++ ) {
-                //console.log(intersects[i]);
                 if(intersects[i].object instanceof CustomMesh) {
                     let cmesh: CustomMesh = intersects[i].object as CustomMesh;
-                    if(cmesh.metadata.parent instanceof LayerView){console.log('yey!');this.toDo = 0;
+                    if(cmesh.metadata.parent instanceof LayerView){this.toDo = 0;
                         let lifeline = new LifelineView(intersects[i].point.x,intersects[i].point.y,intersects[i].point.z,300);
                         let lifeline_persist = {
                             type: 'LIFELINE',
