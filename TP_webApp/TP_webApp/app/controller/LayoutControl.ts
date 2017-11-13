@@ -5,9 +5,7 @@ import {LifelineView} from "../view/LifelineView"
 import {MessageView} from "../view/MessageView"
 import {TextView} from "../view/TextView"
 import {Geometry} from "three"
-import {firstLayerOffset,layerOffset,layerWidth,layerHeight,firstLifelineOffsetX,
-        lifelineOffsetX,lifelineOffsetY,lifelineTextSize,firstMessageOffset,
-        messageOffset,messageTextSize} from "../config"
+import * as Config from "../config"
 
 export class LayoutControl{
  
@@ -16,23 +14,40 @@ export class LayoutControl{
         diagram.diagramView=new DiagramView(diagram);
 
         diagram.layers.forEach((layer, index) => {
+
+            //TODO maybe make last offset min config thingie
+            var dynamicLayerWidth = Config.firstLifelineOffsetX +
+                (layer.lifelines.length - 1) * Config.lifelineOffsetX +
+                Config.firstLifelineOffsetX;
+            if(dynamicLayerWidth < Config.layerWidth){
+                dynamicLayerWidth = Config.layerWidth;
+            }
+
+            var dynamicLayerHeight = Config.lifelineOffsetY + 
+                Config.firstMessageOffset + 
+                (layer.messages.length - 1) * Config.messageOffset
+                +Config.firstMessageOffset;
+            if(dynamicLayerHeight < Config.layerHeight){
+                dynamicLayerHeight = Config.layerHeight;
+            }
+
             var templayerptr = new LayerView(
                     layer,
                     0,
                     0,
-                    -firstLayerOffset - layerOffset*index,
-                    layerWidth,
-                    layerHeight
+                    -Config.firstLayerOffset - Config.layerOffset*index,
+                    dynamicLayerWidth, //Config.layerWidth,
+                    dynamicLayerHeight //Config.layerHeight
                 );
             diagram.diagramView.add(templayerptr.mesh);
             console.log(layer);
             layer.lifelines.forEach((lifeline, index) =>{
                 var templifelineptr = new LifelineView(
                         lifeline,
-                        templayerptr.source.x + firstLifelineOffsetX + lifelineOffsetX*index,
-                        templayerptr.source.y - lifelineOffsetY,
+                        templayerptr.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
+                        templayerptr.source.y - Config.lifelineOffsetY,
                         0,
-                        templayerptr.height-lifelineOffsetY
+                        templayerptr.height-Config.lifelineOffsetY
                     );
                 lifeline.lifelineView=templifelineptr;
                 templayerptr.mesh.add(templifelineptr.mesh);
@@ -43,7 +58,7 @@ export class LayoutControl{
                     templifelineptr.source.y+5,
                     templifelineptr.source.z,
                     lifeline.name,
-                    lifelineTextSize
+                    Config.lifelineTextSize
                 );
                 templayerptr.mesh.add(tempTextPtr.mesh);//TODO possibly tie to lifeline and not to layer
 
@@ -55,10 +70,10 @@ export class LayoutControl{
                 var tempMessagePtr = new MessageView(
                         message,
                         start.x,
-                        start.y-firstMessageOffset-messageOffset*index,
+                        start.y-Config.firstMessageOffset-Config.messageOffset*index,
                         0,
                         end.x,
-                        end.y-firstMessageOffset-messageOffset*index,
+                        end.y-Config.firstMessageOffset-Config.messageOffset*index,
                         0
                     );
                 templayerptr.mesh.add(tempMessagePtr.mesh);
@@ -70,7 +85,7 @@ export class LayoutControl{
                     tempMessagePtr.mesh.position.y+5,
                     tempMessagePtr.mesh.position.z,
                     message.name,
-                    messageTextSize
+                    Config.messageTextSize
                 );
                 templayerptr.mesh.add(tempTextPtr.mesh);//TODO resolve rotation inteligentlier
 
