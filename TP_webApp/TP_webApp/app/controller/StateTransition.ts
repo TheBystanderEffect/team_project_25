@@ -4,7 +4,9 @@ export class StateTransition {
 
     public constructor(
         private _source: State, 
-        private _target: State
+        private _target: State,
+        private _condition: () => boolean,
+        private _action: () => void
     ) {
     }
 

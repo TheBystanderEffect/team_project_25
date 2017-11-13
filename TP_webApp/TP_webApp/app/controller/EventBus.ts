@@ -59,8 +59,8 @@ export class EventBus {
                     console.log("fuck")
                     let raycaster = new Raycaster();
                     let vector2 = new Vector2(0,0)
-                    vector2.x =   ( event.clientX / window.innerWidth ) * 2 - 1;
-                    vector2.y = - ( event.clientX / window.innerWidth ) * 2 + 1;
+                    vector2.x =   ( event.offsetX / window.innerWidth ) * 2 - 1;
+                    vector2.y = - ( event.offsetY / window.innerHeight ) * 2 + 1;
                     raycaster.setFromCamera(vector2,GLContext.instance.camera);
                     let layersinDiagram = GLContext.instance.scene.children[0].children;
                     this._intersection = raycaster.intersectObjects(layersinDiagram);
@@ -77,8 +77,8 @@ export class EventBus {
                 if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_Message" ){
                     let raycaster = new Raycaster();
                     let vector2 = new Vector2(0,0)
-                    vector2.x =   ( event.clientX / window.innerWidth ) * 2 - 1;
-                    vector2.y = - ( event.clientX / window.innerWidth ) * 2 + 1;
+                    vector2.x =   ( event.offsetX / window.innerWidth ) * 2 - 1;
+                    vector2.y = - ( event.offsetY / window.innerHeight ) * 2 + 1;
                     raycaster.setFromCamera(vector2,GLContext.instance.camera);
                     let lifelinesinDiagram :any[]= [];
                     GLContext.instance.scene.children[0].children.forEach(element => {
@@ -111,8 +111,8 @@ export class EventBus {
         if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_Message" && this._intersection !== null){
             let raycaster = new Raycaster();
             let vector2 = new Vector2(0,0)
-            vector2.x =   ( event.clientX / window.innerWidth ) * 2 - 1;
-            vector2.y = - ( event.clientX / window.innerWidth ) * 2 + 1;
+            vector2.x =   ( event.offsetX / window.innerWidth ) * 2 - 1;
+            vector2.y = - ( event.offsetY / window.innerWidth ) * 2 + 1;
             raycaster.setFromCamera(vector2,GLContext.instance.camera);
             let lifelinesinDiagram :any[]= [];
             GLContext.instance.scene.children[0].children.forEach(element => {
@@ -136,7 +136,7 @@ export class EventBus {
             console.log("after magic");
             GLContext.instance.scene.children = [];
             GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
-            console.log("finish")
+            console.log("finish");
             GLContext.instance.stateMachine.changeState = new State("NEUTRAL");
         }
 
