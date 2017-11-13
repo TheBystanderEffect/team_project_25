@@ -8,6 +8,9 @@ import { setOpenDiagram } from '../globals';
 import { RaycasterControl } from '../controller/RaycastControl'
 import { GLContext } from './GLContext';
 import { State } from "../controller/State";
+import { Diagram } from '../model/Diagram';
+import { Layer } from '../model/Layer';
+import { LayoutControl } from '../controller/LayoutControl';
 
 export function addLifeline(){
 
@@ -22,7 +25,11 @@ export function addMessage(){
 }
 export function addLayer(){
     if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-        GLContext.instance.stateMachine.changeState = new State("MODIFYING").specialize('Message');;
+        let diag: Diagram = (window as any).diag as Diagram;
+        diag.addLayer(new Layer([],[],[]));
+        LayoutControl.magic(diag);
+        GLContext.instance.scene.children = [];
+        GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
      }
 }
 
