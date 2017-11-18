@@ -70,14 +70,16 @@ export class Serializer{
             case "Layer":
                 let lifelineIndex = 0;
                 diagramElement.lifelines = diagramElement.lifelines.map((e: any) => this.derefferenceDiagram(e, "Lifeline", layerIndex, lifelineIndex++));
+                diagramElement.messages = diagramElement.messages.map((e: any) => this.derefferenceDiagram(e, "Message"));
                 return diagramElement;
             case "Lifeline":
                 let occurenceIndex = 0;
-                diagramElement.messages = diagramElement.messages.map((e: any) => this.derefferenceDiagram(e, "Message", layerIndex, lifelineIndex, occurenceIndex++));
+                diagramElement.occurenceSpecifications = diagramElement.occurenceSpecifications.map((e: any) => this.derefferenceDiagram(e, "OccurenceSpecification", layerIndex, lifelineIndex++, occurenceIndex++));
                 return diagramElement;
             case "Message":
-                diagramElement.
-                return
+                diagramElement.start = {layerIndex: diagramElement.start.layerIndex, lifelineIndex: diagramElement.start.lifelineIndex, occurenceIndex: diagramElement.start.occurenceIndex}; 
+                diagramElement.end = {layerIndex: diagramElement.end.layerIndex, lifelineIndex: diagramElement.end.lifelineIndex, occurenceIndex: diagramElement.end.occurenceIndex};
+                return diagramElement;
             case "OccurenceSpecification":
                 return {layerIndex: layerIndex, lifelineIndex: lifelineIndex, occurenceIndex:occurenceIndex};
         }
