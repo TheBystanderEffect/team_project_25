@@ -6,8 +6,12 @@ import {DiagramView} from "../view/DiagramView";
 
 export class Diagram {
 
-    private _layers: Layer[] = [];
+    private _layers: Layer[];
     private _diagramView: DiagramView;
+
+    constructor(_layers: Layer[], _diagramView: DiagramView){
+        this._layers = _layers ? _layers : [];
+    }
 
     public get layers(): Layer[] {
         return this._layers;

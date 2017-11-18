@@ -1,4 +1,5 @@
 import { PerspectiveCamera, Object3D, Vector3, Euler, Scene } from 'three';
+import {Serializer} from '../controller/Serializer';
 
 export class CameraControls {
 
@@ -26,7 +27,9 @@ export class CameraControls {
 
             this.pitchObject.add(camera);
             this.yawObject.add(this.pitchObject);
-
+            
+            console.log("Initialized camera, moving onto testing serializer");
+            Serializer.instance.test();
         }
         
         public set enabled(enabled: boolean) {
