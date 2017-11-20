@@ -22,69 +22,74 @@ export class Serializer{
     private constructor(){
     }
 
-    deserialize(jSONString: string, objectType: string):any{
-        let randomObject = JSON.parse(jSONString);
-        return this.deserializeObject(randomObject, objectType);
-    }
+    // deserialize(jSONString: string, objectType: string):any{
+    //     let randomObject = JSON.parse(jSONString);
+    //     return this.deserializeObject(randomObject, objectType);
+    // }
 
-    deserializeObject(rawObject: any, objectType: string, context: any = null, layerIndex:any = null, lifelineIndex:any = null, occurenceIndex:any = null):any{
-        switch(objectType){
-            case "CombinedFragment":
-                return new CombinedFragment(rawObject.interactionOperator, rawObject.interactionOperands.map((e: any) => this.deserializeObject(e, "InteractionOperand", context)));
-            case "Diagram":
-                context = [[[]]];
-                let layerIndex = 0
-                return new Diagram(rawObject.layers.map((e: any) => this.deserializeObject(e, "Layer", context, layerIndex++)), null);
-            case "InteractionOperand":
-                return new InteractionOperand(rawObject.interactionConstraint, rawObject.combinedFragment.map((e: any) => this.deserializeObject(e, "CombinedFragment", context)), rawObject.messages.map((e: any) => this.deserializeObject(e, "Message", context)));
-            case "Lifeline":
-                occurenceIndex = 0;
-                let lifeline = new Lifeline(rawObject.name, rawObject.type, rawObject.occurenceSpecifications.map((e: any) => this.deserializeObject(e, "OccurenceSpecification", context, layerIndex, lifelineIndex, occurenceIndex++)));
-                return lifeline;
-            case "Layer":
-                lifelineIndex = 0;
-                return new Layer(rawObject.lifelines.map((e: any) => this.deserializeObject(e, "Lifeline", context, layerIndex, lifelineIndex++)), rawObject.combinedFragments.map((e: any) => this.deserializeObject(e, "CombinedFragment", context)), rawObject.messages.map((e: any) => this.deserializeObject(e, "Message", context)));
-            case "Message":
-                return new Message(rawObject.name, rawObject.sort, rawObject.kind, context[rawObject.start.layerIndex][rawObject.start.lifelineIndex][rawObject.start.occurenceIndex], context[rawObject.end.layerIndex][rawObject.end.lifelineIndex][rawObject.end.occurenceIndex]);
-            case "OccurenceSpecification":
-                let specification = new OccurenceSpecification(this.deserializeObject(rawObject.at, "Lifeline", context));
-                context[layerIndex][lifelineIndex][occurenceIndex] = specification;
-                return specification;
-        }
-    }
+    // deserializeObject(rawObject: any, objectType: string, occurenceContext: any = null, messageContext: any = null, layerIndex:any = null, lifelineIndex:any = null, occurenceIndex:any = null, messageIndex:any = null):any{
+    //     switch(objectType){
+    //         case "CombinedFragment":
+    //             return new CombinedFragment(rawObject.interactionOperator, rawObject.interactionOperands.map((e: any) => this.deserializeObject(e, "InteractionOperand", occurenceContext, messageContext)));
+    //         case "Diagram":
+    //             occurenceContext = [[[]]];
+    //             let layerIndex = 0
+    //             return new Diagram(rawObject.layers.map((e: any) => this.deserializeObject(e, "Layer", occurenceContext, messageContext, layerIndex++)), null);
+    //         case "InteractionOperand":
+    //             return new InteractionOperand(rawObject.interactionConstraint, rawObject.combinedFragment.map((e: any) => this.deserializeObject(e, "CombinedFragment", occurenceContext, messageContext)), rawObject.messages.map((e: any) => this.deserializeObject(e, "Message", occurenceContext, messageContext)));
+    //         case "Lifeline":
+    //             occurenceIndex = 0;
+    //             let lifeline = new Lifeline(rawObject.name, rawObject.type, rawObject.occurenceSpecifications.map((e: any) => this.deserializeObject(e, "OccurenceSpecification", occurenceContext, messageContext, layerIndex, lifelineIndex, occurenceIndex++)));
+    //             return lifeline;
+    //         case "Layer":
+    //             messageContext = this.fillMessageContext(); // Fill messageContext with the messages for later derefference
+    //             lifelineIndex = 0;
+    //             return new Layer(rawObject.lifelines.map((e: any) => this.deserializeObject(e, "Lifeline", occurenceContext, messageContext, layerIndex, lifelineIndex++)), rawObject.combinedFragments.map((e: any) => this.deserializeObject(e, "CombinedFragment", occurenceContext)), rawObject.messages.map((e: any) => this.deserializeObject(e, "Message", occurenceContext, messageContext, layerIndex, lifelineIndex));
+    //         case "Message":
+    //             return new Message(rawObject.name, rawObject.sort, rawObject.kind, occurenceContext[rawObject.start.layerIndex][rawObject.start.lifelineIndex][rawObject.start.occurenceIndex], occurenceContext[rawObject.end.layerIndex][rawObject.end.lifelineIndex][rawObject.end.occurenceIndex]);
+    //         case "OccurenceSpecification":
+    //             let specification = new OccurenceSpecification(this.deserializeObject(rawObject.at, "Lifeline", occurenceContext, messageContext), this.deserializeObject(rawObject.at, "Lifeline", occurenceContext, messageContext));
+    //             occurenceContext[layerIndex][lifelineIndex][occurenceIndex] = specification;
+    //             return specification;
+    //     }
+    // }
 
-    serialize(diagramObject: any, isDiagram: boolean = false): string{
-        let derefferencedObject = null;
-        if(isDiagram){
-            derefferencedObject = this.derefferenceDiagram(diagramObject, "Diagram");
-        }
-        return JSON.stringify(isDiagram? diagramObject: derefferencedObject);
-    }
+    // fillMessageContext(layerObject: Layer):any{
+    //     return layerObject.messages.map((e: any) =>   ) //Add an index to deserialize occurence specification later
+    // }
 
-    derefferenceDiagram(diagramElement: any, elementType: string, layerIndex: any = null, lifelineIndex: any = null, occurenceIndex:any= null):any{
-        switch(elementType){
-            case "Diagram":
-                let layerIndex = 0;
-                diagramElement.layers = diagramElement.layers.map((e: any) => this.derefferenceDiagram(e, "Layer", layerIndex++));
-                return diagramElement;
-            case "Layer":
-                let lifelineIndex = 0;
-                diagramElement.lifelines = diagramElement.lifelines.map((e: any) => this.derefferenceDiagram(e, "Lifeline", layerIndex, lifelineIndex++));
-                diagramElement.messages = diagramElement.messages.map((e: any) => this.derefferenceDiagram(e, "Message"));
-                return diagramElement;
-            case "Lifeline":
-                let occurenceIndex = 0;
-                diagramElement.occurenceSpecifications = diagramElement.occurenceSpecifications.map((e: any) => this.derefferenceDiagram(e, "OccurenceSpecification", layerIndex, lifelineIndex++, occurenceIndex++));
-                return diagramElement;
-            case "Message":
-                diagramElement.start = {layerIndex: diagramElement.start.layerIndex, lifelineIndex: diagramElement.start.lifelineIndex, occurenceIndex: diagramElement.start.occurenceIndex}; 
-                diagramElement.end = {layerIndex: diagramElement.end.layerIndex, lifelineIndex: diagramElement.end.lifelineIndex, occurenceIndex: diagramElement.end.occurenceIndex};
-                return diagramElement;
-            case "OccurenceSpecification":
-                return {layerIndex: layerIndex, lifelineIndex: lifelineIndex, occurenceIndex:occurenceIndex};
-        }
-        let placeholderObject = {}
-    }
+    // serialize(diagramObject: any, isDiagram: boolean = false): string{
+    //     let derefferencedObject = null;
+    //     if(isDiagram){
+    //         derefferencedObject = this.derefferenceDiagram(diagramObject, "Diagram");
+    //     }
+    //     return JSON.stringify(isDiagram? diagramObject: derefferencedObject);
+    // }
+
+    // derefferenceDiagram(diagramElement: any, elementType: string, layerIndex: any = null, lifelineIndex: any = null, occurenceIndex:any= null):any{
+    //     switch(elementType){
+    //         case "Diagram":
+    //             let layerIndex = 0;
+    //             diagramElement.layers = diagramElement.layers.map((e: any) => this.derefferenceDiagram(e, "Layer", layerIndex++));
+    //             return diagramElement;
+    //         case "Layer":
+    //             let lifelineIndex = 0;
+    //             diagramElement.lifelines = diagramElement.lifelines.map((e: any) => this.derefferenceDiagram(e, "Lifeline", layerIndex, lifelineIndex++));
+    //             diagramElement.messages = diagramElement.messages.map((e: any) => this.derefferenceDiagram(e, "Message"));
+    //             return diagramElement;
+    //         case "Lifeline":
+    //             let occurenceIndex = 0;
+    //             diagramElement.occurenceSpecifications = diagramElement.occurenceSpecifications.map((e: any) => this.derefferenceDiagram(e, "OccurenceSpecification", layerIndex, lifelineIndex++, occurenceIndex++));
+    //             return diagramElement;
+    //         case "Message":
+    //             diagramElement.start = {layerIndex: diagramElement.start.layerIndex, lifelineIndex: diagramElement.start.lifelineIndex, occurenceIndex: diagramElement.start.occurenceIndex}; 
+    //             diagramElement.end = {layerIndex: diagramElement.end.layerIndex, lifelineIndex: diagramElement.end.lifelineIndex, occurenceIndex: diagramElement.end.occurenceIndex};
+    //             return diagramElement;
+    //         case "OccurenceSpecification":
+    //             return {layerIndex: layerIndex, lifelineIndex: lifelineIndex, occurenceIndex:occurenceIndex};
+    //     }
+    //     let placeholderObject = {}
+    // }
 
     test(){
         //serializable: Object

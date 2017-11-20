@@ -24,7 +24,7 @@ export class OccurenceSpecification{
 		this._message = message;
 	}
 
-	constructor(at:Lifeline){
-		this.at = at;
-	}
+	// constructor(at:Lifeline){
+	// 	this.at = at;
+	// }
 }
