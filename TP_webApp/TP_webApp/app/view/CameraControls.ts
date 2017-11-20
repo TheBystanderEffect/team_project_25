@@ -29,7 +29,6 @@ export class CameraControls {
             this.yawObject.add(this.pitchObject);
             
             console.log("Initialized camera, moving onto testing serializer");
-            Serializer.instance.test();
         }
         
         public set enabled(enabled: boolean) {
@@ -148,4 +147,11 @@ export class CameraControls {
             this.camera.updateProjectionMatrix();
         }
         
+        public loadViewpoint(x: number, y: number, z: number, yaw: number, pitch: number): void{
+            console.log("X:" + x + " Y:" + y + " Z:" + z + " Yaw:" + yaw + " Pitch:" + pitch + " YawObject:" + this.yawObject + " PitchObject:" + this.pitchObject);
+            this.yawObject.position.set(x, y, z);
+            this.yawObject.rotation.y = yaw;
+            this.pitchObject.rotation.x = pitch;
+            this.updateCamera();
+        }
 }

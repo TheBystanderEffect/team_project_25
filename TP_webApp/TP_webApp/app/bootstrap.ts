@@ -4,7 +4,7 @@ The entry point of the application
 import * as Globals from './globals';
 import { Font, FontLoader } from 'three';
 import { GLContext } from './view/GLContext';
-import { toggleNav, makeButton, addLifeline, addLayer, addMessage} from './view/side-menu'; 
+import { toggleNav, makeButton, addLifeline, addLayer, addMessage, addViewpoint} from './view/side-menu';
 
 import { LayoutControl } from "./controller/LayoutControl" //testing layout
 import { Diagram } from "./model/Diagram" //testing layout
@@ -71,6 +71,8 @@ Promise.all([
     document.getElementById("sideLife").addEventListener("click", addLifeline);
     document.getElementById("sideMessage").addEventListener("click", addMessage);
     document.getElementById("sideLayer").addEventListener("click", addLayer);
+    document.getElementById("resetViewpoint").addEventListener("click", function() {GLContext.instance.cameraControls.loadViewpoint(0, 0, 0, 0, 0); });
+    document.getElementById("saveViewpoint").addEventListener("click", function() {addViewpoint(GLContext.instance.cameraControls)});
 
     // populate diagram list
     diagramList.forEach((item: any) => {
