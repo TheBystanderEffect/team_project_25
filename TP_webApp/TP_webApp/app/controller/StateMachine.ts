@@ -19,8 +19,20 @@ export class StateMachine {
     }
 
      
-    public set changeState(v : State) {
-        this._currentState = v;
+    public set currentState(state : State) {
+        this._currentState = state;
+    }
+
+    public acceptEvent(e: MouseEvent) {
+
+        // iterate through transitions to find one that will accept the event
+        for (let transition of this.currentState.outgoingTransitions) {
+            if (transition.tryAccept(e)) {
+                this.currentState = transition.target;
+                break;
+            }
+        }
+
     }
     
 

@@ -24,4 +24,8 @@ export class State {
         return newState;
     }
 
+    public get outgoingTransitions(): StateTransition[] {
+        return Object.keys(this._outgoingTransitions).map((e: string) => this._outgoingTransitions[e]);
+    }
+
 }

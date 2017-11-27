@@ -5,8 +5,8 @@ export class StateTransition {
     public constructor(
         private _source: State, 
         private _target: State,
-        private _condition: () => boolean,
-        private _action: () => void
+        private _condition: (e: Event) => boolean,
+        private _action: (e: Event) => void
     ) {
     }
 
@@ -16,6 +16,15 @@ export class StateTransition {
 
     public get target(): State {
         return this._target;
+    }
+
+    public tryAccept(e: MouseEvent): boolean {
+        if (!this._condition(e)) {
+            return false;
+        }
+
+        this._action(e);
+        return true;
     }
 
 }
