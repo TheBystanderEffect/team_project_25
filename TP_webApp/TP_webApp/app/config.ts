@@ -10,6 +10,7 @@ export const firstLifelineOffsetX: number = 50;
 export const lifelineOffsetX: number = 200;
 export const lifelineOffsetY: number = 50;
 export const lifelineTextSize: number = 15;
+export const lifelineRadius: number = 6;
 
 export const firstMessageOffset: number = 25;
 export const messageOffset: number = 25;

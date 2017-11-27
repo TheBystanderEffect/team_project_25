@@ -27,8 +27,6 @@ export class CameraControls {
 
             this.pitchObject.add(camera);
             this.yawObject.add(this.pitchObject);
-            
-            console.log("Initialized camera, moving onto testing serializer");
         }
         
         public set enabled(enabled: boolean) {

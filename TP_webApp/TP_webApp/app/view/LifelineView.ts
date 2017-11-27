@@ -1,6 +1,7 @@
 import { CylinderGeometry, MeshBasicMaterial, Mesh, Scene, Vector3 } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
+import { lifelineRadius } from "../config"
 
 export class LifelineView extends GraphicElement{
     //mesh.metadata.parent: MessageView;
@@ -15,7 +16,7 @@ export class LifelineView extends GraphicElement{
         this._source = new Vector3(source_x,source_y,source_z);
         this.center = new Vector3(source_x, source_y - length/2, source_z);
     
-        this.geometry = new CylinderGeometry( 3, 3, this.length, 8 );
+        this.geometry = new CylinderGeometry( lifelineRadius, lifelineRadius, this.length, 8 );
         this.material = new MeshBasicMaterial( {color: 0xFF0000} );
         this.mesh = new CustomMesh( this.geometry, this.material );
         this.mesh.position.set(this.center.x, this.center.y, this.center.z);

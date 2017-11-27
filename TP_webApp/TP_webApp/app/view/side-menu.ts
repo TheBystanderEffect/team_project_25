@@ -5,7 +5,6 @@ import { LifelineView } from './LifelineView';
 import { MessageView } from './MessageView';
 import { TextView } from './TextView';
 import { setOpenDiagram } from '../globals';
-import { RaycasterControl } from '../controller/RaycastControl'
 import { GLContext } from './GLContext';
 import { State } from "../controller/State";
 import { Diagram } from '../model/Diagram';
