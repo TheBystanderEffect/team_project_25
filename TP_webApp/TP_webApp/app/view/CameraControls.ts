@@ -1,4 +1,5 @@
 import { PerspectiveCamera, Object3D, Vector3, Euler, Scene } from 'three';
+import {Serializer} from '../controller/Serializer';
 
 export class CameraControls {
 
@@ -26,7 +27,8 @@ export class CameraControls {
 
             this.pitchObject.add(camera);
             this.yawObject.add(this.pitchObject);
-
+            
+            console.log("Initialized camera, moving onto testing serializer");
         }
         
         public set enabled(enabled: boolean) {
@@ -145,4 +147,11 @@ export class CameraControls {
             this.camera.updateProjectionMatrix();
         }
         
+        public loadViewpoint(x: number, y: number, z: number, yaw: number, pitch: number): void{
+            console.log("X:" + x + " Y:" + y + " Z:" + z + " Yaw:" + yaw + " Pitch:" + pitch + " YawObject:" + this.yawObject + " PitchObject:" + this.pitchObject);
+            this.yawObject.position.set(x, y, z);
+            this.yawObject.rotation.y = yaw;
+            this.pitchObject.rotation.x = pitch;
+            this.updateCamera();
+        }
 }
