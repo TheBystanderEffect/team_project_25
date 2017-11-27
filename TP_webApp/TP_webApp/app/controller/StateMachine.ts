@@ -15,7 +15,7 @@ export class StateMachine {
         initialState: State
     ) {
         this._currentState = initialState;
-        this._eventBus = new EventBus(_canvas);
+        this._eventBus = new EventBus(_canvas, this.acceptEvent.bind(this));
     }
 
      
