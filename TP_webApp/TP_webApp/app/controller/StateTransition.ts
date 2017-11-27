@@ -18,6 +18,14 @@ export class StateTransition {
         return this._target;
     }
 
+    public set source(state: State) {
+        this._source = state;
+    }
+
+    public set target(state: State) {
+        this._target= state;
+    }
+
     public tryAccept(e: MouseEvent): boolean {
         if (!this._condition(e)) {
             return false;
