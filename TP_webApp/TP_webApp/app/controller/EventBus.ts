@@ -14,16 +14,17 @@ import { RaycastControl } from "./RaycastControl"
 export class EventBus {
 
     public constructor(
-        private _canvas: HTMLCanvasElement
+        private _canvas: HTMLCanvasElement,
+        private _callback: (event: Event) => void
     ) {
         this._canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
         this._canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
         this._canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
     }
 
-    private _sendMouseDown: boolean = false;
-    private _sendMouseUp: boolean = false;
-    private _sendMouseMovement: boolean = false;
+    private _sendMouseDown: boolean = true;
+    private _sendMouseUp: boolean = true;
+    private _sendMouseMovement: boolean = true;
 
     public get sendMouseDown() {
         return this._sendMouseDown;
@@ -39,7 +40,7 @@ export class EventBus {
 
     public handleMouseMove(event: MouseEvent) {
         if (this.sendMouseMovement) {
-
+            this._callback(event);
         }
     }
 
@@ -55,7 +56,7 @@ export class EventBus {
             console.log('end raycast debug')
         }
         if (this.sendMouseDown) {
-
+            this._callback(event);
         }
         
         switch (event.which) {
@@ -77,7 +78,7 @@ export class EventBus {
                     LayoutControl.magic((window as any).diag);
                     GLContext.instance.scene.children = [];
                     GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
-                    GLContext.instance.stateMachine.changeState = new State("NEUTRAL");
+                    GLContext.instance.stateMachine.currentState = new State("NEUTRAL");
                     
                     
                     
@@ -121,7 +122,7 @@ export class EventBus {
     
     public handleMouseUp(event: MouseEvent) {
         if (this.sendMouseUp) {
-
+            this._callback(event);
         }
         console.log("begin");
         if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_Message" && this.holdMyLifeline !== null){
@@ -139,7 +140,7 @@ export class EventBus {
                     GLContext.instance.scene.children = [];
                     GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
                     console.log("finish");
-                    GLContext.instance.stateMachine.changeState = new State("NEUTRAL");
+                    GLContext.instance.stateMachine.currentState = new State("NEUTRAL");
                     
                     break;
                 }
@@ -177,7 +178,7 @@ export class EventBus {
             // GLContext.instance.scene.children = [];
             // GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
             // console.log("finish");
-            // GLContext.instance.stateMachine.changeState = new State("NEUTRAL");
+            // GLContext.instance.stateMachine.currentState = new State("NEUTRAL");
         }
 
     }

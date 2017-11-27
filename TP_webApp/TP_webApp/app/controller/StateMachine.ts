@@ -15,12 +15,24 @@ export class StateMachine {
         initialState: State
     ) {
         this._currentState = initialState;
-        this._eventBus = new EventBus(_canvas);
+        this._eventBus = new EventBus(_canvas, this.acceptEvent.bind(this));
     }
 
      
-    public set changeState(v : State) {
-        this._currentState = v;
+    public set currentState(state : State) {
+        this._currentState = state;
+    }
+
+    public acceptEvent(e: MouseEvent) {
+
+        // iterate through transitions to find one that will accept the event
+        for (let transition of this.currentState.outgoingTransitions) {
+            if (transition.tryAccept(e)) {
+                this.currentState = transition.target;
+                break;
+            }
+        }
+
     }
     
 
