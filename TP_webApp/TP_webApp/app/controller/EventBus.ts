@@ -64,7 +64,7 @@ export class EventBus {
                     raycaster.setFromCamera(vector2,GLContext.instance.camera);
                     let layersinDiagram = GLContext.instance.scene.children[0].children;
                     this._intersection = raycaster.intersectObjects(layersinDiagram);
-                    let lifelineNew = new Lifeline('Standard name','',[]);
+                    let lifelineNew = new Lifeline('Standard name','',[], (this._intersection[0].object as CustomMesh).metadata.parent.parent);
                     (this._intersection[0].object as CustomMesh).metadata.parent.parent.AddLifeline(lifelineNew);
                     LayoutControl.magic((window as any).diag);
                     GLContext.instance.scene.children = [];
@@ -126,6 +126,10 @@ export class EventBus {
             console.log("begin Message creation");
             let newMessage = new Message("general Message",null,null,new OccurenceSpecification((this._intersection[0].object as CustomMesh).metadata.parent.parent,null),new OccurenceSpecification((endIntersection[0].object as CustomMesh).metadata.parent.parent,null));
             
+            console.log('start intersection');
+            console.log(this._intersection);
+            console.log('end intersection');
+            console.log(endIntersection);
            
             (this._intersection[0].object as CustomMesh).metadata.parent.parent.layer.AddMessage(newMessage);
             newMessage.start.message = newMessage;

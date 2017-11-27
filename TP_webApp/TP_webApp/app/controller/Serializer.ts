@@ -15,7 +15,7 @@ export class Serializer{
     combinedFragment: CombinedFragment = new CombinedFragment("TestOperator", null);
     diagram: Diagram = new Diagram();
     interactionOperand: InteractionOperand = new InteractionOperand();
-    lifeline: Lifeline = new Lifeline("TestLifeline", "TestType", null)
+    lifeline: Lifeline = new Lifeline("TestLifeline", "TestType", null, null);
     layer: Layer = new Layer([this.lifeline], null, null);
     message: Message = new Message("testMessage", null, null, null, null);
     occurenceSpecification: OccurenceSpecification = new OccurenceSpecification(null, null);

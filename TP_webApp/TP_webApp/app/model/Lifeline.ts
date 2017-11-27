@@ -12,9 +12,10 @@ export class Lifeline{
     _lable: TextView;
     private _layer: Layer;
 
-    constructor(name:string,type:string,occurence:OccurenceSpecification[]){
+    constructor(name:string,type:string,occurence:OccurenceSpecification[], layer: Layer){
         this.name = name;
         this.type = type;
+        this.layer = layer;
         this.occurenceSpecifications = occurence;
 
     }

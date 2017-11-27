@@ -81,10 +81,10 @@ Promise.all([
     console.log("testing layout");
     var diag = new Diagram();
     (window as any).diag = diag;
-    var ll1 = new Lifeline("ll1"," ",[]);
-    var ll2 = new Lifeline("ll2"," ",[]);
-    var ll3 = new Lifeline("ll3"," ",[]);
-    var l1 = new Layer([ll1,ll2,ll3],[],[]);
+    var ll1 = new Lifeline("ll1"," ",[],l1);
+    var ll2 = new Lifeline("ll2"," ",[],l1);
+    var ll3 = new Lifeline("ll3"," ",[],l1);
+    var l1: Layer = new Layer([ll1,ll2,ll3],[],[]);
     ll1.layer=l1;
     ll2.layer=l1;
     ll3.layer=l1;
