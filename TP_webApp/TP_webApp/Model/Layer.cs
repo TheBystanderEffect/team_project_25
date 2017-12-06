@@ -15,6 +15,10 @@ namespace TP_webApp.Model
             this.messages = messages;            
         }
 
+        public Layer()
+        {
+        }
+
         public List<Lifeline> lifelines { get; set; }
         public List<CombinedFragment> combinedFragments { get; set; }
         public List<Message> messages { get; set; }        
