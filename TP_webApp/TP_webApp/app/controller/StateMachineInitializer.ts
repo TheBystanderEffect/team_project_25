@@ -1,13 +1,29 @@
 import { StateSequence } from "./StateMachineBuilder";
-import { RaycasterControl } from "./RaycastControl";
+import { RaycastControl } from "./RaycastControl";
 import { GLContext } from "../view/GLContext";
 
-new StateSequence('CREATE_LIFELINE')
-.button('sideMessage')
-.click((e: Event) => {
-    // DETECT RAYCAST ON LIFELINE HERE
-    return false;
-},(e: Event) => {
-    // CREATE LIFELINE HERE
-})
-.finish();
+// StateSequence
+// .start('CREATE_LIFELINE')
+// .button('sideLife')
+// .click((e: Event) => {
+//     // DETECT RAYCAST ON LIFELINE HERE
+//     return false;
+// },(e: Event) => {
+//     // DIALOG POPUP
+// })
+// .dialog((dto: any) => {
+//     // CREATE LIFELINE HERE
+// })
+// .finish();
+
+export function initializeStateTransitions() {
+    
+    StateSequence
+    .start('TEST_SEQUENCE')
+    .button('sideLife')
+    .button('sideMessage')
+    .button('sideLayer')
+    .finish(() => {
+        console.log('lopata');
+    });
+}

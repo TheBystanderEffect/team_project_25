@@ -13,24 +13,23 @@ import { LayoutControl } from '../controller/LayoutControl';
 import { CameraControls } from './CameraControls';
 
 export function addLifeline(){
-
-    if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-        GLContext.instance.stateMachine.changeState = new State("MODIFYING").specialize('lifeline');
-    }
+    // if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
+    //     GLContext.instance.stateMachine.currentState = new State("MODIFYING").specialize('lifeline');
+    // }
 }
 export function addMessage(){
-    if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-        GLContext.instance.stateMachine.changeState = new State("MODIFYING").specialize('Message');;
-     }
+    // if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
+    //     GLContext.instance.stateMachine.currentState = new State("MODIFYING").specialize('Message');;
+    //  }
 }
 export function addLayer(){
-    if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-        let diag: Diagram = (window as any).diag as Diagram;
-        diag.addLayer(new Layer([],[],[]));
-        LayoutControl.magic(diag);
-        GLContext.instance.scene.children = [];
-        GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
-     }
+    // if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
+    //     let diag: Diagram = (window as any).diag as Diagram;
+    //     diag.addLayer(new Layer([],[],[]));
+    //     LayoutControl.magic(diag);
+    //     GLContext.instance.scene.children = [];
+    //     GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
+    //  }
 }
 
 

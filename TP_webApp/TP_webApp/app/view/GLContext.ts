@@ -4,6 +4,8 @@ import * as Config from "../config";
 //import { RaycastControl } from "../controller/RaycastControl";
 import { StateMachine } from "../controller/StateMachine";
 import { State } from "../controller/State";
+import { stateNeutral } from "../controller/StateMachineBuilder";
+import { initializeStateTransitions } from "../controller/StateMachineInitializer";
 
 export class GLContext {
 
@@ -87,7 +89,8 @@ export class GLContext {
         this._cameraControls = new CameraControls(this.camera);
 
         // initialize state machine
-        this._stateMachine = new StateMachine(this._canvas,new State('NEUTRAL'));
+        this._stateMachine = new StateMachine(this._canvas,stateNeutral);
+        initializeStateTransitions();
         
         // start rendering
         requestAnimationFrame(this.renderLoop.bind(this));

@@ -20,11 +20,13 @@ export class EventBus {
         this._canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
         this._canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
         this._canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+        document.addEventListener('click', this.handleButtonPressed.bind(this));
     }
 
     private _sendMouseDown: boolean = true;
     private _sendMouseUp: boolean = true;
     private _sendMouseMovement: boolean = true;
+    private _sendButtonPressed: boolean = true;
 
     public get sendMouseDown() {
         return this._sendMouseDown;
@@ -36,6 +38,10 @@ export class EventBus {
 
     public get sendMouseMovement() {
         return this._sendMouseMovement;
+    }
+
+    public get sendButtonPressed() {
+        return this._sendButtonPressed;
     }
 
     public handleMouseMove(event: MouseEvent) {
@@ -181,6 +187,12 @@ export class EventBus {
             // GLContext.instance.stateMachine.currentState = new State("NEUTRAL");
         }
 
+    }
+
+    public handleButtonPressed(event: MouseEvent) {
+        if (this.handleButtonPressed) {
+            this._callback(event);
+        }
     }
 
 }

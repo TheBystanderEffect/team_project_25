@@ -19,7 +19,7 @@ export class State {
     public specialize(specializationCode: string): State {
         let newState = new State(this.code + '_' + specializationCode);
 
-        // add state duplication logic
+        // TODO add state duplication logic
 
         return newState;
     }
@@ -30,16 +30,16 @@ export class State {
 
     public registerOutgoingTransition(transition: StateTransition): void {
         if (this._outgoingTransitions[transition.source.code] != null) {
-            throw new Error("State transition already exists");
+            throw new Error(`State transition already exists from ${this.code}`);
         }
         this._outgoingTransitions[transition.source.code] = transition;
     }
 
     public registerIncomingTransition(transition: StateTransition): void {
-        if (this._outgoingTransitions[transition.target.code] != null) {
-            throw new Error("State transition already exists");
+        if (this._incomingTransitions[transition.target.code] != null) {
+            throw new Error(`State transition already exists to ${this.code}`);
         }
-        this._outgoingTransitions[transition.target.code] = transition;
+        this._incomingTransitions[transition.target.code] = transition;
     }
 
 }
