@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace TP_webApp.Controllers
 {
     [Produces("application/json")]
@@ -33,7 +34,7 @@ namespace TP_webApp.Controllers
         
         // PUT: api/Lifeline/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, [FromBody]Lifeline)
         {
         }
         
