@@ -18,12 +18,21 @@ import { GLContext } from "../view/GLContext";
 
 export function initializeStateTransitions() {
     
+    let fork: StateSequence =
     StateSequence
     .start('TEST_SEQUENCE')
     .button('sideLife')
-    .button('sideMessage')
+    .button('sideMessage');
+
+    fork
     .button('sideLayer')
     .finish(() => {
-        console.log('lopata');
+        console.log('layer lopata');
+    });
+
+    fork
+    .button('sideLife')
+    .finish(() => {
+        console.log('lifeline lopata');
     });
 }

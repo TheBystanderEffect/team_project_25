@@ -7,8 +7,8 @@ export class State {
     )
     {}
 
-    private _incomingTransitions: { [ stateCode: string ]: StateTransition } = {};
-    private _outgoingTransitions: { [ stateCode: string ]: StateTransition } = {};
+    private _incomingTransitions: StateTransition[] = [];
+    private _outgoingTransitions: StateTransition[] = [];
 
     private _handlers: (() => StateTransition)[] = [];
 
@@ -25,21 +25,19 @@ export class State {
     }
 
     public get outgoingTransitions(): StateTransition[] {
-        return Object.keys(this._outgoingTransitions).map((e: string) => this._outgoingTransitions[e]);
+        return this._outgoingTransitions;
+    }
+
+    public get incomingTransitions(): StateTransition[] {
+        return this._incomingTransitions;
     }
 
     public registerOutgoingTransition(transition: StateTransition): void {
-        if (this._outgoingTransitions[transition.source.code] != null) {
-            throw new Error(`State transition already exists from ${this.code}`);
-        }
-        this._outgoingTransitions[transition.source.code] = transition;
+        this.outgoingTransitions.push(transition);
     }
 
     public registerIncomingTransition(transition: StateTransition): void {
-        if (this._incomingTransitions[transition.target.code] != null) {
-            throw new Error(`State transition already exists to ${this.code}`);
-        }
-        this._incomingTransitions[transition.target.code] = transition;
+        this.incomingTransitions.push(transition);
     }
 
 }

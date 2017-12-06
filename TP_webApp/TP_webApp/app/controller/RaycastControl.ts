@@ -26,7 +26,7 @@ export class RaycastControl{
 
   
     
-    public cast(camera:Camera,scene:Scene,event:MouseEvent):Array<CustomMesh>{
+    public cast(camera:Camera,scene:Scene,event:MouseEvent): CustomMesh[] {
         var mouse = new Vector2((( event.offsetX / window.innerWidth ) * 2 - 1),(-(event.offsetY / window.innerHeight ) * 2 + 1));
         this.raycaster.setFromCamera(mouse, camera);
         console.log(mouse)
