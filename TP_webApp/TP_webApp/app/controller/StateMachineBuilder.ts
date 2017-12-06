@@ -1,6 +1,7 @@
 import { State } from "./State";
 import { StateTransition } from "./StateTransition";
 import { Curve } from "three";
+import { CustomMesh } from "../view/CustomMesh";
 
 export const stateNeutral: State = new State('NEUTRAL');
 export const stateButton: State = new State('BUTTON');
@@ -13,8 +14,8 @@ export class StateSequence {
     private order: number = 0;
     private linked: boolean = false;
     private state: State = null;
-    private condition: (event: Event) => boolean = () => true;
-    private action: (event: Event) => void = () => {
+    private condition: (event: Event, hits: CustomMesh[]) => boolean = () => true;
+    private action: (event: Event, hits: CustomMesh[]) => void = () => {
         throw new Error("State transition with default action");
     };
 
@@ -28,7 +29,7 @@ export class StateSequence {
     private constructor(private name: string, private preceding: StateSequence) {
     }
 
-    public click(condition: (event: Event) => boolean, action: (event: Event) => void): StateSequence {
+    public click(condition: (event: Event, hits: CustomMesh[]) => boolean, action: (event: Event, hits: CustomMesh[]) => void): StateSequence {
         let newSeq: StateSequence = new StateSequence(this.name, this);
         newSeq.state = stateClicked.specialize(newSeq.name + '_' + this.order);
         newSeq.condition = condition;
@@ -60,12 +61,12 @@ export class StateSequence {
         throw new Error("Not implemented yet");
     }
 
-    public finish(action: (event: Event) =>  void): void {
+    public finish(action: (event: Event, hits: CustomMesh[]) =>  void): void {
         this.state = stateNeutral;
         let thisAct = this.action;
-        this.action = (event: Event) => {
-            thisAct(event);
-            action(event);
+        this.action = (event: Event, hits: CustomMesh[]) => {
+            thisAct(event, hits);
+            action(event, hits);
         };
         this.link();
     }

@@ -25,7 +25,7 @@ export class EventBus {
 
     private _sendMouseDown: boolean = true;
     private _sendMouseUp: boolean = true;
-    private _sendMouseMovement: boolean = true;
+    private _sendMouseMovement: boolean = false;
     private _sendButtonPressed: boolean = true;
 
     public get sendMouseDown() {
