@@ -46,7 +46,9 @@ export class Lifeline{
         this._layer = v;
     }
     
-    
+    AddOccurenceSpecification(occurenceSpecification:OccurenceSpecification){
+        this.occurenceSpecifications.push(occurenceSpecification);
+    }
 }
 
 
