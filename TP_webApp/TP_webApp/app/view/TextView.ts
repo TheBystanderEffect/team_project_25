@@ -2,14 +2,15 @@ import { TextGeometry, MeshBasicMaterial, Mesh, Scene, Vector3 } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
 import { FONT } from "../globals"
+import { BusinessElement } from '../model/BusinessElement';
 
 export class TextView extends GraphicElement{
     //mesh.metadata.parent: MessageView;
     //parent: Layer;//binis objekt already defined in GraphicElement
-    public length: number;
-    public center: Vector3;
+    //public length: number;
+    //public center: Vector3;
 
-    public constructor(parent:Object,source_x:number, source_y:number, source_z:number, text_string:string, text_size:number) {
+    public constructor(parent:BusinessElement,source_x:number, source_y:number, source_z:number, text_string:string, text_size:number) {
         super(parent);
         this.geometry = new TextGeometry( text_string, {
                 font: FONT,
@@ -23,6 +24,9 @@ export class TextView extends GraphicElement{
 
         this.mesh.metadata = {}
         this.mesh.metadata.parent=this
+
+        this.add(this.mesh);
+        this.position.set(0,0,0);
 
         return(this);
     }

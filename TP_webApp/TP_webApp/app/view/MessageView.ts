@@ -1,6 +1,7 @@
 import { CylinderGeometry, MeshBasicMaterial, Mesh, Scene, Vector3 } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
+import { BusinessElement } from '../model/BusinessElement';
 
 export class MessageView extends GraphicElement{
     //mesh.metadata.parent: MessageView;
@@ -8,7 +9,7 @@ export class MessageView extends GraphicElement{
     public length: number;
     public center: Vector3;
 
-    public constructor(parent:Object,source_x:number, source_y:number, source_z:number, destination_x:number, destination_y:number, destination_z:number) {
+    public constructor(parent:BusinessElement,source_x:number, source_y:number, source_z:number, destination_x:number, destination_y:number, destination_z:number) {
         super(parent);
         this.length = Math.sqrt(Math.pow(source_x-destination_x,2)+Math.pow(source_y-destination_y,2)+Math.pow(source_z-destination_z,2))
         this.center = new Vector3((source_x + destination_x)/2, (source_y + destination_y)/2, (source_z + destination_z)/2)
@@ -27,7 +28,7 @@ export class MessageView extends GraphicElement{
         return this;
     }    
 
-    public messageViewByVectors(parent: Object, source: Vector3, destination:Vector3):MessageView {
+    public messageViewByVectors(parent: BusinessElement, source: Vector3, destination:Vector3):MessageView {
         return new MessageView(parent, source.x,source.y,source.z,destination.x,destination.y,destination.z)
     }
 

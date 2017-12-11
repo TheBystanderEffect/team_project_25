@@ -4,14 +4,16 @@ import {Message} from "./Message";
 import {Layer} from "./Layer";
 import {DiagramView} from "../view/DiagramView";
 import { DiagramMetadata } from "./DiagramMetadata";
+import { BusinessElement } from "./BusinessElement";
 
-export class Diagram {
+export class Diagram extends BusinessElement{
 
     private _layers: Layer[];
     private _diagramView: DiagramView;
     private _metadata: DiagramMetadata;
 
     constructor(_layers: Layer[], _diagramView: DiagramView){
+        super();
         this._layers = _layers ? _layers : [];
     }
 

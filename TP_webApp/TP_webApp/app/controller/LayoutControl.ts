@@ -4,17 +4,17 @@ import {LayerView} from "../view/LayerView"
 import {LifelineView} from "../view/LifelineView"
 import {MessageView} from "../view/MessageView"
 import {TextView} from "../view/TextView"
-import {Geometry} from "three"
+import {Geometry, Vector3} from "three"
 import * as Config from "../config"
 
 export class LayoutControl{
  
     public static magic(diagram:Diagram){
-       
-        diagram.diagramView=new DiagramView(diagram);
+        console.log("magic")
+        if(!diagram.diagramView) diagram.diagramView=new DiagramView(diagram);
 
         diagram.layers.forEach((layer, index) => {
-
+          
             //TODO maybe make last offset min config thingie
             var dynamicLayerWidth = Config.firstLifelineOffsetX +
                 (layer.lifelines.length - 1) * Config.lifelineOffsetX +
@@ -30,69 +30,96 @@ export class LayoutControl{
             if(dynamicLayerHeight < Config.layerHeight){
                 dynamicLayerHeight = Config.layerHeight;
             }
+            if(!layer.graphicElement){
+                var templayerptr = new LayerView(
+                        layer,
+                        0,
+                        0,
+                        -Config.firstLayerOffset - Config.layerOffset*index,
+                        dynamicLayerWidth, //Config.layerWidth,
+                        dynamicLayerHeight //Config.layerHeight
+                    );
+                diagram.diagramView.add(templayerptr);
+                console.log(layer);
+            }else{templayerptr=layer.graphicElement as any 
+                //to be moved to method of object, something like update
+                templayerptr.mesh.scale.set(dynamicLayerWidth,dynamicLayerHeight,1);
+                console.log(templayerptr.mesh.scale)
+                console.log(templayerptr.mesh.children)
+                console.log(templayerptr.scale)
+                templayerptr.width=dynamicLayerWidth;
+                templayerptr.height=dynamicLayerHeight;
+            }
+            templayerptr.mesh.position.set(dynamicLayerWidth/2-Config.layerWidth/2,-dynamicLayerHeight/2+Config.layerHeight/2,0);
 
-            var templayerptr = new LayerView(
-                    layer,
-                    0,
-                    0,
-                    -Config.firstLayerOffset - Config.layerOffset*index,
-                    dynamicLayerWidth, //Config.layerWidth,
-                    dynamicLayerHeight //Config.layerHeight
-                );
-            diagram.diagramView.add(templayerptr.mesh);
-         
-            layer.lifelines.forEach((lifeline, index) =>{
-                var templifelineptr = new LifelineView(
+            layer.lifelines.forEach((lifeline, index) => {
+                if(!lifeline.graphicElement) {
+                    var tempTextPtr = new TextView( //TODO add offsets
                         lifeline,
-                        templayerptr.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
-                        templayerptr.source.y - Config.lifelineOffsetY,
-                        0,
-                        templayerptr.height-Config.lifelineOffsetY
+                        -10,//templifelineptr.source.x-10,
+                        5,//templifelineptr.source.y+5,
+                        0,//templifelineptr.source.z,
+                        lifeline.name,
+                        Config.lifelineTextSize
                     );
-                lifeline.lifelineView=templifelineptr;
-                templayerptr.mesh.add(templifelineptr.mesh);
 
-                var tempTextPtr = new TextView( //TODO add offsets
-                    lifeline,
-                    templifelineptr.source.x-10,
-                    templifelineptr.source.y+5,
-                    templifelineptr.source.z,
-                    lifeline.name,
-                    Config.lifelineTextSize
-                );
-                templayerptr.mesh.add(tempTextPtr.mesh);//TODO possibly tie to lifeline and not to layer
-
+                    var templifelineptr = new LifelineView(
+                            lifeline,
+                            templayerptr.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
+                            templayerptr.source.y - Config.lifelineOffsetY,
+                            0,
+                            templayerptr.height-Config.lifelineOffsetY
+                        );
+                    templayerptr.add(templifelineptr);
+                    templifelineptr.add(tempTextPtr);
+                    console.log(tempTextPtr);
+                    //templayerptr.add(tempTextPtr.mesh);//TODO possibly tie to lifeline and not to layer
+                } else {
+                    console.log("UPDATE");
+                    templifelineptr = lifeline.graphicElement as any
+                //     templifelineptr.length = templayerptr.height-Config.lifelineOffsetY;
+                //    // console.log(templifelineptr.scale)
+                //     templifelineptr.mesh.scale.set(1,templifelineptr.length,1);
+                //     //templifelineptr.center.set(templifelineptr.source.x,templifelineptr.source.y-templifelineptr.length/2,templifelineptr.source.z);// = templifelineptr.source;
+                    templifelineptr.mesh.position.set(0, -templifelineptr.length/2, 0);
+                //   //  console.log(templifelineptr.scale)
+                    
+                }  
+                //console.log(templifelineptr.mesh.children)
             });
 
-            layer.messages.forEach((message,index)=>{
-                var start = message.start.at.lifelineView.source;
-                var end = message.end.at.lifelineView.source;
-                var tempMessagePtr = new MessageView(
+            layer.messages.forEach((message,index) => {
+                if(!message.graphicElement){
+                    var start = (message.start.at.graphicElement as LifelineView).source;
+                    var end = (message.end.at.graphicElement as LifelineView).source;
+                    var tempMessagePtr = new MessageView(
+                            message,
+                            start.x,
+                            start.y-Config.firstMessageOffset-Config.messageOffset*index,
+                            0,
+                            end.x,
+                            end.y-Config.firstMessageOffset-Config.messageOffset*index,
+                            0
+                        );
+                    templayerptr.add(tempMessagePtr.mesh);
+                    
+                    //TODO lifeline lable creation
+                    var tempTextPtr = new TextView( //TODO add offsets and make it not retarded and dependant on mesh
                         message,
-                        start.x,
-                        start.y-Config.firstMessageOffset-Config.messageOffset*index,
-                        0,
-                        end.x,
-                        end.y-Config.firstMessageOffset-Config.messageOffset*index,
-                        0
+                        tempMessagePtr.mesh.position.x-10,
+                        tempMessagePtr.mesh.position.y+5,
+                        tempMessagePtr.mesh.position.z,
+                        message.name,
+                        Config.messageTextSize
                     );
-                
-                message.messageView = tempMessagePtr;
-                templayerptr.mesh.add(tempMessagePtr.mesh);
-                
-                //TODO lifeline lable creation
-                var tempTextPtr = new TextView( //TODO add offsets and make it not retarded and dependant on mesh
-                    message,
-                    tempMessagePtr.mesh.position.x-10,
-                    tempMessagePtr.mesh.position.y+5,
-                    tempMessagePtr.mesh.position.z,
-                    message.name,
-                    Config.messageTextSize
-                );
-                templayerptr.mesh.add(tempTextPtr.mesh);//TODO resolve rotation inteligentlier
+                    templayerptr.add(tempTextPtr.mesh);//TODO resolve rotation inteligentlier
+                }else{
+                    tempMessagePtr = message.graphicElement as any;
+                    
 
+                }  
             });
-
+          
         });
 
     }
