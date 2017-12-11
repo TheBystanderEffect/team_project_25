@@ -1,24 +1,23 @@
-import { Geometry, Material, Mesh, Scene, Vector3 } from 'three'
+import { Geometry, Material, Mesh, Scene, Vector3, Object3D } from 'three'
 import { CustomMesh } from './CustomMesh'
+import { BusinessElement } from '../model/BusinessElement';
 
-export class GraphicElement{
-    // public x: number;
-    // public y: number;
-    // public z: number;
-
-    //public position: Vector3; //center of element, x,y,z
+export class GraphicElement extends Object3D{
 
     public width: number;
     public height: number;
     public geometry: Geometry;
     public material: Material;
-    public mesh: CustomMesh;
-    public parent: Object;//binis objekt
+    public mesh: CustomMesh; //primarny mesh elementu
+    public businessElement: BusinessElement;//binis objekt
 
-    public constructor(parent:Object){
-        this.parent = parent;
+    public constructor(businessElement:BusinessElement){
+        super();
+        this.businessElement = businessElement;
+        this.businessElement.graphicElement = this;
     }
 
+    //deprecated
     public draw(targetScene: Scene): void {
         targetScene.add(this.mesh);
     }
