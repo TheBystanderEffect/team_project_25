@@ -10,7 +10,7 @@ import * as Config from "../config"
 export class LayoutControl{
  
     public static magic(diagram:Diagram){
-        console.log("magic")
+       
         diagram.diagramView=new DiagramView(diagram);
 
         diagram.layers.forEach((layer, index) => {
@@ -40,7 +40,7 @@ export class LayoutControl{
                     dynamicLayerHeight //Config.layerHeight
                 );
             diagram.diagramView.add(templayerptr.mesh);
-            console.log(layer);
+         
             layer.lifelines.forEach((lifeline, index) =>{
                 var templifelineptr = new LifelineView(
                         lifeline,
