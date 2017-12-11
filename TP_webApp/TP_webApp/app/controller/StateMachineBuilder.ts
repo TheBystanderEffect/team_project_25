@@ -39,13 +39,14 @@ export class StateSequence {
     }
 
     public drag(condition: (event: Event) => boolean, action: (event: Event) => void, cleanup: (event: Event) => void): StateSequence {
-        let newSeq: StateSequence = new StateSequence(this.name, this);
-        newSeq.state = stateDragged.specialize(newSeq.name + '_' + this.order);
-        newSeq.condition = condition;
-        newSeq.action = action;
-        newSeq.order = this.order + 1;
-        // TODO add cleanup
-        return newSeq;
+        throw new Error("Not yet implemented");
+        // let newSeq: StateSequence = new StateSequence(this.name, this);
+        // newSeq.state = stateDragged.specialize(newSeq.name + '_' + this.order);
+        // newSeq.condition = condition;
+        // newSeq.action = action;
+        // newSeq.order = this.order + 1;
+        // // TODO add cleanup
+        // return newSeq;
     }
 
     public button(buttonId: string): StateSequence {
