@@ -6,12 +6,13 @@ import { LayerView } from "../view/LayerView";
 import { Lifeline } from "../model/Lifeline";
 import { LayoutControl } from "./LayoutControl";
 import { Diagram } from "../model/Diagram";
+import * as Globals from '../globals';
 
 // StateSequence
 // .start('CREATE_LIFELINE')
 // .button('sideLife')
 // .click((e: Event) => {
-//     // DETECT RAYCAST ON LIFELINE HERE
+//     // DETECT RAYCAST ON LIFELINE HERE``
 //     return false;
 // },(e: Event) => {
 //     // DIALOG POPUP
@@ -53,13 +54,13 @@ export function initializeStateTransitions() {
 
         for (let obj of h) {
             if (obj.metadata.parent instanceof LayerView) {
-                let lifelineNew = new Lifeline('Standard name','',[], obj.metadata.parent.parent);
-                obj.metadata.parent.parent.AddLifeline(lifelineNew);
-                LayoutControl.magic((window as any).diag);
-                for (let child of GLContext.instance.scene.children) {
-                    GLContext.instance.scene.remove(child);
-                }
-                GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
+                // let lifelineNew = new Lifeline('Standard name','',[], obj.metadata.parent.parent);
+                // obj.metadata.parent.parent.AddLifeline(lifelineNew);
+                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                // for (let child of GLContext.instance.scene.children) {
+                //     GLContext.instance.scene.remove(child);
+                // }
+                // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
             }
         }
     })

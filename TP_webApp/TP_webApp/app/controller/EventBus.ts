@@ -9,7 +9,8 @@ import { CustomMesh } from "../view/CustomMesh";
 import { State } from "./State";
 import { Message } from "../model/Message";
 import { OccurenceSpecification } from "../model/OccurenceSpecification";
-import { RaycastControl } from "./RaycastControl"
+import { RaycastControl } from "./RaycastControl";
+import * as Globals from '../globals';
 
 export class EventBus {
 
@@ -81,9 +82,9 @@ export class EventBus {
                     // this._intersection = raycaster.intersectObjects(layersinDiagram);
                     let lifelineNew = new Lifeline('Standard name','',[], (this._intersection[0]).metadata.parent.parent);
                     (this._intersection[0]).metadata.parent.parent.AddLifeline(lifelineNew);
-                    LayoutControl.magic((window as any).diag);
+                    LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                     GLContext.instance.scene.children = [];
-                    GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
+                    GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
                     GLContext.instance.stateMachine.currentState = new State("NEUTRAL");
                     
                     
@@ -141,10 +142,10 @@ export class EventBus {
                     newMessage.end.message = newMessage;
                     console.log("Message created");
 
-                    LayoutControl.magic((window as any).diag);
+                    LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                     console.log("after magic");
                     GLContext.instance.scene.children = [];
-                    GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
+                    GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
                     console.log("finish");
                     GLContext.instance.stateMachine.currentState = new State("NEUTRAL");
                     
@@ -179,10 +180,10 @@ export class EventBus {
             // newMessage.end.message = newMessage;
             // console.log("end of Message creation");
 
-            // LayoutControl.magic((window as any).diag);
+            // LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
             // console.log("after magic");
             // GLContext.instance.scene.children = [];
-            // GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
+            // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
             // console.log("finish");
             // GLContext.instance.stateMachine.currentState = new State("NEUTRAL");
         }

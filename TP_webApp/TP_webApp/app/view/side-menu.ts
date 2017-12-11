@@ -11,6 +11,7 @@ import { Diagram } from '../model/Diagram';
 import { Layer } from '../model/Layer';
 import { LayoutControl } from '../controller/LayoutControl';
 import { CameraControls } from './CameraControls';
+import * as Globals from '../globals';
 
 export function addLifeline(){
     // if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
@@ -24,11 +25,11 @@ export function addMessage(){
 }
 export function addLayer(){
     // if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-    //     let diag: Diagram = (window as any).diag as Diagram;
+    //     let diag: Diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
     //     diag.addLayer(new Layer([],[],[]));
     //     LayoutControl.magic(diag);
     //     GLContext.instance.scene.children = [];
-    //     GLContext.instance.scene.add(((window as any).diag as Diagram).diagramView);
+    //     GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
     //  }
 }
 

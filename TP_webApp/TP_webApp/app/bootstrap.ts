@@ -82,7 +82,7 @@ Promise.all([
     //testing of layout
     console.log("testing layout");
     var diag = new Diagram(null,null);
-    (window as any).diag = diag;
+    Globals.setOpenDiagram(diag);
     var ll1 = new Lifeline("ll1"," ",[],l1);
     var ll2 = new Lifeline("ll2"," ",[],l1);
     var ll3 = new Lifeline("ll3"," ",[],l1);
