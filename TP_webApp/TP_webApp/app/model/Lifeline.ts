@@ -52,7 +52,7 @@ export class Lifeline{
 
 
     public delete() {
-   
+        console.log(this.layer.messages)
         for (let message of this.occurenceSpecifications.map(e => e.message)) {
             
             message.start.at.occurenceSpecifications.splice(message.start.at.occurenceSpecifications.indexOf(message.start),1);

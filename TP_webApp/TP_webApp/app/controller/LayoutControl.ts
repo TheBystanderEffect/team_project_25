@@ -76,6 +76,8 @@ export class LayoutControl{
                         end.y-Config.firstMessageOffset-Config.messageOffset*index,
                         0
                     );
+                
+                message.messageView = tempMessagePtr;
                 templayerptr.mesh.add(tempMessagePtr.mesh);
                 
                 //TODO lifeline lable creation

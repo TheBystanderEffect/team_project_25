@@ -8,6 +8,7 @@ import { LayoutControl } from "./LayoutControl";
 import { Diagram } from "../model/Diagram";
 import * as Globals from '../globals';
 import { LifelineView } from "../view/LifelineView";
+import { MessageView } from "../view/MessageView";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -67,11 +68,11 @@ export function initializeStateTransitions() {
     })
     .finish(() => {});
     StateSequence
-    .start('CREATE_LIFELINE')
+    .start('DELETE_LIFELINE')
     .button('sideDeleteLife')
     .click((e: Event, h: CustomMesh[]) => {
         for (let obj of h) {
-            if (obj.metadata.parent instanceof LayerView) {
+            if (obj.metadata.parent instanceof LifelineView) {
                 return true;
             }
         }
@@ -79,17 +80,10 @@ export function initializeStateTransitions() {
     },(e: Event, h: CustomMesh[]) => {
 
         // TODO refactor this
-            console.log(h);
+          
         for (let obj of h) {
             if (obj.metadata.parent instanceof LifelineView) {
-                // let lifelineNew = new Lifeline('Standard name','',[], obj.metadata.parent.parent);
-                // obj.metadata.parent.parent.AddLifeline(lifelineNew);
-                obj.metadata.parent.parent.delete();    
-                // for (let element of obj.metadata.parent.parent.layer.lifelines) {
-                //     if (element == obj.metadata.parent.parent) {
-                //         console.log(element )
-                //     }
-                // }
+                obj.metadata.parent.parent.delete();        
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 for (let child of GLContext.instance.scene.children) {
                     GLContext.instance.scene.remove(child);
@@ -99,4 +93,35 @@ export function initializeStateTransitions() {
         }
     })
     .finish(() => {});
+
+
+    StateSequence
+    .start('DELETE_MESSAGE')
+    .button('sideDeleteMessage')
+    .click((e: Event, h: CustomMesh[]) =>{
+        for (let obj of h) {
+            if (obj.metadata.parent instanceof MessageView) {
+                return true;
+            }
+        }
+        return false;
+
+    },(e: Event, h: CustomMesh[]) =>{
+
+        console.log(h)
+        for (let obj of h ) {
+            if (obj.metadata.parent instanceof MessageView) {
+                
+                console.log(obj.metadata.parent.parent)
+                obj.metadata.parent.parent.delete();
+                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                for (let child of GLContext.instance.scene.children) {
+                    GLContext.instance.scene.remove(child);
+                }
+                GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
+            }
+        }
+
+    })
+    .finish(() =>{})
 }
