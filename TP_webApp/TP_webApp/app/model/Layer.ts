@@ -12,14 +12,19 @@ export class Layer{
             this.lifelines = lifelines;
             this.combinedFragments = combinedFragments;
             this.messages = messages;
-    
         }
     
         AddMessage(message:Message) {
                 this.messages.push(message)
         }
+
+        AddLifeline(lifelines:Lifeline){
+            this.lifelines.push(lifelines);
+        }
     
-    
+        lopata(){
+            console.log("TEST SUCCESS!");
+        }
     
     }
     

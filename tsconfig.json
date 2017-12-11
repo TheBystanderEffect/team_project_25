@@ -12,6 +12,8 @@
     },
     "includes": [
         "TP_webApp/TP_webApp/app/*.ts",
-        "TP_webApp/TP_webApp/app/model/*.ts"
+        "TP_webApp/TP_webApp/app/model/*.ts",
+        "TP_webApp/TP_webApp/app/view/*.ts",
+        "TP_webApp/TP_webApp/app/controller/*.ts"
     ]
   }

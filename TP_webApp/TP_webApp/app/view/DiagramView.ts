@@ -5,13 +5,19 @@ import { Diagram } from "../model/Diagram"
 
 export class DiagramView extends Object3D{
 
-    private diagram:Diagram;
+    private _diagram:Diagram;
 
     public constructor(diagram:Diagram) {
         super();
-        this.diagram=diagram;
+        this._diagram=diagram;
         return this;
     }    
+
+    
+    public get diagram() : Diagram {
+        return this._diagram;
+    }
+    
 
 }
 

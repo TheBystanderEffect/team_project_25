@@ -6,8 +6,9 @@ export class InteractionOperand{
     combinedFragment:CombinedFragment[];
     messages:Message[];
 
-
-    
-    
-
+    constructor(interactionConstraint: string, combinedFragment:CombinedFragment[], messages:Message[]){
+        this.interactionConstraint = interactionConstraint;
+        this.combinedFragment = combinedFragment;
+        this.messages = messages;
+    }
 }

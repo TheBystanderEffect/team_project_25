@@ -1,4 +1,5 @@
 import { PerspectiveCamera, Object3D, Vector3, Euler, Scene } from 'three';
+import {Serializer} from '../controller/Serializer';
 
 export class CameraControls {
 
@@ -26,7 +27,6 @@ export class CameraControls {
 
             this.pitchObject.add(camera);
             this.yawObject.add(this.pitchObject);
-
         }
         
         public set enabled(enabled: boolean) {
@@ -98,7 +98,7 @@ export class CameraControls {
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorD);
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorQ);
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorE);
-            this.pitchObject.position.add(this.cameraSpeedVector);
+            this.yawObject.position.add(this.cameraSpeedVector);
         }
         
         onkeyup(event: KeyboardEvent) {
@@ -139,8 +139,17 @@ export class CameraControls {
         }
 
         public updateCamera(): void {
+            this.pitchObject.updateMatrixWorld(false)
             this.yawObject.updateMatrixWorld(false);
+            this.camera.updateMatrixWorld(false)
             this.camera.updateProjectionMatrix();
         }
         
+        public loadViewpoint(x: number, y: number, z: number, yaw: number, pitch: number): void{
+            console.log("X:" + x + " Y:" + y + " Z:" + z + " Yaw:" + yaw + " Pitch:" + pitch + " YawObject:" + this.yawObject + " PitchObject:" + this.pitchObject);
+            this.yawObject.position.set(x, y, z);
+            this.yawObject.rotation.y = yaw;
+            this.pitchObject.rotation.x = pitch;
+            this.updateCamera();
+        }
 }

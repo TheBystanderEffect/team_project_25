@@ -9,8 +9,8 @@ export class TextView extends GraphicElement{
     public length: number;
     public center: Vector3;
 
-    public constructor(source_x:number, source_y:number, source_z:number, text_string:string, text_size:number) {
-        super();
+    public constructor(parent:Object,source_x:number, source_y:number, source_z:number, text_string:string, text_size:number) {
+        super(parent);
         this.geometry = new TextGeometry( text_string, {
                 font: FONT,
                 size: text_size,
