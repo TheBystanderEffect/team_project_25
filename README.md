@@ -5,6 +5,7 @@ zdrojove kody timoveho projektu 25
 
 - ASP.Net core 2.0
 - MongoDB 3.4
+- Node.js
 
 ##  Návod
 ### Stiahnute Node_Modules
