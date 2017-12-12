@@ -56,8 +56,8 @@ export function initializeStateTransitions() {
 
         for (let obj of h) {
             if (obj.metadata.parent instanceof LayerView) {
-                let lifelineNew = new Lifeline('Standard name','',[], obj.metadata.parent.parent);
-                obj.metadata.parent.parent.AddLifeline(lifelineNew);
+                let lifelineNew = new Lifeline('Standard name','',[], obj.metadata.parent.businessElement);
+                obj.metadata.parent.businessElement.AddLifeline(lifelineNew);
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 for (let child of GLContext.instance.scene.children) {
                     GLContext.instance.scene.remove(child);
@@ -83,7 +83,7 @@ export function initializeStateTransitions() {
           
         for (let obj of h) {
             if (obj.metadata.parent instanceof LifelineView) {
-                obj.metadata.parent.parent.delete();        
+                obj.metadata.parent.businessElement.delete();        
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 for (let child of GLContext.instance.scene.children) {
                     GLContext.instance.scene.remove(child);
@@ -112,8 +112,8 @@ export function initializeStateTransitions() {
         for (let obj of h ) {
             if (obj.metadata.parent instanceof MessageView) {
                 
-                console.log(obj.metadata.parent.parent)
-                obj.metadata.parent.parent.delete();
+                console.log(obj.metadata.parent.businessElement)
+                obj.metadata.parent.businessElement.delete();
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 for (let child of GLContext.instance.scene.children) {
                     GLContext.instance.scene.remove(child);
