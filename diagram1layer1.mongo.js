@@ -1,6 +1,6 @@
-db.diagrams.replaceOne({ id: 1 },
+db.diagrams.replaceOne({ id: 2 },
 {
-	id: 1,
+	id: 2,
 	elements: [
 		{
 			type: "LAYER",

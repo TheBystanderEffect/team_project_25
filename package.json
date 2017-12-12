@@ -20,5 +20,14 @@
   "bugs": {
     "url": "https://github.com/TheBystanderEffect/team_project_25/issues"
   },
-  "homepage": "https://github.com/TheBystanderEffect/team_project_25#readme"
+  "homepage": "https://github.com/TheBystanderEffect/team_project_25#readme",
+  "dependencies": {
+    "@types/three": "^0.84.27",
+    "assert": "^1.4.1",
+    "mocha": "^4.0.1",
+    "three": "^0.87.1",
+    "ts-loader": "^3.0.5",
+    "typescript": "^2.5.3",
+    "webpack": "^3.8.0"
+  }
 }
