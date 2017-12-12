@@ -85,10 +85,10 @@ export function initializeStateTransitions() {
             if (obj.metadata.parent instanceof LifelineView) {
                 obj.metadata.parent.businessElement.delete();        
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-                for (let child of GLContext.instance.scene.children) {
-                    GLContext.instance.scene.remove(child);
-                }
-                GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
+                // for (let child of GLContext.instance.scene.children) {
+                //     GLContext.instance.scene.remove(child);
+                // }
+                // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
             }
         }
     })
@@ -108,17 +108,17 @@ export function initializeStateTransitions() {
 
     },(e: Event, h: CustomMesh[]) =>{
 
-        console.log(h)
+        //console.log(h)
         for (let obj of h ) {
             if (obj.metadata.parent instanceof MessageView) {
                 
                 console.log(obj.metadata.parent.businessElement)
                 obj.metadata.parent.businessElement.delete();
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-                for (let child of GLContext.instance.scene.children) {
-                    GLContext.instance.scene.remove(child);
-                }
-                GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
+                // for (let child of GLContext.instance.scene.children) {
+                //     GLContext.instance.scene.remove(child);
+                // }
+                // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
             }
         }
 

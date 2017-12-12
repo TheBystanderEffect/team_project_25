@@ -32,7 +32,7 @@ export class MessageView extends GraphicElement{
         return this;
     }    
 
-    public messageViewByVectors(parent: BusinessElement, source: Vector3, destination:Vector3):MessageView {
+    public static messageViewByVectors(parent: BusinessElement, source: Vector3, destination:Vector3):MessageView {
         return new MessageView(parent, source.x,source.y,source.z,destination.x,destination.y,destination.z)
     }
 

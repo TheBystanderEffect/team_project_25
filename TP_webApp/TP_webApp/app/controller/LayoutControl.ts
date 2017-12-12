@@ -88,8 +88,12 @@ export class LayoutControl{
                 //   //  console.log(templifelineptr.scale)
                     
                 }  
+                console.log(lifeline.name);
+                console.log(lifeline.graphicElement.position);
                 //console.log(templifelineptr.mesh.children)
             });
+
+            console.log('lifelines done')
 
             layer.messages.forEach((message,index) => {
                 if(!message.graphicElement){
@@ -120,8 +124,11 @@ export class LayoutControl{
                     tempMessagePtr.add(tempTextPtr.mesh);//TODO resolve rotation inteligentlier
                 }else{
                     tempMessagePtr = message.graphicElement as any;
-                    var start = (message.start.at.graphicElement as LifelineView).source;
-                    var end = (message.end.at.graphicElement as LifelineView).source;
+                    var start = (message.start.at.graphicElement as LifelineView).position;
+                    var end = (message.end.at.graphicElement as LifelineView).position;
+
+                    
+                    console.log("start: " + message.start.at.name + " end: " + message.end.at.name);
 
                     console.log(start);
                     console.log(end);
