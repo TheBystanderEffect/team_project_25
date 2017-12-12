@@ -2,25 +2,27 @@
 <html>
 <head>
     <title>static mock view</title>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>
-        <script src="../js/mock_elements.js"></script>
-        <script src="../js/test.js" ></script>
-        <script src="../js/model/visualization.js" ></script>
-        <link rel="stylesheet" type="text/css" href="../css/mock.css">
+
+    <style>
+        body{
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas{
+            background: red;
+        }
+
+    </style>
 </head>
-   
-            <button id="reloadBtn">Reload</button>
-            
-            <canvas id="myCanvas"></canvas>
-     <!-- <div id="mySidenav" class="sidenav">
-               
-     </div>
-    
+<body>
+    <button id="reloadBtn">Reload</button>
 
-     <div id="main" class="container" >
-        <button id="openMenu" onclick="toggleNav()">Open</button>
-        <canvas id="myCanvas"></canvas>
-     </div> -->
+    <canvas id="myCanvas"></canvas>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>
+    <script src="../js/mock_elements.js"></script>
+    <script src="../js/test.js" ></script>
+</body>
 </html>
 

@@ -8,6 +8,8 @@ zdrojove kody timoveho projektu 25
 - NodeJS + npm
 
 ##  Návod
+### Stiahnute Node_Modules
+V koreňovom priečinku cez bash zavolať "npm install"
 
 Spustenie:
 
