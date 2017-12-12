@@ -33,6 +33,8 @@ export class Message extends BusinessElement{
             this.start.at.layer.messages.splice(this.start.at.layer.messages.indexOf(this),1);
             //this.end.at.layer.messages.splice(this.end.at.layer.messages.indexOf(this),1)
 
+            this.parentLayer.graphicElement.remove(this.graphicElement);
+
     }
 }
 

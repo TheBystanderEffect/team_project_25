@@ -88,12 +88,12 @@ export class LayoutControl{
                 //   //  console.log(templifelineptr.scale)
                     
                 }  
-                console.log(lifeline.name);
-                console.log(lifeline.graphicElement.position);
+                // console.log(lifeline.name);
+                // console.log(lifeline.graphicElement.position);
                 //console.log(templifelineptr.mesh.children)
             });
 
-            console.log('lifelines done')
+            // console.log('lifelines done')
 
             layer.messages.forEach((message,index) => {
                 if(!message.graphicElement){
@@ -128,10 +128,10 @@ export class LayoutControl{
                     var end = (message.end.at.graphicElement as LifelineView).position;
 
                     
-                    console.log("start: " + message.start.at.name + " end: " + message.end.at.name);
+                    // console.log("start: " + message.start.at.name + " end: " + message.end.at.name);
 
-                    console.log(start);
-                    console.log(end);
+                    // console.log(start);
+                    // console.log(end);
 
                     tempMessagePtr.length = Math.sqrt(Math.pow(start.x-end.x,2)+Math.pow(start.y-end.y,2)+Math.pow(start.z-end.z,2));
                     tempMessagePtr.center = new Vector3(
