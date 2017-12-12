@@ -10,7 +10,7 @@ import * as Config from "../config"
 export class LayoutControl{
  
     public static magic(diagram:Diagram){
-        console.log("magic")
+        // console.log("magic")
         if(!diagram.diagramView) diagram.diagramView=new DiagramView(diagram);
 
         diagram.layers.forEach((layer, index) => {
@@ -40,13 +40,13 @@ export class LayoutControl{
                         dynamicLayerHeight //Config.layerHeight
                     );
                 diagram.diagramView.add(templayerptr);
-                console.log(layer);
+                // console.log(layer);
             }else{templayerptr=layer.graphicElement as any 
                 //to be moved to method of object, something like update
                 templayerptr.mesh.scale.set(dynamicLayerWidth,dynamicLayerHeight,1);
-                console.log(templayerptr.mesh.scale)
-                console.log(templayerptr.mesh.children)
-                console.log(templayerptr.scale)
+                // console.log(templayerptr.mesh.scale)
+                // console.log(templayerptr.mesh.children)
+                // console.log(templayerptr.scale)
                 templayerptr.width=dynamicLayerWidth;
                 templayerptr.height=dynamicLayerHeight;
             }
@@ -72,11 +72,14 @@ export class LayoutControl{
                         );
                     templayerptr.add(templifelineptr);
                     templifelineptr.add(tempTextPtr);
-                    console.log(tempTextPtr);
+                    // console.log(tempTextPtr);
                     //templayerptr.add(tempTextPtr.mesh);//TODO possibly tie to lifeline and not to layer
                 } else {
-                    console.log("UPDATE");
+                    // console.log("UPDATE");
                     templifelineptr = lifeline.graphicElement as any
+                    templifelineptr.position.set(templayerptr.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
+                        templayerptr.source.y - Config.lifelineOffsetY,
+                        0);
                 //     templifelineptr.length = templayerptr.height-Config.lifelineOffsetY;
                 //    // console.log(templifelineptr.scale)
                 //     templifelineptr.mesh.scale.set(1,templifelineptr.length,1);
@@ -85,37 +88,60 @@ export class LayoutControl{
                 //   //  console.log(templifelineptr.scale)
                     
                 }  
+                console.log(lifeline.name);
+                console.log(lifeline.graphicElement.position);
                 //console.log(templifelineptr.mesh.children)
             });
+
+            console.log('lifelines done')
 
             layer.messages.forEach((message,index) => {
                 if(!message.graphicElement){
                     var start = (message.start.at.graphicElement as LifelineView).source;
                     var end = (message.end.at.graphicElement as LifelineView).source;
-                    var tempMessagePtr = new MessageView(
-                            message,
-                            start.x,
-                            start.y-Config.firstMessageOffset-Config.messageOffset*index,
-                            0,
-                            end.x,
-                            end.y-Config.firstMessageOffset-Config.messageOffset*index,
-                            0
-                        );
-                    templayerptr.add(tempMessagePtr.mesh);
-                    
-                    //TODO lifeline lable creation
+
                     var tempTextPtr = new TextView( //TODO add offsets and make it not retarded and dependant on mesh
                         message,
-                        tempMessagePtr.mesh.position.x-10,
-                        tempMessagePtr.mesh.position.y+5,
-                        tempMessagePtr.mesh.position.z,
+                        -10,
+                        5,
+                        0,
                         message.name,
                         Config.messageTextSize
                     );
-                    templayerptr.add(tempTextPtr.mesh);//TODO resolve rotation inteligentlier
+
+                    var tempMessagePtr = new MessageView(
+                            message,
+                            start.x,
+                            start.y - Config.firstMessageOffset - Config.messageOffset * index,
+                            0,
+                            end.x,
+                            end.y - Config.firstMessageOffset - Config.messageOffset * index,
+                            0
+                        );
+                    templayerptr.add(tempMessagePtr);
+                    
+                    //TODO lifeline lable creation
+                    tempMessagePtr.add(tempTextPtr.mesh);//TODO resolve rotation inteligentlier
                 }else{
                     tempMessagePtr = message.graphicElement as any;
+                    var start = (message.start.at.graphicElement as LifelineView).position;
+                    var end = (message.end.at.graphicElement as LifelineView).position;
+
                     
+                    console.log("start: " + message.start.at.name + " end: " + message.end.at.name);
+
+                    console.log(start);
+                    console.log(end);
+
+                    tempMessagePtr.length = Math.sqrt(Math.pow(start.x-end.x,2)+Math.pow(start.y-end.y,2)+Math.pow(start.z-end.z,2));
+                    tempMessagePtr.center = new Vector3(
+                        (start.x + end.x)/2, 
+                        start.y-Config.firstMessageOffset-Config.messageOffset*index,
+                        (start.z + end.z)/2
+                    );
+
+                    tempMessagePtr.position.copy(tempMessagePtr.center);
+                    tempMessagePtr.mesh.scale.setY(tempMessagePtr.length);
 
                 }  
             });

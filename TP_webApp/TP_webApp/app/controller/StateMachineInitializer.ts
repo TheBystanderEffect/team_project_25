@@ -7,6 +7,8 @@ import { Lifeline } from "../model/Lifeline";
 import { LayoutControl } from "./LayoutControl";
 import { Diagram } from "../model/Diagram";
 import * as Globals from '../globals';
+import { LifelineView } from "../view/LifelineView";
+import { MessageView } from "../view/MessageView";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -54,8 +56,34 @@ export function initializeStateTransitions() {
 
         for (let obj of h) {
             if (obj.metadata.parent instanceof LayerView) {
-                // let lifelineNew = new Lifeline('Standard name','',[], obj.metadata.parent.parent);
-                // obj.metadata.parent.parent.AddLifeline(lifelineNew);
+                let lifelineNew = new Lifeline('Standard name','',[], obj.metadata.parent.businessElement);
+                obj.metadata.parent.businessElement.AddLifeline(lifelineNew);
+                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                for (let child of GLContext.instance.scene.children) {
+                    GLContext.instance.scene.remove(child);
+                }
+                GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
+            }
+        }
+    })
+    .finish(() => {});
+    StateSequence
+    .start('DELETE_LIFELINE')
+    .button('sideDeleteLife')
+    .click((e: Event, h: CustomMesh[]) => {
+        for (let obj of h) {
+            if (obj.metadata.parent instanceof LifelineView) {
+                return true;
+            }
+        }
+        return false;
+    },(e: Event, h: CustomMesh[]) => {
+
+        // TODO refactor this
+          
+        for (let obj of h) {
+            if (obj.metadata.parent instanceof LifelineView) {
+                obj.metadata.parent.businessElement.delete();        
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
@@ -65,4 +93,35 @@ export function initializeStateTransitions() {
         }
     })
     .finish(() => {});
+
+
+    StateSequence
+    .start('DELETE_MESSAGE')
+    .button('sideDeleteMessage')
+    .click((e: Event, h: CustomMesh[]) =>{
+        for (let obj of h) {
+            if (obj.metadata.parent instanceof MessageView) {
+                return true;
+            }
+        }
+        return false;
+
+    },(e: Event, h: CustomMesh[]) =>{
+
+        //console.log(h)
+        for (let obj of h ) {
+            if (obj.metadata.parent instanceof MessageView) {
+                
+                console.log(obj.metadata.parent.businessElement)
+                obj.metadata.parent.businessElement.delete();
+                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                // for (let child of GLContext.instance.scene.children) {
+                //     GLContext.instance.scene.remove(child);
+                // }
+                // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
+            }
+        }
+
+    })
+    .finish(() =>{})
 }

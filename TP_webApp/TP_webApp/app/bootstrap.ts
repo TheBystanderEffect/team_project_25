@@ -12,6 +12,7 @@ import { Layer } from "./model/Layer" //testing layout
 import { Lifeline } from "./model/Lifeline" //testing layout
 import { Message } from "./model/Message" //testing layout
 import { OccurenceSpecification } from "./model/OccurenceSpecification" //testing layout
+import { Serializer } from './controller/Serializer';
 
 /*
 Load resources
@@ -80,13 +81,16 @@ Promise.all([
     });
 
     //testing of layout
-    console.log("testing layout");
-    var diag = new Diagram(null,null);
-    Globals.setOpenDiagram(diag);
+   
+    /*var diag = new Diagram(null,null);
+    Globals.setOpenDiagram(diag); 
+    var l1: Layer = new Layer([],[],[]);
     var ll1 = new Lifeline("ll1"," ",[],l1);
     var ll2 = new Lifeline("ll2"," ",[],l1);
     var ll3 = new Lifeline("ll3"," ",[],l1);
-    var l1: Layer = new Layer([ll1,ll2,ll3],[],[]);
+    l1.AddLifeline(ll1);
+    l1.AddLifeline(ll2);
+    l1.AddLifeline(ll3);
     ll1.layer=l1;
     ll2.layer=l1;
     ll3.layer=l1;
@@ -110,8 +114,10 @@ Promise.all([
     diag.addLayer(l1);
     //diag.addLayer(l2);
     LayoutControl.magic(diag);
-    GLContext.instance.scene.add(diag.diagramView);
-    console.log(diag.diagramView);
-    console.log("did it work?")
+    GLContext.instance.scene.add(diag.diagramView);*/
 
+    Globals.setOpenDiagram(Serializer.instance.createTestDiagram());
+
+    LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
 });
