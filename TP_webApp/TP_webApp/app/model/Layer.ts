@@ -17,7 +17,7 @@ export class Layer extends BusinessElement{
         }
     
         AddMessage(message:Message) {
-                this.messages.push(message)
+                this.messages.push(message);
         }
 
         AddLifeline(lifelines:Lifeline){

@@ -25,6 +25,16 @@ export class Message extends BusinessElement{
         this.end = end;
     }
 
-    
+    public delete() {
+        console.log("deleting message")
+            
+            this.start.at.occurenceSpecifications.splice(this.start.at.occurenceSpecifications.indexOf(this.start),1);
+            this.end.at.occurenceSpecifications.splice(this.end.at.occurenceSpecifications.indexOf(this.end),1);
+            this.start.at.layer.messages.splice(this.start.at.layer.messages.indexOf(this),1);
+            //this.end.at.layer.messages.splice(this.end.at.layer.messages.indexOf(this),1)
+
+            this.parentLayer.graphicElement.remove(this.graphicElement);
+
+    }
 }
 

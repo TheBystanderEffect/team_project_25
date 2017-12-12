@@ -29,12 +29,9 @@ export class RaycastControl{
     public cast(camera:Camera,scene:Scene,event:MouseEvent): CustomMesh[] {
         var mouse = new Vector2((( event.offsetX / window.innerWidth ) * 2 - 1),(-(event.offsetY / window.innerHeight ) * 2 + 1));
         this.raycaster.setFromCamera(mouse, camera);
-        // console.log(mouse)
-        // console.log(this.raycaster)
+        
         var intersects = this.raycaster.intersectObjects( scene.children , true );
-        // console.log("intersects");  
-        // console.log(intersects);
-        // try {console.log(intersects[0].point)}catch(e){console.log('NO POINT fuck you')}
+        
         return intersects.map(e=>e.object) as any as CustomMesh[];
         // if(this.hasClicked ){
         //     this.raycaster.setFromCamera( this.mouse, camera );

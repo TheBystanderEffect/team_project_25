@@ -230,7 +230,7 @@ export class Serializer{
         return diagramCopy;
     }
 
-    createTestDiagram():any{
+    createTestDiagram():Diagram{
         var diag = new Diagram(null,null);
         var ll1 = new Lifeline("ll1"," ",[],l1);
         var ll2 = new Lifeline("ll2"," ",[],l1);
