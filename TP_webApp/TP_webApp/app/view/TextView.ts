@@ -3,6 +3,7 @@ import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
 import { FONT } from "../globals"
 import { BusinessElement } from '../model/BusinessElement';
+import * as Config from "../config"
 
 export class TextView extends GraphicElement{
     //mesh.metadata.parent: MessageView;
@@ -22,12 +23,21 @@ export class TextView extends GraphicElement{
         this.mesh = new CustomMesh(this.geometry,this.material)
         this.mesh.position.set(source_x, source_y, source_z)
 
-        this.mesh.metadata = {}
+        //this.mesh.metadata = {}
         this.mesh.metadata.parent=this
 
         this.add(this.mesh);
         this.position.set(0,0,0);
 
         return(this);
+    }
+
+    public static makeText(textString:string):TextGeometry{
+        return new TextGeometry( textString, {
+            font: FONT,
+            size: Config.lifelineTextSize,
+            height: 1,
+            curveSegments: 12,
+        });
     }
 }
