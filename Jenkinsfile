@@ -1,4 +1,6 @@
 pipeline {
+	agent any
+
 	stage('build') {
 		steps {
 			sh 'cd TP_webApp/TP_webApp/'
