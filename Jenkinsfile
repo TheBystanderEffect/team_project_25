@@ -12,4 +12,14 @@ pipeline {
 			}
 		}
 	}
+	
+	post {
+		success {
+			slackSend "Revision ${env.GIT_COMMIT} build ${env.BUILD_NUMBER} succeeded"
+		}
+		
+		failure {
+			slackSend "Revision ${env.GIT_COMMIT} build ${env.BUILD_NUMBER} failed"
+		}
+	}
 }
