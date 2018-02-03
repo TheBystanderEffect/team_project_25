@@ -4,6 +4,7 @@ pipeline {
 	stages {
 		stage('build') {
 			steps {
+				slackSend "Branch: ${env.GIT_BRANCH}, Revision: ${env.GIT_COMMIT}, Build: ${env.BUILD_NUMBER} started"
 				sh 'npm install'
 				dir('TP_webApp/TP_webApp') {
 					sh 'dotnet build TP_webApp.csproj'
@@ -15,11 +16,11 @@ pipeline {
 	
 	post {
 		success {
-			slackSend "Revision ${env.GIT_COMMIT} build ${env.BUILD_NUMBER} succeeded"
+			slackSend "Branch: ${env.GIT_BRANCH}, Revision: ${env.GIT_COMMIT}, Build: ${env.BUILD_NUMBER} succeeded"
 		}
 		
 		failure {
-			slackSend "Revision ${env.GIT_COMMIT} build ${env.BUILD_NUMBER} failed"
+			slackSend "Branch: ${env.GIT_BRANCH}, Revision: ${env.GIT_COMMIT}, Build: ${env.BUILD_NUMBER} failed"
 		}
 	}
 }
