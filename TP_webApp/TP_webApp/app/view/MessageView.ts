@@ -1,4 +1,4 @@
-import { Vector3 } from 'three'
+import { Vector3, Euler } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
 import { BusinessElement } from '../model/BusinessElement';
@@ -13,7 +13,7 @@ export class MessageView extends GraphicElement{
     //private _center: Vector3;
 
     private arrowBody: CustomMesh;
-    //private arrowHead: CustomMesh;
+    private arrowHead: CustomMesh;
     private text: CustomMesh;
 
     //override
@@ -29,7 +29,14 @@ export class MessageView extends GraphicElement{
         this.arrowBody.position.set(0,0,0);
 
         this.add(this.arrowBody)
-        //redo to two part actual arrow
+
+        this.arrowHead = new CustomMesh(
+            ASSETS.messageArrowHeadGeometry, 
+            ASSETS.messageArrowHeadMaterial
+        );
+        this.arrowHead.position.set(0,0,0);
+
+        this.add(this.arrowHead)
 
         return this;
     }
@@ -44,10 +51,26 @@ export class MessageView extends GraphicElement{
             start.y-Config.firstMessageOffset-Config.messageOffset*index,
             (start.z + end.z)/2
         );
-        this.arrowBody.scale.setY(this._length); 
 
-        this.arrowBody.rotation.x = Math.atan2(end.z-start.z, end.y-start.y);
-        this.arrowBody.rotation.z = Math.atan2(end.y-start.y, end.x-start.x)-Math.PI/2;
+        let dirEuler = new Euler(
+            Math.atan2(end.z-start.z, end.y-start.y),
+            0,
+            Math.atan2(end.y-start.y, end.x-start.x)-Math.PI/2
+        );
+        this.arrowHead.rotation.copy(dirEuler);
+        this.arrowBody.rotation.copy(dirEuler);
+
+        let dir = new Vector3(
+            end.x-start.x,
+            end.y-start.y,
+            end.z-start.z
+        ).normalize();
+
+        this.arrowHead.scale.setY(Config.messageArrowHeadLength);
+        this.arrowHead.position.copy(dir).multiplyScalar((this._length-Config.messageArrowHeadLength)/2-Config.lifelineRadius);
+        
+        this.arrowBody.scale.setY(this._length - Config.lifelineRadius*2 - Config.messageArrowHeadLength + Config.messageArrowOverlap); 
+        this.arrowBody.position.copy(dir).multiplyScalar(-Config.lifelineRadius);
 
         //text
         if(!this.text){
