@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>static mock view</title>
-        <script src="../js/app.bundle.js"></script>
-        <link rel="stylesheet" type="text/css" href="../css/mock.css">
-    </head>
+<head>
+    <title>static mock view</title>
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="../js/app.bundle.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/mock.css">
+</head>
     <body>
 
         <div id="mySidenav" class="sidenav" style="width: 0px">
@@ -23,5 +25,31 @@
             <canvas id="webglCanvas" oncontextmenu="return false;"></canvas>
         </div>
     </body>
+
+
+    
 </html>
 
+<script>
+    $(function () {
+
+        var json = { "layers": [{ "lifelines": [{ "name": "ll1", "type": " ", "occurenceSpecifications": [{ "_message": { "layerIndex": 0, "messageIndex": 0 } }, { "_message": { "layerIndex": 0, "messageIndex": 3 } }] }, { "name": "ll2", "type": " ", "occurenceSpecifications": [{ "_message": { "layerIndex": 0, "messageIndex": 0 } }, { "_message": { "layerIndex": 0, "messageIndex": 1 } }, { "_message": { "layerIndex": 0, "messageIndex": 2 } }, { "_message": { "layerIndex": 0, "messageIndex": 3 } }] }, { "name": "ll3", "type": " ", "occurenceSpecifications": [{ "_message": { "layerIndex": 0, "messageIndex": 1 } }, { "_message": { "layerIndex": 0, "messageIndex": 2 } }] }], "combinedFragments": [], "messages": [{ "name": "test", "kind": 1, "sort": 1, "start": { "layerIndex": 0, "lifelineIndex": 0, "occurenceIndex": 0 }, "end": { "layerIndex": 0, "lifelineIndex": 1, "occurenceIndex": 0 } }, { "name": "test2", "kind": 1, "sort": 1, "start": { "layerIndex": 0, "lifelineIndex": 1, "occurenceIndex": 1 }, "end": { "layerIndex": 0, "lifelineIndex": 2, "occurenceIndex": 0 } }, { "name": "test3", "kind": 1, "sort": 1, "start": { "layerIndex": 0, "lifelineIndex": 2, "occurenceIndex": 1 }, "end": { "layerIndex": 0, "lifelineIndex": 1, "occurenceIndex": 2 } }, { "name": "test4", "kind": 1, "sort": 1, "start": { "layerIndex": 0, "lifelineIndex": 1, "occurenceIndex": 3 }, "end": { "layerIndex": 0, "lifelineIndex": 0, "occurenceIndex": 1 } }] }] };
+
+        $.ajax({
+            url: "/api/data/diagram",
+            type: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(json),
+
+            success: function (result) {
+                console.log(result);
+            },
+
+            error: function (xhr, resp, text) {
+                console.log(xhr, resp, text);
+            }
+        });
+    });
+
+</script>
