@@ -24,7 +24,7 @@ namespace TP_webApp.Model
         {
             foreach (Layer i in layers) {
                 foreach (Lifeline l in i.lifelines) {
-                    foreach (OccurenceSpecification o in l.OccurenceSpecifications) {
+                    foreach (OccurenceSpecification o in l.occurenceSpecifications) {
                         o._message.parentDiagram = this;
                     }
                 }
