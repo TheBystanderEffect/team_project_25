@@ -9,15 +9,15 @@ namespace TP_webApp.Model
     {
         
 
-        public Lifeline(String name, String type, OccurenceSpecification occuranceSpecification)
+        public Lifeline(String name, String type, List<OccurenceSpecification> occurenceSpecifications)
         {
             this.name = name;
             this.type = type;
-            this.occuranceSpecification = occuranceSpecification;
+            this.occurenceSpecifications = occurenceSpecifications;
         }
 
         public String name { get; set; }
         public String type { get; set; }
-        OccurenceSpecification occuranceSpecification { get; set; }
+        public List<OccurenceSpecification> occurenceSpecifications { get; set; }
     }
 }

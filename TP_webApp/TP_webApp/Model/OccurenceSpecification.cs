@@ -7,5 +7,6 @@ namespace TP_webApp.Model
 {
     public class OccurenceSpecification
     {
+        public RefMessage _message { get; set; }
     }
 }
