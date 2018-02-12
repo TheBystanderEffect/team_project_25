@@ -7,7 +7,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Bson.IO;
 using TP_webApp.Model;
-
+using Newtonsoft.Json.Linq;
 
 namespace API.Controllers
 {
@@ -94,13 +94,13 @@ namespace API.Controllers
         // POST api/data/diagram
         [HttpPost]
         [ActionName("diagram")]
-        public void Post([FromBody]String test_json)
+        public void Post([FromBody]JObject test_json)
         {
             var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
 
-            var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json);
+            var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json.ToString());
             coll.InsertOneAsync(doc);
         }
 
