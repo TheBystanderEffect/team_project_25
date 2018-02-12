@@ -14,25 +14,17 @@ namespace API.Controllers
     [Route("api/[controller]/[action]")]
     public class DataController : Controller
     {
-     /*   // GET api/values
-        [HttpGet]
-        [ActionName("diagram")]
-        public List<String> Get()
-        {
-            var client = new MongoClient();
-            var db = client.GetDatabase("tp");
-            var coll = db.GetCollection<BsonDocument>("testing");
-            var filter = Builders<BsonDocument>.Filter.Eq("name","Bambi");
-            var names = coll.Find(filter).ToList();            
-            List<String> wanted = new List<String>();
-            foreach (var person in names)
-            {
-                wanted.Add(person.ToJson());
-            }
-            return wanted;
-        }*/
+        public MongoClient client = new MongoClient();
 
-        
+        [HttpPost]
+        [ActionName("nextId")]
+        public int GetNextId()
+        {
+            var db = client.GetDatabase("tp");
+            var coll = db.GetCollection<BsonDocument>("usedIds");
+            return coll.FindOneAndUpdate(new BsonDocument(), new UpdateDefinitionBuilder<BsonDocument>().Inc<int>("id",1)).ToBsonDocument().GetValue("id").ToInt32();
+        }
+           
 
         [HttpPost]
         [ActionName("message")]
@@ -61,7 +53,7 @@ namespace API.Controllers
         [ActionName("diagram")]
         public async Task<String> GetAll([FromQuery]string[] select)
         {
-            var client = new MongoClient();
+            //var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
             Dictionary<string, int> dict = new Dictionary<string, int>();
@@ -80,7 +72,7 @@ namespace API.Controllers
         [ActionName("diagram")]
         public async Task<String> Get(int id)
         {
-            var client = new MongoClient();
+            //var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
             var filter = Builders<BsonDocument>.Filter.Eq("id", id);
@@ -96,7 +88,7 @@ namespace API.Controllers
         [ActionName("diagram")]
         public void Post([FromBody]JObject test_json)
         {
-            var client = new MongoClient();
+           // var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
 
@@ -109,7 +101,7 @@ namespace API.Controllers
         [ActionName("diagram")]
         public void Post([FromBody]String test_json, int id)
         {
-            var client = new MongoClient();
+          //  var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
 
