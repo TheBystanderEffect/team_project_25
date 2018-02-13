@@ -1,11 +1,12 @@
 import {Lifeline} from "./Lifeline";
 import { Message } from "./Message";
+import { RefMessage } from "./RefMessage";
 
 export class OccurenceSpecification{
     
 	constructor(
 		private _at:Lifeline,
-		private _message:Message
+		private _message: RefMessage
 	){}
 
 	public get at():Lifeline{
@@ -21,7 +22,7 @@ export class OccurenceSpecification{
 	}
 
 	public set message(message: Message) {
-		this._message = message;
+		this._message = new RefMessage(message);
 	}
 
 	// constructor(at:Lifeline){

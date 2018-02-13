@@ -9,7 +9,7 @@ export class BusinessElement{
     }
 
     public set graphicElement(graphicElement:GraphicElement){
-        this._graphicElement=graphicElement;
+        this._graphicElement = graphicElement;
     }
 
 }
