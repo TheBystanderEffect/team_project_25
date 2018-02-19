@@ -41,7 +41,12 @@ export class StateSequence {
         return newSeq;
     }
 
-    public drag(condition: (event: Event) => boolean, action: (event: Event) => void, cleanup: (event: Event) => void): StateSequence {
+    public drag(condition: (event: Event, hits: CustomMesh[]) => boolean, 
+                success: (event: Event, hits: CustomMesh[]) => void, 
+                failure: (event: Event, hits: CustomMesh[]) => void, 
+                cleanup: (event: Event, hits: CustomMesh[]) => void,
+                fallbackState: StateSequence
+            ): StateSequence {
         throw new Error("Not yet implemented");
         // let newSeq: StateSequence = new StateSequence(this.name, this);
         // newSeq.state = stateDragged.specialize(newSeq.name + '_' + this.order);
