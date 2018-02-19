@@ -2,6 +2,7 @@ import { State } from "./State";
 import { StateTransition } from "./StateTransition";
 import { Curve } from "three";
 import { CustomMesh } from "../view/CustomMesh";
+import { EventType } from "./EventBus";
 
 export const stateNeutral: State = new State('NEUTRAL');
 export const stateButton: State = new State('BUTTON');
@@ -14,7 +15,7 @@ export class StateSequence {
     private order: number = 0;
     private linked: boolean = false;
     private state: State = null;
-    private condition: (event: Event, hits: CustomMesh[]) => boolean = () => true;
+    private condition: (event: Event, hits: CustomMesh[], eventType: EventType) => boolean = () => true;
     private action: (event: Event, hits: CustomMesh[]) => void = () => {
         throw new Error("State transition with default action");
     };
@@ -32,7 +33,9 @@ export class StateSequence {
     public click(condition: (event: Event, hits: CustomMesh[]) => boolean, action: (event: Event, hits: CustomMesh[]) => void): StateSequence {
         let newSeq: StateSequence = new StateSequence(this.name, this);
         newSeq.state = stateClicked.specialize(newSeq.name + '_' + this.order);
-        newSeq.condition = condition;
+        newSeq.condition = (event: Event, hits: CustomMesh[], eventType: EventType) => {
+            return eventType == EventType.MOUSE_DOWN && condition(event, hits);
+        };
         newSeq.action = action;
         newSeq.order = this.order + 1;
         return newSeq;
@@ -52,7 +55,7 @@ export class StateSequence {
     public button(buttonId: string): StateSequence {
         let newSeq: StateSequence = new StateSequence(this.name, this);
         newSeq.state = stateButton.specialize(newSeq.name + '_' + this.order);
-        newSeq.condition = (event: Event) => (event.target as HTMLButtonElement).id == buttonId;
+        newSeq.condition = (event: Event, hits: any, eventType: EventType) => eventType == EventType.BUTTON && (event.target as HTMLButtonElement).id == buttonId;
         newSeq.action = () => {};
         newSeq.order = this.order + 1;
         return newSeq;
@@ -62,7 +65,7 @@ export class StateSequence {
         throw new Error("Not implemented yet");
     }
 
-    public finish(action: (event: Event, hits: CustomMesh[]) =>  void): void {
+    public finish(action: (event: Event, hits: CustomMesh[]) => void): void {
         this.state = stateNeutral;
         let thisAct = this.action;
         this.action = (event: Event, hits: CustomMesh[]) => {
@@ -70,6 +73,12 @@ export class StateSequence {
             action(event, hits);
         };
         this.link();
+    }
+
+    public timer(timeout: number, callback: () => void): StateSequence {
+        throw new Error("Not implemented yet");
+
+        //dont forget to check if we are in original state at callback execution
     }
 
     private link(): void {
