@@ -6,6 +6,7 @@ import { StateMachine } from "../controller/StateMachine";
 import { State } from "../controller/State";
 import { stateNeutral } from "../controller/StateMachineBuilder";
 import { initializeStateTransitions } from "../controller/StateMachineInitializer";
+import { EventType } from "../controller/EventBus";
 
 export class GLContext {
 
@@ -104,6 +105,7 @@ export class GLContext {
 
             //RaycastControl.instance.cast(this.camera,this.scene);
             this.cameraControls.updateCamera();
+            this.stateMachine.acceptEvent(null, EventType.SCENE_UPDATE);
             this.renderer.render(this.scene, this.camera);
         }
 
