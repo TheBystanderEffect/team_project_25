@@ -11,6 +11,8 @@ import { LifelineView } from "../view/LifelineView";
 import { MessageView } from "../view/MessageView";
 import { Message } from "../model/Message";
 import { OccurenceSpecification } from "../model/OccurenceSpecification";
+import { CommunicationController } from "./CommunicationController";
+import { Serializer } from "./Serializer";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -193,4 +195,15 @@ export function initializeStateTransitions() {
 
     })
     .finish(() =>{})
+
+    StateSequence
+        .start("SAVE_DIAGRAM")
+        .button('saveDiagram')
+        .finish(() => {
+            CommunicationController.instance.saveDiagram(Serializer.instance.serialize(Globals.CURRENTLY_OPENED_DIAGRAM, true));
+        });
+
+    
+
+    
 }

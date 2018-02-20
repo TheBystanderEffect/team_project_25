@@ -46,7 +46,7 @@ export class CommunicationController {
         if (xhr.status === 200) {
             console.log(xhr.responseText);
             let newId = xhr.response;
-            return newId;
+            return newId; 
         } else {
             throw new Error("Couldn't get new GraphId");
         }
@@ -54,7 +54,7 @@ export class CommunicationController {
 
     //proste zavolam    /savediagram/{IDdiagram}
     public saveDiagram(serializedDiagram: string):void{
-        debugger;
+        
         //TODO get url from config
         let url = "/api/data/diagram";
         let xhr = new XMLHttpRequest();
