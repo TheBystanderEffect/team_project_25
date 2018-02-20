@@ -70,12 +70,12 @@ namespace API.Controllers
         // GET api/data/diagram/5
         [HttpGet("{id}")]
         [ActionName("diagram")]
-        public async Task<String> Get(int id)
+        public async Task<String> Get(string id)
         {
             //var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
-            var filter = Builders<BsonDocument>.Filter.Eq("_verId", id);
+            var filter = Builders<BsonDocument>.Filter.Eq("_diagramId", id);
             var data = await coll.Find(filter).SingleAsync();
             var diagram = data.ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
 
