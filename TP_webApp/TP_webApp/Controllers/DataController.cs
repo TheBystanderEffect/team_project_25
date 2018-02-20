@@ -16,7 +16,7 @@ namespace API.Controllers
     {
         public MongoClient client = new MongoClient();
 
-        [HttpPost]
+        [HttpGet]
         [ActionName("nextId")]
         public int GetNextId()
         {
@@ -75,7 +75,7 @@ namespace API.Controllers
             //var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
-            var filter = Builders<BsonDocument>.Filter.Eq("id", id);
+            var filter = Builders<BsonDocument>.Filter.Eq("_verId", id);
             var data = await coll.Find(filter).SingleAsync();
             var diagram = data.ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
 
@@ -92,8 +92,12 @@ namespace API.Controllers
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
 
-            var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json.ToString());
-            coll.InsertOneAsync(doc);
+            try{
+                var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json.ToString());
+                coll.InsertOneAsync(doc);
+            } catch (Exception e) {
+                Console.WriteLine("An exception was thrown: " + e);
+            }
         }
 
         // PUT api/values/5

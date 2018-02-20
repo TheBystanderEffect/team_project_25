@@ -5,6 +5,7 @@ import { Layer } from '../model/Layer';
 import { Lifeline } from '../model/Lifeline';
 import { Message } from '../model/Message';
 import { OccurenceSpecification } from '../model/OccurenceSpecification';
+import { CommunicationController } from '../controller/CommunicationController';
 import * as Globals from '../globals';
 
 export class Serializer{
@@ -31,8 +32,6 @@ export class Serializer{
 
     deserialize(jSONString: string, objectType: string):any{
         var randomObject = JSON.parse(jSONString);
-        // console.log("JSON parsed:");
-        // console.log(randomObject);
         try {
             return this.deserializeObject(randomObject, objectType);    
         } catch (error) {
@@ -287,5 +286,24 @@ export class Serializer{
         console.log('DESERIALIZED!');
         console.log(deserialized);
     }
+    
+    serverTest(){
+        var diag = this.createTestDiagram();
+        console.log('Initialized diagram for serialization');
+        console.log(diag);
+        var serialized = this.serialize(diag, true);
+        console.log('SERIALIZED!');
+        console.log(serialized);
+        CommunicationController.instance.saveDiagram(serialized)
+        console.log('Sent diagram in JSON to save on server. Diagram ID: ' + diag.diagramId);
+
+        let callback = function(data: string) {
+            serialized = data;
+            var deserialized = this.deserialize(serialized,"Diagram");
+            console.log('DESERIALIZED!');
+            console.log(deserialized);
+        }
+        CommunicationController.instance.getDiagram(diag.diagramId, callback)
+        }
 
 }
