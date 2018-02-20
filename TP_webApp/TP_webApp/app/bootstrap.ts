@@ -13,6 +13,7 @@ import { Lifeline } from "./model/Lifeline" //testing layout
 import { Message } from "./model/Message" //testing layout
 import { OccurenceSpecification } from "./model/OccurenceSpecification" //testing layout
 import { Serializer } from './controller/Serializer';
+import { Assets } from './view/Assets';
 
 /*
 Load resources
@@ -55,16 +56,33 @@ function loadDiagramList(): Promise<any[]> {
 
 let diagramListLoad = loadDiagramList();
 
+//preload geom and texture assets
+function LoadAssets(): Promise<Assets> {
+
+        return new Promise((resolve, reject) => {
+            let assets: Assets = new Assets();
+            resolve(assets);
+        });
+    }  
+//set them upon load
+let assetsLoad = LoadAssets().then((assets: Assets) => {
+    Globals.setAssets(assets);
+}).catch((error) => {
+    console.log(error);
+});
+
 /*
 Synchronize completion of loading
 */
 
 Promise.all([
     fontLoad, 
-    diagramListLoad
+    diagramListLoad,
+    assetsLoad
 ]).then(([
     fontResult,
-    diagramList
+    diagramList,
+    assetsLoad
 ]) => {
     // Initialize application
     GLContext.instance.initializeScene();
