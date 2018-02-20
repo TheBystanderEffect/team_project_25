@@ -7,6 +7,7 @@ import { Lifeline } from '../model/Lifeline';
 import * as Config from "../config"
 import { LayerView } from './LayerView';
 import { ASSETS } from "../globals";
+import { Text3D } from './Text3D';
 
 export class LifelineView extends GraphicElement {
     //substituted by getters
@@ -15,7 +16,7 @@ export class LifelineView extends GraphicElement {
     //private _source: Vector3; //source in relation to layer
 
     private line: CustomMesh;
-    private text: CustomMesh;
+    private text: Text3D;
 
     //override of object3D parent
     parent: LayerView;
@@ -29,25 +30,13 @@ export class LifelineView extends GraphicElement {
             ASSETS.lifelineBodyMaterial
         );
         this.add(this.line);
-        //do text as well
-        // this.text = new CustomMesh( TextView.makeText((this.businessElement as Lifeline).name), this.material );
-        // this.add(this.text);
+        
+        this.text = new Text3D(this);
+        this.add(this.text);
     }
 
     public updateLayout(index: number):LifelineView{
-        if(!this.text){
-            this.text = new CustomMesh(
-                TextView.makeText(this.businessElement.name), 
-                ASSETS.textMaterial
-            );
-            this.text.position.set(-10,5,0); //and make the alignment not special
-            this.add(this.text);
-        }else{
-            //if text changed -> make new text
-            //?make text a object with string of its text and update on it, 
-            //have it chenge its mash from passed text if need be
-        }
-
+        
         this.position.set(this.parent.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
             this.parent.source.y - Config.lifelineOffsetY,
             0);
@@ -55,6 +44,8 @@ export class LifelineView extends GraphicElement {
         // this._length = this.parent.height-Config.lifelineOffsetY;
         // this.line.scale.set(1,this.length,1);
         this.line.position.set(0, -this.length/2, 0);
+
+        this.text.update(this.businessElement.name);
 
         return this;
     }

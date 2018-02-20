@@ -7,6 +7,7 @@ import { LifelineView } from './LifelineView';
 import * as Config from "../config"
 import { TextView } from './TextView';
 import { ASSETS } from "../globals";
+import { Text3D } from './Text3D';
 
 export class MessageView extends GraphicElement{
     private _length: number;
@@ -14,7 +15,7 @@ export class MessageView extends GraphicElement{
 
     private arrowBody: CustomMesh;
     private arrowHead: CustomMesh;
-    private text: CustomMesh;
+    private text: Text3D;
 
     //override
     businessElement: Message;
@@ -27,7 +28,6 @@ export class MessageView extends GraphicElement{
             ASSETS.messageArrowBodyMaterial
         );
         this.arrowBody.position.set(0,0,0);
-
         this.add(this.arrowBody)
 
         this.arrowHead = new CustomMesh(
@@ -35,8 +35,10 @@ export class MessageView extends GraphicElement{
             ASSETS.messageArrowHeadMaterial
         );
         this.arrowHead.position.set(0,0,0);
-
         this.add(this.arrowHead)
+
+        this.text = new Text3D(this);
+        this.add(this.text);
 
         return this;
     }
@@ -72,19 +74,8 @@ export class MessageView extends GraphicElement{
         this.arrowBody.scale.setY(this._length - Config.lifelineRadius*2 - Config.messageArrowHeadLength + Config.messageArrowOverlap); 
         this.arrowBody.position.copy(dir).multiplyScalar(-Config.lifelineRadius);
 
-        //text
-        if(!this.text){
-            this.text = new CustomMesh(
-                TextView.makeText(this.businessElement.name),
-                ASSETS.textMaterial
-            );
-            this.text.position.set(-10,5,0); //and make the alignment not special
-            this.add(this.text);
-        }else{
-            //if text changed -> make new text
-            //?make text a object with string of its text and update on it, 
-            //have it chenge its mash from passed text if need be
-        }
+        this.text.update(this.businessElement.name);
+
         return this;
     }
 

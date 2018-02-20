@@ -1,4 +1,4 @@
-import { PlaneGeometry, CylinderGeometry, MeshLambertMaterial, MeshBasicMaterial} from 'three'
+import { PlaneGeometry, CylinderGeometry, MeshLambertMaterial, MeshBasicMaterial, DoubleSide} from 'three'
 import * as Config from "../config"
 
 export class Assets{
@@ -16,11 +16,13 @@ export class Assets{
     public messageArrowHeadMaterial: MeshBasicMaterial;
 
     public textMaterial: MeshBasicMaterial;
+    public textBackPlateGeometry: PlaneGeometry;
+    public textBackPlateMaterial: MeshBasicMaterial;
 
     public constructor(){
 
         this.layerRectangleGeometry = new PlaneGeometry(1,1);
-        this.layerRectangleMaterial = new MeshLambertMaterial({color:0xffffff, transparent:true, opacity:0.1});
+        this.layerRectangleMaterial = new MeshLambertMaterial({color:0xffffff, transparent:true, opacity:0.1, side: DoubleSide});
 
         this.lifelineBodyGeometry = new CylinderGeometry(Config.lifelineRadius, Config.lifelineRadius, 1, 8 );
         this.lifelineBodyMaterial = new MeshBasicMaterial( {color: 0xFF0000} );
@@ -31,6 +33,8 @@ export class Assets{
         this.messageArrowHeadMaterial = new MeshBasicMaterial( {color: 0x00FF00});
 
         this.textMaterial = new MeshBasicMaterial( {color: 0x000000});
+        this.textBackPlateGeometry = new PlaneGeometry(1,1);
+        this.textBackPlateMaterial = new MeshBasicMaterial({color: 0xa0a0f0, side: DoubleSide});
 
     }
 
