@@ -294,16 +294,18 @@ export class Serializer{
         var serialized = this.serialize(diag, true);
         console.log('SERIALIZED!');
         console.log(serialized);
-        CommunicationController.instance.saveDiagram(serialized)
         console.log('Sent diagram in JSON to save on server. Diagram ID: ' + diag.diagramId);
-
-        let callback = function(data: string) {
-            serialized = data;
-            var deserialized = this.deserialize(serialized,"Diagram");
-            console.log('DESERIALIZED!');
-            console.log(deserialized);
+        let self = this;
+        let callbackPost = function() {
+            let callbackGet = function(data: string) {
+                serialized = data;
+                var deserialized = self.deserialize(serialized,"Diagram");
+                console.log('DESERIALIZED!');
+                console.log(deserialized);
+            }
+            CommunicationController.instance.getDiagram(diag.diagramId, callbackGet)
         }
-        CommunicationController.instance.getDiagram(diag.diagramId, callback)
-        }
+        CommunicationController.instance.saveDiagram(serialized, callbackPost);
+    }
 
 }

@@ -19,9 +19,7 @@ export class Diagram extends BusinessElement{
         super();
         this._layers = _layers ? _layers : [];
         this._verId = verId;
-        console.log("Getting ID from server....")
         this._diagramId = CommunicationController.instance.getNewDiagramId();
-        // this._diagramId = 42;
     }
 
     public get layers(): Layer[] {
