@@ -28,21 +28,23 @@ export class Serializer {
         }
         catch (error) {
             console.log("Unable to parse JSON");
+            console.log(error);
             return null;
         }
     }
     serialize(diagramObject, isDiagram = false) {
         var derefferencedObject = null;
-        try {
-            if (isDiagram) {
-                derefferencedObject = this.derefferenceDiagram(diagramObject, "Diagram");
-            }
-            return JSON.stringify(derefferencedObject);
+        if (isDiagram) {
+            derefferencedObject = this.derefferenceDiagram(diagramObject, "Diagram");
         }
-        catch (error) {
-            console.log("Unable to generate JSON");
-            return "";
-        }
+        let temp = derefferencedObject._diagramView;
+        derefferencedObject._diagramView = null;
+        let res = JSON.stringify({
+            _diagramId: derefferencedObject._diagramId,
+            _layers: derefferencedObject.layers,
+            _verId: derefferencedObject._verId
+        });
+        return res;
     }
     deserializeObject(rawObject, objectType, realOccurenceContext = new Map(), occurenceContext = new Map(), realMessageContext = new Map(), messageContext = new Map(), layerIndex = null, lifelineIndex = null, occurenceIndex = null, messageIndex = null, lifeline = null) {
         switch (objectType) {
@@ -276,15 +278,18 @@ export class Serializer {
         var serialized = this.serialize(diag, true);
         console.log('SERIALIZED!');
         console.log(serialized);
-        CommunicationController.instance.saveDiagram(serialized);
         console.log('Sent diagram in JSON to save on server. Diagram ID: ' + diag.diagramId);
-        let callback = function (data) {
-            serialized = data;
-            var deserialized = this.deserialize(serialized, "Diagram");
-            console.log('DESERIALIZED!');
-            console.log(deserialized);
+        let self = this;
+        let callbackPost = function () {
+            let callbackGet = function (data) {
+                serialized = data;
+                var deserialized = self.deserialize(serialized, "Diagram");
+                console.log('DESERIALIZED!');
+                console.log(deserialized);
+            };
+            CommunicationController.instance.getDiagram(diag.diagramId, callbackGet);
         };
-        CommunicationController.instance.getDiagram(diag.diagramId, callback);
+        CommunicationController.instance.saveDiagram(serialized, callbackPost);
     }
 }
 //# sourceMappingURL=Serializer.js.map

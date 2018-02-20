@@ -1,3 +1,5 @@
+import * as Globals from '../globals';
+import { Serializer } from '../controller/Serializer';
 export function addLifeline() {
     // if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
     //     GLContext.instance.stateMachine.currentState = new State("MODIFYING").specialize('lifeline');
@@ -44,33 +46,18 @@ function loadDiagram(id) {
     // while(GLContext.instance.scene.children.length > 0){
     //     GLContext.instance.scene.remove(GLContext.instance.scene.children[0]);
     // }
-    // let req: XMLHttpRequest = new XMLHttpRequest();
-    // req.open('GET',`/api/data/diagram/${id}`);
-    // req.addEventListener("load", ( ev: Event ) => {
-    //     function json2elm(obj: any): GraphicElement {
-    //         switch(obj.type) {
-    //             case 'LAYER':
-    //             return new LayerView(obj.x, obj.y, obj.z, obj.width, obj.height);
-    //             case 'LIFELINE':
-    //             return new LifelineView(obj.source_x, obj.source_y, obj.source_z, obj.length);
-    //             case 'MESSAGE':
-    //             return new MessageView(obj.source_x, obj.source_y, obj.source_z, obj.destination_x, obj.destination_y, obj.destination_z);
-    //             case 'TEXT':
-    //             return new TextView(obj.source_x, obj.source_y, obj.source_z, obj.text_string, obj.text_size);
-    //         }
-    //     }
-    //     let diagram = JSON.parse(req.responseText);
-    //     setOpenDiagram(diagram);
-    //     diagram.elements.map(json2elm).forEach((elm: GraphicElement) => {
-    //         elm.draw(GLContext.instance.scene);
-    //     });
-    // });
-    // req.send();
+    let req = new XMLHttpRequest();
+    req.open('GET', `/api/data/diagram/${id}`);
+    req.addEventListener("load", (ev) => {
+        Globals.setOpenDiagram(Serializer.instance.deserialize(req.responseText, "Diagram"));
+    });
+    req.send();
 }
 export function makeButton(diagramId) {
     let btn = document.createElement("BUTTON");
     let text = document.createTextNode(`Diagram ${diagramId}`);
     btn.appendChild(text);
+    btn.id = `LOAD-DIAG-${diagramId}`;
     btn.onclick = loadDiagram.bind(null, diagramId);
     document.getElementById("mySidenav").appendChild(btn);
 }

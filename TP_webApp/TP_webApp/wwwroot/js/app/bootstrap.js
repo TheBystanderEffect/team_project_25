@@ -29,7 +29,7 @@ let fontLoad = loadFont(Globals.FONT_URL).then((font) => {
 function loadDiagramList() {
     return new Promise((resolve, reject) => {
         let req = new XMLHttpRequest();
-        req.open('GET', '/api/data/diagram/?select=id');
+        req.open('GET', '/api/data/diagram/?select=_diagramId');
         req.addEventListener("load", (ev) => {
             let arr = JSON.parse(req.responseText);
             resolve(arr);
@@ -55,7 +55,7 @@ Promise.all([
     document.getElementById("saveViewpoint").addEventListener("click", function () { addViewpoint(GLContext.instance.cameraControls); });
     // populate diagram list
     diagramList.forEach((item) => {
-        makeButton(item.id);
+        makeButton(item._diagramId);
     });
     //testing of layout
     /*var diag = new Diagram(null,null);

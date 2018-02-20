@@ -49,10 +49,10 @@ export class StateSequence {
         // return newSeq;
     }
 
-    public button(buttonId: string): StateSequence {
+    public button(buttonId: string | RegExp): StateSequence {
         let newSeq: StateSequence = new StateSequence(this.name, this);
         newSeq.state = stateButton.specialize(newSeq.name + '_' + this.order);
-        newSeq.condition = (event: Event) => (event.target as HTMLButtonElement).id == buttonId;
+        newSeq.condition = (event: Event) => !!(event.target as HTMLButtonElement).id.match(buttonId);
         newSeq.action = () => {};
         newSeq.order = this.order + 1;
         return newSeq;

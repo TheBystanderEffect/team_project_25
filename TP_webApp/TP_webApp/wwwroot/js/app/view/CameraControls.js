@@ -1,5 +1,4 @@
 import { Object3D, Vector3, Euler } from 'three';
-import { Serializer } from '../controller/Serializer';
 export class CameraControls {
     constructor(camera) {
         this._pitchObject = new Object3D();
@@ -21,7 +20,6 @@ export class CameraControls {
         document.addEventListener('keyup', this.onkeyup.bind(this), false);
         this.pitchObject.add(camera);
         this.yawObject.add(this.pitchObject);
-        Serializer.instance.serverTest();
     }
     set enabled(enabled) {
         this._enabled = enabled;

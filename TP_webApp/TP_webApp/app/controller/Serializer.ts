@@ -36,21 +36,25 @@ export class Serializer{
             return this.deserializeObject(randomObject, objectType);    
         } catch (error) {
             console.log("Unable to parse JSON");
+            console.log(error);
             return null   
         }
     }
 
-    serialize(diagramObject: any, isDiagram: boolean = false): string{
+    serialize(diagramObject: any, isDiagram: boolean = false): string {
         var derefferencedObject = null;
-        try {
-            if(isDiagram){
-                derefferencedObject = this.derefferenceDiagram(diagramObject, "Diagram");
-            }
-            return JSON.stringify(derefferencedObject);
-        } catch (error) {
-            console.log("Unable to generate JSON")
-            return "";
+        if(isDiagram){
+            derefferencedObject = this.derefferenceDiagram(diagramObject, "Diagram");
         }
+        let temp: any = derefferencedObject._diagramView;
+        derefferencedObject._diagramView = null;
+        let res: any = JSON.stringify({
+            _diagramId: derefferencedObject._diagramId,
+            _layers: derefferencedObject.layers,
+            _verId: derefferencedObject._verId
+        });
+
+        return res;
     }
 
     deserializeObject(rawObject: any, objectType: string, realOccurenceContext: Map<string, any> = new Map<string, any>(), occurenceContext: Map<string, any>  = new Map<string, any>(), realMessageContext: Map<string, any>  = new Map<string, any>(), messageContext: Map<string, any>  = new Map<string, any>(), layerIndex:number = null, lifelineIndex:number = null, occurenceIndex:number = null, messageIndex:number = null, lifeline:any = null):any{
@@ -84,6 +88,7 @@ export class Serializer{
                 return new Layer(lifelines, rawObject.combinedFragments.map((e: any) => this.deserializeObject(e, "CombinedFragment", realOccurenceContext, occurenceContext, null,null)), messages);               
             case "Message":
                 let message = realMessageContext.get("" + layerIndex + messageIndex);
+         
                 let messageRefference = messageContext.get("" + layerIndex + messageIndex);
                 message.start = realOccurenceContext.get("" + messageRefference.start.layerIndex + messageRefference.start.lifelineIndex + messageRefference.start.occurenceIndex);
                 message.end = realOccurenceContext.get("" + messageRefference.end.layerIndex + messageRefference.end.lifelineIndex + messageRefference.end.occurenceIndex);

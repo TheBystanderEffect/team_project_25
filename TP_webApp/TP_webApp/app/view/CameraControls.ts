@@ -27,8 +27,6 @@ export class CameraControls {
 
             this.pitchObject.add(camera);
             this.yawObject.add(this.pitchObject);
-
-            Serializer.instance.serverTest();
         }
         
         public set enabled(enabled: boolean) {
