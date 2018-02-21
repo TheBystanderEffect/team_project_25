@@ -5,7 +5,6 @@ import { BusinessElement } from '../model/BusinessElement';
 import { Message } from '../model/Message';
 import { LifelineView } from './LifelineView';
 import * as Config from "../config"
-import { TextView } from './TextView';
 import { ASSETS } from "../globals";
 import { Text3D } from './Text3D';
 

@@ -4,7 +4,7 @@ The entry point of the application
 import * as Globals from './globals';
 import { Font, FontLoader } from 'three';
 import { GLContext } from './view/GLContext';
-import { toggleNav, makeButton, addLifeline, addLayer, addMessage, addViewpoint} from './view/side-menu';
+import { toggleNav, makeButton, addViewpoint} from './view/side-menu';
 
 import { LayoutControl } from "./controller/LayoutControl" //testing layout
 import { Diagram } from "./model/Diagram" //testing layout
@@ -87,9 +87,6 @@ Promise.all([
     // Initialize application
     GLContext.instance.initializeScene();
     document.getElementById("openMenu").addEventListener("click", toggleNav);
-    document.getElementById("sideLife").addEventListener("click", addLifeline);
-    document.getElementById("sideMessage").addEventListener("click", addMessage);
-    document.getElementById("sideLayer").addEventListener("click", addLayer);
     document.getElementById("resetViewpoint").addEventListener("click", function() {GLContext.instance.cameraControls.loadViewpoint(0, 0, 0, 0, 0); });
     document.getElementById("saveViewpoint").addEventListener("click", function() {addViewpoint(GLContext.instance.cameraControls)});
 
@@ -97,42 +94,6 @@ Promise.all([
     diagramList.forEach((item: any) => {
         makeButton(item.id);
     });
-
-    //testing of layout
-   
-    /*var diag = new Diagram(null,null);
-    Globals.setOpenDiagram(diag); 
-    var l1: Layer = new Layer([],[],[]);
-    var ll1 = new Lifeline("ll1"," ",[],l1);
-    var ll2 = new Lifeline("ll2"," ",[],l1);
-    var ll3 = new Lifeline("ll3"," ",[],l1);
-    l1.AddLifeline(ll1);
-    l1.AddLifeline(ll2);
-    l1.AddLifeline(ll3);
-    ll1.layer=l1;
-    ll2.layer=l1;
-    ll3.layer=l1;
-    //var l2 = new Layer([ll3],[],[]);
-    var m1 = new Message("test",1,1,new OccurenceSpecification(ll1, null), new OccurenceSpecification(ll2, null));
-    l1.AddMessage(m1);
-    m1.start.message = m1;
-    m1.end.message = m1;
-    var m2 = new Message("test2",1,1,new OccurenceSpecification(ll2, null), new OccurenceSpecification(ll3, null));
-    l1.AddMessage(m2);
-    m2.start.message = m1;
-    m2.end.message = m1;
-    var m3 = new Message("test3",1,1,new OccurenceSpecification(ll3, null), new OccurenceSpecification(ll2, null));
-    l1.AddMessage(m3);
-    m3.start.message = m1;
-    m3.end.message = m1;
-    var m4 = new Message("test4",1,1,new OccurenceSpecification(ll2, null), new OccurenceSpecification(ll1, null));
-    l1.AddMessage(m4);
-    m4.start.message = m1;
-    m4.end.message = m1;
-    diag.addLayer(l1);
-    //diag.addLayer(l2);
-    LayoutControl.magic(diag);
-    GLContext.instance.scene.add(diag.diagramView);*/
 
     Globals.setOpenDiagram(Serializer.instance.createTestDiagram());
 

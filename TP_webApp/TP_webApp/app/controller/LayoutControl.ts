@@ -3,7 +3,6 @@ import {DiagramView} from "../view/DiagramView"
 import {LayerView} from "../view/LayerView"
 import {LifelineView} from "../view/LifelineView"
 import {MessageView} from "../view/MessageView"
-import {TextView} from "../view/TextView"
 import {Geometry, Vector3} from "three"
 import * as Config from "../config"
 

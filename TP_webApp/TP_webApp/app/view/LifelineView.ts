@@ -2,7 +2,6 @@ import { Vector3 } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
 import { BusinessElement } from '../model/BusinessElement';
-import { TextView } from "./TextView"
 import { Lifeline } from '../model/Lifeline';
 import * as Config from "../config"
 import { LayerView } from './LayerView';
