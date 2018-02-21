@@ -17,15 +17,15 @@ export class GraphicElement extends Object3D{
         this.businessElement.graphicElement = this;
     }
 
-    //deprecated
-    public draw(targetScene: Scene): void {
-        targetScene.add(this.mesh);
-    }
-
-    public getPosition():Vector3{
-        return this.mesh.position;
-    }
-    public setPosition(newPos: Vector3):void{
-        this.mesh.position = newPos;
-    }
+    // public getPosition():Vector3{
+    //     return this.mesh.position;
+    // }
+    // public setPosition(newPos: Vector3):void{
+    //     this.mesh.position = newPos;
+    // }
+    
+    //this MAY be the solution
+    // public get graphicElement():GraphicElement{
+    //     return this;
+    // }
 }
