@@ -1,14 +1,15 @@
 import { State } from "./State";
 import { StateTransition } from "./StateTransition";
-import { Curve } from "three";
+import { Curve, Event } from "three";
 import { CustomMesh } from "../view/CustomMesh";
-import { EventType } from "./EventBus";
+import { EventType, EventBus } from "./EventBus";
 
 export const stateNeutral: State = new State('NEUTRAL');
 export const stateButton: State = new State('BUTTON');
 export const stateClicked: State = new State('CLICKED');
 export const stateDragged: State = new State('DRAGGED');
 export const stateDialog: State = new State('DIALOG');
+export const stateClickedInternal: State = new State('CLICK_INTERNAL');
 
 export class StateSequence {
 
@@ -21,17 +22,18 @@ export class StateSequence {
     };
 
     public static start(name: string): StateSequence {
-        let newSeq = new StateSequence(name, null);
+        let newSeq = new StateSequence(name, [], null);
         newSeq.state = stateNeutral;
         newSeq.linked = true;
         return newSeq;
     }
 
-    private constructor(private name: string, private preceding: StateSequence) {
+    private constructor(private name: string, private sequencePool: StateSequence[], private sourceState: State) {
+        sequencePool.push(this);
     }
 
     public click(condition: (event: Event, hits: CustomMesh[]) => boolean, action: (event: Event, hits: CustomMesh[]) => void): StateSequence {
-        let newSeq: StateSequence = new StateSequence(this.name, this);
+        let newSeq: StateSequence = new StateSequence(this.name, this.sequencePool, this.state);
         newSeq.state = stateClicked.specialize(newSeq.name + '_' + this.order);
         newSeq.condition = (event: Event, hits: CustomMesh[], eventType: EventType) => {
             return eventType == EventType.MOUSE_DOWN && condition(event, hits);
@@ -45,20 +47,41 @@ export class StateSequence {
                 success: (event: Event, hits: CustomMesh[]) => void, 
                 failure: (event: Event, hits: CustomMesh[]) => void, 
                 cleanup: (event: Event, hits: CustomMesh[]) => void,
+                update: (event: Event, hits: CustomMesh[]) => void,
                 fallbackState: StateSequence
             ): StateSequence {
-        throw new Error("Not yet implemented");
-        // let newSeq: StateSequence = new StateSequence(this.name, this);
-        // newSeq.state = stateDragged.specialize(newSeq.name + '_' + this.order);
-        // newSeq.condition = condition;
-        // newSeq.action = action;
-        // newSeq.order = this.order + 1;
-        // // TODO add cleanup
-        // return newSeq;
+
+        let newSeq: StateSequence = new StateSequence(this.name, this.sequencePool, this.state);
+        newSeq.state = stateDragged.specialize(newSeq.name + '_' + this.order);
+        newSeq.condition = (event: Event, hits: CustomMesh[], eventType: EventType) => {
+            return eventType == EventType.MOUSE_UP && condition(event, hits);
+        };
+        newSeq.action = (e, h) => { success(e,h); cleanup(e,h); };
+
+        let failSeq: StateSequence = new StateSequence(this.name, this.sequencePool, this.state);
+        failSeq.state = fallbackState.state;
+        failSeq.condition = (event: Event, hits: CustomMesh[], eventType: EventType) => {
+            return eventType == EventType.MOUSE_UP && !condition(event, hits);
+        };
+        failSeq.action = (e, h) => { failure(e,h); cleanup(e,h); };
+
+        let updateSeq: StateSequence = new StateSequence(this.name, this.sequencePool, this.state);
+        updateSeq.state = this.state;
+        updateSeq.condition = (event: Event, hits: CustomMesh[], eventType: EventType) => eventType == EventType.MOUSE_MOVE;
+        updateSeq.action = update;
+
+        return newSeq;
+    }
+
+    private mousemove(fallback: State, callback: (event: Event, hits: CustomMesh[]) => void): StateSequence {
+        let newSeq: StateSequence = new StateSequence(this.name, this.sequencePool, this.state);
+        newSeq.state = null;
+
+        return null;
     }
 
     public button(buttonId: string): StateSequence {
-        let newSeq: StateSequence = new StateSequence(this.name, this);
+        let newSeq: StateSequence = new StateSequence(this.name, this.sequencePool, this.state);
         newSeq.state = stateButton.specialize(newSeq.name + '_' + this.order);
         newSeq.condition = (event: Event, hits: any, eventType: EventType) => eventType == EventType.BUTTON && (event.target as HTMLButtonElement).id == buttonId;
         newSeq.action = () => {};
@@ -71,13 +94,14 @@ export class StateSequence {
     }
 
     public finish(action: (event: Event, hits: CustomMesh[]) => void): void {
-        this.state = stateNeutral;
-        let thisAct = this.action;
-        this.action = (event: Event, hits: CustomMesh[]) => {
-            thisAct(event, hits);
-            action(event, hits);
-        };
-        this.link();
+        let newSeq: StateSequence = new StateSequence(this.name, this.sequencePool, this.state);
+        newSeq.state = stateNeutral;
+        newSeq.condition = (event: Event, hits: any, eventType: EventType) => eventType == EventType.SCENE_UPDATE;
+        newSeq.action = action;
+        newSeq.order = this.order + 1;
+        for (let seq of this.sequencePool) {
+            seq.link();
+        }
     }
 
     public timer(timeout: number, callback: () => void): StateSequence {
@@ -92,11 +116,10 @@ export class StateSequence {
             return;
         }
 
-        let transition = new StateTransition(this.preceding.state, this.state, this.condition, this.action);
+        let transition = new StateTransition(this.sourceState, this.state, this.condition, this.action);
         transition.source.registerOutgoingTransition(transition);
         transition.target.registerIncomingTransition(transition);
         this.linked = true;
-        this.preceding.link();
     }
 
 }
