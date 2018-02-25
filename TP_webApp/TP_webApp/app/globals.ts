@@ -20,7 +20,8 @@ export function setOpenDiagram(diagram: Diagram): void {
 
 export function setDiagramSaved(diagramSaved: boolean): void {
     IS_DIAGRAM_SAVED = diagramSaved;
-  
+}
+
 export function setAssets(assets: Assets):void {
     ASSETS=assets;
 }
