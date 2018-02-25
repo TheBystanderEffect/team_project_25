@@ -11,6 +11,8 @@ import { LifelineView } from "../view/LifelineView";
 import { MessageView } from "../view/MessageView";
 import { Message } from "../model/Message";
 import { OccurenceSpecification } from "../model/OccurenceSpecification";
+import { CommunicationController } from "./CommunicationController";
+import { Serializer } from "./Serializer";
 import { Layer } from "../model/Layer";
 import { BusinessElement } from "../model/BusinessElement";
 import { GraphicElement } from "../view/GraphicElement";
@@ -189,8 +191,16 @@ export function initializeStateTransitions() {
         }
 
     })
-    .finish(() =>{});
+    .finish(() =>{})
 
+    StateSequence
+        .start("SAVE_DIAGRAM")
+        .button('saveDiagram')
+        .finish(() => {
+            CommunicationController.instance.saveDiagram(Serializer.instance.serialize(Globals.CURRENTLY_OPENED_DIAGRAM, true), () => { });
+            Globals.setDiagramSaved(true);
+        });
+  
     StateSequence
     .start('CREATE_LAYER')
     .button('sideLayer')

@@ -5,7 +5,10 @@ import { Layer } from '../model/Layer';
 import { Lifeline } from '../model/Lifeline';
 import { Message } from '../model/Message';
 import { OccurenceSpecification } from '../model/OccurenceSpecification';
+import { CommunicationController } from '../controller/CommunicationController';
 import * as Globals from '../globals';
+import * as R from 'ramda';
+import { Object3D } from 'three';
 
 export class Serializer{
 
@@ -31,27 +34,22 @@ export class Serializer{
 
     deserialize(jSONString: string, objectType: string):any{
         var randomObject = JSON.parse(jSONString);
-        // console.log("JSON parsed:");
-        // console.log(randomObject);
         try {
             return this.deserializeObject(randomObject, objectType);    
         } catch (error) {
             console.log("Unable to parse JSON");
+            console.log(error);
             return null   
         }
     }
 
-    serialize(diagramObject: any, isDiagram: boolean = false): string{
+    serialize(diagramObject: any, isDiagram: boolean = false): string {
         var derefferencedObject = null;
-        try {
-            if(isDiagram){
-                derefferencedObject = this.derefferenceDiagram(diagramObject, "Diagram");
-            }
-            return JSON.stringify(derefferencedObject);
-        } catch (error) {
-            console.log("Unable to generate JSON")
-            return "";
+        if(isDiagram){
+            derefferencedObject = this.derefferenceDiagram(diagramObject, "Diagram");
         }
+
+        return JSON.stringify(derefferencedObject);
     }
 
     deserializeObject(rawObject: any, objectType: string, realOccurenceContext: Map<string, any> = new Map<string, any>(), occurenceContext: Map<string, any>  = new Map<string, any>(), realMessageContext: Map<string, any>  = new Map<string, any>(), messageContext: Map<string, any>  = new Map<string, any>(), layerIndex:number = null, lifelineIndex:number = null, occurenceIndex:number = null, messageIndex:number = null, lifeline:any = null):any{
@@ -64,11 +62,14 @@ export class Serializer{
                 this.fillMessageContext("deserialize", rawObject, messageContext, realMessageContext); // Fill messageContext with the messages for later derefference
                 var layers = rawObject.layers.map((e: any) => this.deserializeObject(e, "Layer", realOccurenceContext, occurenceContext, realMessageContext, messageContext, layerIndex++));
                 layers.forEach((la: Layer) => {
-                    la.messages.forEach((li: any) => {
-                        li.layer = la;
+                    la.messages.forEach((li: Message) => {
+                        li.start.at.layer = la;
+                        li.end.at.layer = la;
                     });
                 });
-                return new Diagram(layers, null);
+                let diag =  new Diagram(layers, null);
+                diag.diagramId = rawObject._diagramId;
+                return diag;
             case "Lifeline":
                 occurenceIndex = 0;
                 return new Lifeline(rawObject.name, rawObject.type, rawObject.occurenceSpecifications.map((e: any) => this.deserializeObject(e, "OccurenceSpecification", realOccurenceContext, occurenceContext, realMessageContext, messageContext, layerIndex, lifelineIndex, occurenceIndex++)), null);
@@ -85,6 +86,7 @@ export class Serializer{
                 return new Layer(lifelines, rawObject.combinedFragments.map((e: any) => this.deserializeObject(e, "CombinedFragment", realOccurenceContext, occurenceContext, null,null)), messages);               
             case "Message":
                 let message = realMessageContext.get("" + layerIndex + messageIndex);
+         
                 let messageRefference = messageContext.get("" + layerIndex + messageIndex);
                 message.start = realOccurenceContext.get("" + messageRefference.start.layerIndex + messageRefference.start.lifelineIndex + messageRefference.start.occurenceIndex);
                 message.end = realOccurenceContext.get("" + messageRefference.end.layerIndex + messageRefference.end.lifelineIndex + messageRefference.end.occurenceIndex);
@@ -218,14 +220,20 @@ export class Serializer{
     }
 
     copyDiagram(diagramElement: any):any{
-        var diagramCopy = Object.assign({}, diagramElement);
-        diagramCopy.layers = diagramCopy._layers.map((layer:any) =>  Object.assign({}, layer));
+
+        let cleanCopy: (obj: any) => any = R.pickBy((v, k) => {
+            return (!(v instanceof Object3D));
+
+        });
+
+        var diagramCopy = cleanCopy(diagramElement);
+        diagramCopy.layers = diagramCopy._layers.map((layer:any) =>  cleanCopy(layer));
         diagramCopy.layers.forEach((layer: any) => {
-            layer.lifelines = layer.lifelines.map((lifeline:any) =>  Object.assign({}, lifeline));
+            layer.lifelines = layer.lifelines.map((lifeline:any) =>  cleanCopy(lifeline));
                 layer.lifelines.forEach((lifeline: any) => {
-                    lifeline.occurenceSpecifications = lifeline.occurenceSpecifications.map((occurenceSpecification:any) =>  Object.assign({}, occurenceSpecification));
+                    lifeline.occurenceSpecifications = lifeline.occurenceSpecifications.map((occurenceSpecification:any) =>  cleanCopy(occurenceSpecification));
                 });
-            layer.messages = layer.messages.map((message:any) =>  Object.assign({}, message));
+            layer.messages = layer.messages.map((message:any) => cleanCopy(message));
         });
         return diagramCopy;
     }
@@ -286,6 +294,27 @@ export class Serializer{
         var deserialized = this.deserialize(serialized,"Diagram");
         console.log('DESERIALIZED!');
         console.log(deserialized);
+    }
+    
+    serverTest(){
+        var diag = this.createTestDiagram();
+        console.log('Initialized diagram for serialization');
+        console.log(diag);
+        var serialized = this.serialize(diag, true);
+        console.log('SERIALIZED!');
+        console.log(serialized);
+        console.log('Sent diagram in JSON to save on server. Diagram ID: ' + diag.diagramId);
+        let self = this;
+        let callbackPost = function() {
+            let callbackGet = function(data: string) {
+                serialized = data;
+                var deserialized = self.deserialize(serialized,"Diagram");
+                console.log('DESERIALIZED!');
+                console.log(deserialized);
+            }
+            CommunicationController.instance.getDiagram(diag.diagramId, callbackGet)
+        }
+        CommunicationController.instance.saveDiagram(serialized, callbackPost);
     }
 
 }

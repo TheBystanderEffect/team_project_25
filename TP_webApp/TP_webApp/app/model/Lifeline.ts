@@ -18,7 +18,6 @@ export class Lifeline extends BusinessElement{
         this.occurenceSpecifications = occurence;
 
     }
-
     
     public get layer() : Layer {
         return this._layer;

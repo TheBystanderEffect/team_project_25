@@ -45,7 +45,7 @@ function loadDiagramList(): Promise<any[]> {
 
     return new Promise((resolve, reject) => {
         let req: XMLHttpRequest = new XMLHttpRequest();
-        req.open('GET','/api/data/diagram/?select=id');
+        req.open('GET','/api/data/diagram/?select=_diagramId');
         req.addEventListener("load", ( ev: Event ) => {
             let arr = JSON.parse(req.responseText);
             resolve(arr);
@@ -92,10 +92,11 @@ Promise.all([
 
     // populate diagram list
     diagramList.forEach((item: any) => {
-        makeButton(item.id);
+        makeButton(item._diagramId);
     });
 
     Globals.setOpenDiagram(Serializer.instance.createTestDiagram());
+    Globals.setDiagramSaved(false);
 
     LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
     GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);

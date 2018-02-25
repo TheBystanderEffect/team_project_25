@@ -7,32 +7,24 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Bson.IO;
 using TP_webApp.Model;
-
+using Newtonsoft.Json.Linq;
 
 namespace API.Controllers
 {
     [Route("api/[controller]/[action]")]
     public class DataController : Controller
     {
-     /*   // GET api/values
-        [HttpGet]
-        [ActionName("diagram")]
-        public List<String> Get()
-        {
-            var client = new MongoClient();
-            var db = client.GetDatabase("tp");
-            var coll = db.GetCollection<BsonDocument>("testing");
-            var filter = Builders<BsonDocument>.Filter.Eq("name","Bambi");
-            var names = coll.Find(filter).ToList();            
-            List<String> wanted = new List<String>();
-            foreach (var person in names)
-            {
-                wanted.Add(person.ToJson());
-            }
-            return wanted;
-        }*/
+        public MongoClient client = new MongoClient();
 
-        
+        [HttpGet]
+        [ActionName("nextId")]
+        public int GetNextId()
+        {
+            var db = client.GetDatabase("tp");
+            var coll = db.GetCollection<BsonDocument>("usedIds");
+            return coll.FindOneAndUpdate(new BsonDocument(), new UpdateDefinitionBuilder<BsonDocument>().Inc<int>("id",1)).ToBsonDocument().GetValue("id").ToInt32();
+        }
+           
 
         [HttpPost]
         [ActionName("message")]
@@ -61,7 +53,7 @@ namespace API.Controllers
         [ActionName("diagram")]
         public async Task<String> GetAll([FromQuery]string[] select)
         {
-            var client = new MongoClient();
+            //var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
             Dictionary<string, int> dict = new Dictionary<string, int>();
@@ -80,10 +72,10 @@ namespace API.Controllers
         [ActionName("diagram")]
         public async Task<String> Get(int id)
         {
-            var client = new MongoClient();
+            //var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
-            var filter = Builders<BsonDocument>.Filter.Eq("id", id);
+            var filter = Builders<BsonDocument>.Filter.Eq("_diagramId", id);
             var data = await coll.Find(filter).SingleAsync();
             var diagram = data.ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
 
@@ -94,27 +86,36 @@ namespace API.Controllers
         // POST api/data/diagram
         [HttpPost]
         [ActionName("diagram")]
-        public void Post([FromBody]String test_json)
+        public void Post([FromBody]JObject test_json)
         {
-            var client = new MongoClient();
+           // var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
 
-            var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json);
-            coll.InsertOneAsync(doc);
+            try{
+                var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json.ToString());
+                coll.InsertOneAsync(doc);
+            } catch (Exception e) {
+                Console.WriteLine("An exception was thrown: " + e);
+            }
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
         [ActionName("diagram")]
-        public void Post([FromBody]String test_json, int id)
+        public void Post([FromBody]JObject test_json, int id)
         {
-            var client = new MongoClient();
+          //  var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
 
-            var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json);
-            coll.ReplaceOneAsync(new BsonDocument{{ "id", id }}, doc);
+            try{
+                var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json.ToString());
+                coll.ReplaceOneAsync(new BsonDocument {{"_diagramId", id}}, doc);
+                Console.WriteLine("Replace with id: " + id);
+            } catch (Exception e) {
+                Console.WriteLine("An exception was thrown: " + e);
+            }
         }
 
         // DELETE api/values/5
