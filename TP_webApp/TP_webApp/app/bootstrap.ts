@@ -117,6 +117,7 @@ Promise.all([
     GLContext.instance.scene.add(diag.diagramView);*/
 
     Globals.setOpenDiagram(Serializer.instance.createTestDiagram());
+    Globals.setDiagramSaved(false);
 
     LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
     GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);

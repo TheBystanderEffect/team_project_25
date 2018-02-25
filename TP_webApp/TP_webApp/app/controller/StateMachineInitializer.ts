@@ -202,6 +202,7 @@ export function initializeStateTransitions() {
         .button('saveDiagram')
         .finish(() => {
             CommunicationController.instance.saveDiagram(Serializer.instance.serialize(Globals.CURRENTLY_OPENED_DIAGRAM, true), () => { });
+            Globals.setDiagramSaved(true);
         });
 
     

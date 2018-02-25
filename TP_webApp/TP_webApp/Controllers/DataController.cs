@@ -103,14 +103,19 @@ namespace API.Controllers
         // PUT api/values/5
         [HttpPut("{id}")]
         [ActionName("diagram")]
-        public void Post([FromBody]String test_json, int id)
+        public void Post([FromBody]JObject test_json, int id)
         {
           //  var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
 
-            var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json);
-            coll.ReplaceOneAsync(new BsonDocument{{ "id", id }}, doc);
+            try{
+                var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json.ToString());
+                coll.ReplaceOneAsync(new BsonDocument {{"_diagramId", id}}, doc);
+                Console.WriteLine("Replace with id: " + id);
+            } catch (Exception e) {
+                Console.WriteLine("An exception was thrown: " + e);
+            }
         }
 
         // DELETE api/values/5

@@ -44,7 +44,7 @@ export class CommunicationController {
         xhr.send();
 
         if (xhr.status === 200) {
-            let newId = xhr.response;
+            let newId = parseInt(xhr.response);
             return newId;
         } else {
             throw new Error("Couldn't get new GraphId");
@@ -53,6 +53,9 @@ export class CommunicationController {
 
     public saveDiagram(serializedDiagram: string, callback: Function):void{
         let url = "/api/data/diagram";
+        if (Globals.IS_DIAGRAM_SAVED) {
+            url += `/${Globals.CURRENTLY_OPENED_DIAGRAM.diagramId}`;
+        }
         let xhr = new XMLHttpRequest();
 
         xhr.onload = function() {
@@ -62,7 +65,7 @@ export class CommunicationController {
         xhr.onerror = function () {
             alert("Error while calling Web API");
         }
-        xhr.open("POST", url);
+        xhr.open(Globals.IS_DIAGRAM_SAVED ? "PUT" : "POST", url);
         xhr.setRequestHeader('Content-type','application/json')
     
         xhr.send(serializedDiagram);
