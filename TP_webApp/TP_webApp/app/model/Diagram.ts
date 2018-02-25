@@ -32,6 +32,10 @@ export class Diagram extends BusinessElement {
         return this._diagramId;
     }
 
+    public set diagramId(diagramId: number) {
+        this._diagramId = diagramId;    
+    }
+
     public set layers(layers: Layer[]) {
         this._layers = layers;
     }

@@ -70,7 +70,7 @@ namespace API.Controllers
         // GET api/data/diagram/5
         [HttpGet("{id}")]
         [ActionName("diagram")]
-        public async Task<String> Get(string id)
+        public async Task<String> Get(int id)
         {
             //var client = new MongoClient();
             var db = client.GetDatabase("tp");

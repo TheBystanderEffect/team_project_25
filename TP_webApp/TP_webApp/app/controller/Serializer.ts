@@ -62,11 +62,14 @@ export class Serializer{
                 this.fillMessageContext("deserialize", rawObject, messageContext, realMessageContext); // Fill messageContext with the messages for later derefference
                 var layers = rawObject.layers.map((e: any) => this.deserializeObject(e, "Layer", realOccurenceContext, occurenceContext, realMessageContext, messageContext, layerIndex++));
                 layers.forEach((la: Layer) => {
-                    la.messages.forEach((li: any) => {
-                        li.layer = la;
+                    la.messages.forEach((li: Message) => {
+                        li.start.at.layer = la;
+                        li.end.at.layer = la;
                     });
                 });
-                return new Diagram(layers, null);
+                let diag =  new Diagram(layers, null);
+                diag.diagramId = rawObject._diagramId;
+                return diag;
             case "Lifeline":
                 occurenceIndex = 0;
                 return new Lifeline(rawObject.name, rawObject.type, rawObject.occurenceSpecifications.map((e: any) => this.deserializeObject(e, "OccurenceSpecification", realOccurenceContext, occurenceContext, realMessageContext, messageContext, layerIndex, lifelineIndex, occurenceIndex++)), null);
