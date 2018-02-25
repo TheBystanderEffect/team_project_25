@@ -11,6 +11,7 @@ import { LifelineView } from "../view/LifelineView";
 import { MessageView } from "../view/MessageView";
 import { Message } from "../model/Message";
 import { OccurenceSpecification } from "../model/OccurenceSpecification";
+import { Layer } from "../model/Layer";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -136,8 +137,6 @@ export function initializeStateTransitions() {
             if (obj.metadata.parent instanceof LifelineView) {
 
                 let endLifeline: Lifeline = obj.metadata.parent.businessElement;
-
-                console.log('Start: ' + startLifeline.name + ' End: ' + endLifeline.name);
                 
                 let startOcc: OccurenceSpecification = new OccurenceSpecification(startLifeline, null);
                 let endOcc: OccurenceSpecification = new OccurenceSpecification(endLifeline, null);
@@ -178,10 +177,6 @@ export function initializeStateTransitions() {
         //console.log(h)
         for (let obj of h ) {
             if (obj.metadata.parent instanceof MessageView) {
-
-                console.log('AHA! lopata');
-                
-                console.log(obj.metadata.parent.businessElement)
                 obj.metadata.parent.businessElement.delete();
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 // for (let child of GLContext.instance.scene.children) {
@@ -192,5 +187,41 @@ export function initializeStateTransitions() {
         }
 
     })
-    .finish(() =>{})
+    .finish(() =>{});
+
+    StateSequence
+    .start('CREATE_LAYER')
+    .button('sideLayer')
+    .finish(() => {
+        Globals.CURRENTLY_OPENED_DIAGRAM.addLayer(new Layer([], [], []));
+        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    });
+
+    StateSequence
+    .start('DELETE_LAYER')
+    .button('sideDeleteLayer')
+    .click((event: Event, hits: CustomMesh[]) => {
+        for (let hit of hits) {
+            if (hit.metadata.parent instanceof LayerView) {
+                return true;
+            }
+        }
+        return false;
+    },
+     (event: Event, hits: CustomMesh[]) => {
+        console.log(hits);
+        for (let hit of hits) {
+            console.log(hit.metadata.parent);
+            if (hit.metadata.parent instanceof LayerView) {
+                let lay: Layer = ((hit.metadata.parent as LayerView).businessElement as Layer);
+                Globals.CURRENTLY_OPENED_DIAGRAM.layers.splice(Globals.CURRENTLY_OPENED_DIAGRAM.layers.indexOf(lay), 1);
+                Globals.CURRENTLY_OPENED_DIAGRAM.diagramView.remove(lay.graphicElement);
+                console.log(Globals.CURRENTLY_OPENED_DIAGRAM);
+
+                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+
+                break;
+            }
+    }})
+    .finish(()=>{});
 }

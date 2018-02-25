@@ -1,5 +1,5 @@
 import { State } from "./State";
-import { EventBus } from "./EventBus";
+import { EventBus, EventType } from "./EventBus";
 import { CustomMesh } from "../view/CustomMesh";
 import { RaycastControl } from "./RaycastControl";
 import { GLContext } from "../view/GLContext";
@@ -26,13 +26,16 @@ export class StateMachine {
         this._currentState = state;
     }
 
-    public acceptEvent(e: MouseEvent) {
+    public acceptEvent(e: MouseEvent, eventType: EventType) {
 
-        let hits: CustomMesh[] = RaycastControl.instance.cast(GLContext.instance.camera, GLContext.instance.scene, e);
+        let hits: CustomMesh[] = null;
+        if (e != null) {
+            hits = RaycastControl.instance.cast(GLContext.instance.camera, GLContext.instance.scene, e);
+        }
 
         // iterate through transitions to find one that will accept the event
         for (let transition of this.currentState.outgoingTransitions) {
-            if (transition.tryAccept(e, hits)) {
+            if (transition.tryAccept(e, hits, eventType)) {
                 this.currentState = transition.target;
                 break;
             }
