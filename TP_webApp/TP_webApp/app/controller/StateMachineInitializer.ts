@@ -12,6 +12,8 @@ import { MessageView } from "../view/MessageView";
 import { Message } from "../model/Message";
 import { OccurenceSpecification } from "../model/OccurenceSpecification";
 import { Layer } from "../model/Layer";
+import { BusinessElement } from "../model/BusinessElement";
+import { GraphicElement } from "../view/GraphicElement";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -224,4 +226,81 @@ export function initializeStateTransitions() {
             }
     }})
     .finish(()=>{});
+
+
+    let movedLifeline: Lifeline = null;
+
+    let moveLifelineStart = StateSequence
+    .start('MOVE_LIFELINE');
+
+    let lastOffsetX: number = 0;
+
+    moveLifelineStart
+    .click((event, hits) => {
+        return hits.length != 0 && hits[0].metadata.parent instanceof LifelineView;
+    }, (event, hits) => {
+        movedLifeline = (hits[0].metadata.parent as GraphicElement).businessElement as Lifeline;
+        lastOffsetX = (event as MouseEvent).offsetX;
+    })
+    .drag((ev, hits) => true,
+    (ev, hits) => {
+        movedLifeline.layer.lifelines.sort((a,b) => {
+            return a.graphicElement.position.x - b.graphicElement.position.x;
+        });
+        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
+    (ev, hits) => {
+        // empty
+    },
+    (ev, hits) => {
+        movedLifeline = null;
+        lastOffsetX = 0;
+    },
+    (ev, hits) => {
+        movedLifeline.graphicElement.position.x = movedLifeline.graphicElement.position.x + ((ev as MouseEvent).offsetX - lastOffsetX);
+        lastOffsetX = (ev as MouseEvent).offsetX;
+    },
+    moveLifelineStart)
+    .finish(() => {});
+
+    let movedMessage: Message = null;
+
+    let moveMessageStart = StateSequence
+    .start('MOVE_MESSAGE');
+
+    let lastOffsetY: number = 0;
+
+    moveMessageStart
+    .click((event, hits) => {
+        return hits.length != 0 && hits[0].metadata.parent instanceof MessageView;
+    }, (event, hits) => {
+        movedMessage = (hits[0].metadata.parent as GraphicElement).businessElement as Message;
+        lastOffsetY = (event as MouseEvent).offsetY;
+    })
+    .drag((ev, hits) => true,
+    (ev, hits) => {
+        movedMessage.parentLayer.messages.sort((a,b) => {
+            return a.graphicElement.position.y - b.graphicElement.position.y;
+        });
+        movedMessage.start.at.occurenceSpecifications.sort((a,b) => {
+            return a.message.graphicElement.position.y - b.message.graphicElement.position.y;
+        });
+        movedMessage.end.at.occurenceSpecifications.sort((a,b) => {
+            return a.message.graphicElement.position.y - b.message.graphicElement.position.y;
+        });
+        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
+    (ev, hits) => {
+        // empty
+    },
+    (ev, hits) => {
+        movedMessage = null;
+        lastOffsetY = 0;
+    },
+    (ev, hits) => {
+        movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        lastOffsetY = (ev as MouseEvent).offsetY;
+    },
+    moveLifelineStart)
+    .finish(() => {});
 }
