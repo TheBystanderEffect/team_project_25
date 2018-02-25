@@ -280,13 +280,13 @@ export function initializeStateTransitions() {
     .drag((ev, hits) => true,
     (ev, hits) => {
         movedMessage.parentLayer.messages.sort((a,b) => {
-            return a.graphicElement.position.y - b.graphicElement.position.y;
+            return -(a.graphicElement.position.y - b.graphicElement.position.y);
         });
         movedMessage.start.at.occurenceSpecifications.sort((a,b) => {
-            return a.message.graphicElement.position.y - b.message.graphicElement.position.y;
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
         });
         movedMessage.end.at.occurenceSpecifications.sort((a,b) => {
-            return a.message.graphicElement.position.y - b.message.graphicElement.position.y;
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
         });
         LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
     },
