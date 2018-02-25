@@ -12,11 +12,19 @@ import { OccurenceSpecification } from "../model/OccurenceSpecification";
 import { RaycastControl } from "./RaycastControl";
 import * as Globals from '../globals';
 
+export enum EventType {
+    BUTTON = "BUTTON",
+    MOUSE_DOWN = "MOUSE_DOWN",
+    MOUSE_UP = "MOUSE_UP",
+    MOUSE_MOVE = "MOUSE_MOVE",
+    SCENE_UPDATE = "SCENE_UPDATE"
+}
+
 export class EventBus {
 
     public constructor(
         private _canvas: HTMLCanvasElement,
-        private _callback: (event: Event) => void
+        private _callback: (event: Event, eventType: EventType) => void
     ) {
         this._canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
         this._canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
@@ -26,8 +34,9 @@ export class EventBus {
 
     private _sendMouseDown: boolean = true;
     private _sendMouseUp: boolean = true;
-    private _sendMouseMovement: boolean = false;
+    private _sendMouseMovement: boolean = true;
     private _sendButtonPressed: boolean = true;
+    private _sendSceneUpdate: boolean = true;
 
     public get sendMouseDown() {
         return this._sendMouseDown;
@@ -47,152 +56,32 @@ export class EventBus {
 
     public handleMouseMove(event: MouseEvent) {
         if (this.sendMouseMovement) {
-            this._callback(event);
+            this._callback(event, EventType.MOUSE_MOVE);
         }
     }
 
-    // To do refactor
-    private _intersection:Array<CustomMesh> = null;
-    private holdMyLifeline: any = null;
-
-
     public handleMouseDown(event: MouseEvent) {
-        if(event.which==1){
-            console.log('raycast debug')
-            RaycastControl.instance.cast(GLContext.instance.camera,GLContext.instance.scene,event)
-            console.log('end raycast debug')
-        }
         if (this.sendMouseDown) {
-            this._callback(event);
-        }
-        
-        switch (event.which) {
-            case 1:
-                
-                if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_lifeline" ){
-                    console.log("fuck")
-                    this._intersection = RaycastControl.instance.cast(GLContext.instance.camera,GLContext.instance.scene,event);
-                    
-                    // let raycaster = new Raycaster();
-                    // let vector2 = new Vector2(0,0)
-                    // vector2.x =   ( event.offsetX / window.innerWidth ) * 2 - 1;
-                    // vector2.y = - ( event.offsetY / window.innerHeight ) * 2 + 1;
-                    // raycaster.setFromCamera(vector2,GLContext.instance.camera);
-                    // let layersinDiagram = GLContext.instance.scene.children[0].children;
-                    // this._intersection = raycaster.intersectObjects(layersinDiagram);
-                    let lifelineNew = new Lifeline('Standard name','',[], (this._intersection[0]).metadata.parent.parent);
-                    (this._intersection[0]).metadata.parent.parent.AddLifeline(lifelineNew);
-                    LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-                    GLContext.instance.scene.children = [];
-                    GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
-                    GLContext.instance.stateMachine.currentState = new State("NEUTRAL");
-                    
-                    
-                    
-                }
-                if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_Message" ){
-                    this._intersection = RaycastControl.instance.cast(GLContext.instance.camera,GLContext.instance.scene,event);
-                    for(let element of this._intersection){
-                        if(element.metadata.parent.parent instanceof Lifeline){
-                            this.holdMyLifeline = element.metadata.parent.parent;
-                            break;
-                        }
-                    }
-                    
-                    // let raycaster = new Raycaster();
-                    // let vector2 = new Vector2(0,0)
-                    // vector2.x =   ( event.offsetX / window.innerWidth ) * 2 - 1;
-                    // vector2.y = - ( event.offsetY / window.innerHeight ) * 2 + 1;
-                    // raycaster.setFromCamera(vector2,GLContext.instance.camera);
-                    // let lifelinesinDiagram :any[]= [];
-                    // GLContext.instance.scene.children[0].children.forEach(element => {
-                    //     element.children.forEach(element2 => {
-                    //         lifelinesinDiagram.push(element2);
-                    //     });
-                    // });
-                  
-                    // this._intersection = raycaster.intersectObjects(lifelinesinDiagram);
-                    // console.log((this._intersection[0].object as CustomMesh).metadata.parent.parent);
-
-                }
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-                break;
-        }
-        
+            this._callback(event, EventType.MOUSE_DOWN);
+        } 
     }
 
     
     public handleMouseUp(event: MouseEvent) {
         if (this.sendMouseUp) {
-            this._callback(event);
+            this._callback(event, EventType.MOUSE_UP);
         }
-        console.log("begin");
-        if ( GLContext.instance.stateMachine.currentState.code == "MODIFYING_Message" && this.holdMyLifeline !== null){
-            this._intersection = RaycastControl.instance.cast(GLContext.instance.camera,GLContext.instance.scene,event);
-            for(let element of this._intersection){
-                if(element.metadata.parent.parent instanceof Lifeline){
-                    let newMessage = new Message("general Message",null,null,new OccurenceSpecification(this.holdMyLifeline,null),new OccurenceSpecification(element.metadata.parent.parent,null));
-                    this.holdMyLifeline.layer.AddMessage(newMessage);
-                    newMessage.start.message = newMessage;
-                    newMessage.end.message = newMessage;
-                    console.log("Message created");
-
-                    LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-                    console.log("after magic");
-                    GLContext.instance.scene.children = [];
-                    GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
-                    console.log("finish");
-                    GLContext.instance.stateMachine.currentState = new State("NEUTRAL");
-                    
-                    break;
-                }
-            }
-            this.holdMyLifeline = null;
-            // let raycaster = new Raycaster();
-            // let vector2 = new Vector2(0,0)
-            // vector2.x =   ( event.offsetX / window.innerWidth ) * 2 - 1;
-            // vector2.y = - ( event.offsetY / window.innerWidth ) * 2 + 1;
-            // raycaster.setFromCamera(vector2,GLContext.instance.camera);
-            // let lifelinesinDiagram :any[]= [];
-            // GLContext.instance.scene.children[0].children.forEach(element => {
-            //     element.children.forEach(element2 => {
-            //         lifelinesinDiagram.push(element2);
-            //     });
-            // });
-            // console.log("before raycast");
-            // let endIntersection = raycaster.intersectObjects(lifelinesinDiagram);
-            // console.log("after raycast");
-            // console.log("begin Message creation");
-            //let newMessage = new Message("general Message",null,null,new OccurenceSpecification((this._intersection[0].object as CustomMesh).metadata.parent.parent,null),new OccurenceSpecification((endIntersection[0].object as CustomMesh).metadata.parent.parent,null));
-            
-            // console.log('start intersection');
-            // console.log(this._intersection);
-            // console.log('end intersection');
-            // console.log(endIntersection);
-           
-            // (this._intersection[0].object as CustomMesh).metadata.parent.parent.layer.AddMessage(newMessage);
-            // newMessage.start.message = newMessage;
-            // newMessage.end.message = newMessage;
-            // console.log("end of Message creation");
-
-            // LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-            // console.log("after magic");
-            // GLContext.instance.scene.children = [];
-            // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
-            // console.log("finish");
-            // GLContext.instance.stateMachine.currentState = new State("NEUTRAL");
-        }
-
     }
 
     public handleButtonPressed(event: MouseEvent) {
         if (this.handleButtonPressed) {
-            this._callback(event);
+            this._callback(event, EventType.BUTTON);
+        }
+    }
+
+    public handleSceneUpdate(event: Event) {
+        if (this.handleSceneUpdate) {
+            this._callback(event, EventType.SCENE_UPDATE);
         }
     }
 

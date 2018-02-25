@@ -1,6 +1,5 @@
 import { OccurenceSpecification } from "./OccurenceSpecification";
 import { LifelineView } from "../view/LifelineView";
-import { TextView } from "../view/TextView";
 import { Layer } from "./Layer";
 import { BusinessElement } from "./BusinessElement";
 
@@ -8,6 +7,7 @@ export class Lifeline extends BusinessElement{
     name:string;
     type:string;
     occurenceSpecifications:OccurenceSpecification[];
+
     private _layer: Layer;
 
     constructor(name:string,type:string,occurence:OccurenceSpecification[], layer: Layer){

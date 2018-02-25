@@ -1,41 +1,61 @@
-import { CylinderGeometry, MeshBasicMaterial, Mesh, Scene, Vector3 } from 'three'
+import { Vector3 } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
-import { lifelineRadius } from "../config"
 import { BusinessElement } from '../model/BusinessElement';
+import { Lifeline } from '../model/Lifeline';
+import * as Config from "../config"
+import { LayerView } from './LayerView';
+import { ASSETS } from "../globals";
+import { Text3D } from './Text3D';
 
 export class LifelineView extends GraphicElement {
-    //mesh.metadata.parent: MessageView;
-    //parent: Layer;//binis objekt already defined in GraphicElement
-    public length: number;
-    public center: Vector3; //center of mesh in relation to layer, probably not needed
-    _source: Vector3; //source in relation to layer
+    //substituted by getters
+    //private _length: number; //this.line.scale.y
+    //private _center: Vector3; //center of mesh in relation to layer, probably not needed
+    //private _source: Vector3; //source in relation to layer
 
-    public constructor(parent:BusinessElement,source_x:number, source_y:number, source_z:number, length:number) {
+    private line: CustomMesh;
+    private text: Text3D;
+
+    //override of object3D parent
+    parent: LayerView;
+    //override
+    businessElement: Lifeline;
+
+    public constructor(parent:BusinessElement) {
         super(parent);
-        this.length = length;
-        this._source = new Vector3(source_x,source_y,source_z);
-        this.center = new Vector3(source_x, source_y - length/2, source_z);
-    
-        this.geometry = new CylinderGeometry(lifelineRadius, lifelineRadius, 1, 8 );//this.length, 8 );
-        this.material = new MeshBasicMaterial( {color: 0xFF0000} );
-        this.mesh = new CustomMesh( this.geometry, this.material );
-        this.mesh.position.set(0,-length/2,0);// = this.center;//.set(0,0,0);
-        this.mesh.scale.set(1,this.length,1);
-    
-        this.mesh.metadata = {};
-        this.mesh.metadata.parent=this;
-
-        this.position.copy(this.source);//.set(this.center.x, this.center.y, this.center.z);
-        this.add(this.mesh);
+        this.line = new CustomMesh(
+            ASSETS.lifelineBodyGeometry,
+            ASSETS.lifelineBodyMaterial
+        );
+        this.add(this.line);
+        
+        this.text = new Text3D(this);
+        this.add(this.text);
     }
-    
+
+    public updateLayout(index: number):LifelineView{
+        
+        this.position.set(this.parent.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
+            this.parent.source.y - Config.lifelineOffsetY,
+            0);
+        this.line.scale.setY(this.parent.height-Config.lifelineOffsetY);
+        // this._length = this.parent.height-Config.lifelineOffsetY;
+        // this.line.scale.set(1,this.length,1);
+        this.line.position.set(0, -this.length/2, 0);
+
+        this.text.update(this.businessElement.name);
+
+        return this;
+    }
+
+    get length():number{
+        //return this._length;
+        return this.line.scale.y
+    }
+
     get source():Vector3{
-        return this._source;
-    }
-
-    set source(newSource: Vector3){
-        this._source=newSource;
+        return this.position;
     }
 
 }

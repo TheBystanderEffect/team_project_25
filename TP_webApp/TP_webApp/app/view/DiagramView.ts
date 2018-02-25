@@ -1,4 +1,4 @@
-import { PlaneGeometry, MeshLambertMaterial, Mesh, Scene, Vector3,Object3D } from 'three'
+import { PlaneGeometry, MeshLambertMaterial, Mesh, Scene, Vector3, Object3D } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
 import { Diagram } from "../model/Diagram"

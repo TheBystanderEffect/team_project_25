@@ -1,12 +1,13 @@
 import { State } from "./State";
 import { CustomMesh } from "../view/CustomMesh";
+import { EventType } from "./EventBus";
 
 export class StateTransition {
 
     public constructor(
         private _source: State, 
         private _target: State,
-        private _condition: (e: Event, rayhits: CustomMesh[]) => boolean,
+        private _condition: (e: Event, rayhits: CustomMesh[], eventType: EventType) => boolean,
         private _action: (e: Event, rayhits: CustomMesh[]) => void
     ) {
     }
@@ -27,8 +28,8 @@ export class StateTransition {
         this._target= state;
     }
 
-    public tryAccept(e: MouseEvent, hits: CustomMesh[]): boolean {
-        if (!this._condition(e, hits)) {
+    public tryAccept(e: MouseEvent, hits: CustomMesh[], eventType: EventType): boolean {
+        if (!this._condition(e, hits, eventType)) {
             return false;
         }
 

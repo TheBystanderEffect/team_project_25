@@ -3,7 +3,6 @@ import { GraphicElement } from './GraphicElement';
 import { LayerView } from './LayerView';
 import { LifelineView } from './LifelineView';
 import { MessageView } from './MessageView';
-import { TextView } from './TextView';
 import { setOpenDiagram } from '../globals';
 import { GLContext } from './GLContext';
 import { State } from "../controller/State";
@@ -13,26 +12,6 @@ import { LayoutControl } from '../controller/LayoutControl';
 import { CameraControls } from './CameraControls';
 import * as Globals from '../globals';
 import { Serializer } from '../controller/Serializer';
-
-export function addLifeline(){
-    // if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-    //     GLContext.instance.stateMachine.currentState = new State("MODIFYING").specialize('lifeline');
-    // }
-}
-export function addMessage(){
-    // if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-    //     GLContext.instance.stateMachine.currentState = new State("MODIFYING").specialize('Message');;
-    //  }
-}
-export function addLayer(){
-    // if ( GLContext.instance.stateMachine.currentState.code == "NEUTRAL" ){
-    //     let diag: Diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
-    //     diag.addLayer(new Layer([],[],[]));
-    //     LayoutControl.magic(diag);
-    //     GLContext.instance.scene.children = [];
-    //     GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
-    //  }
-}
 
 
 export function toggleNav() {
