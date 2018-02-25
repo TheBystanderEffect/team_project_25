@@ -70,6 +70,11 @@ function loadDiagram(id: number) {
      req.open('GET',`/api/data/diagram/${id}`);
      req.addEventListener("load", (ev: Event) => {
          Globals.setOpenDiagram(Serializer.instance.deserialize(req.responseText, "Diagram"));
+         for (let child of GLContext.instance.scene.children) {
+             GLContext.instance.scene.remove(child);
+         }
+         LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+         GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
      });
      req.send();
 }

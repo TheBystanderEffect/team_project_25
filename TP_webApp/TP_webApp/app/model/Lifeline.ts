@@ -8,8 +8,6 @@ export class Lifeline extends BusinessElement{
     name:string;
     type:string;
     occurenceSpecifications:OccurenceSpecification[];
-
-    _lable: TextView;
     private _layer: Layer;
 
     constructor(name:string,type:string,occurence:OccurenceSpecification[], layer: Layer){
@@ -20,15 +18,6 @@ export class Lifeline extends BusinessElement{
         this.occurenceSpecifications = occurence;
 
     }
-
-    get lable(): TextView{
-        return this._lable;
-    }
-    
-    set lable(lable: TextView){
-        this._lable = lable;
-    }
-
     
     public get layer() : Layer {
         return this._layer;

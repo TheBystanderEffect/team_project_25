@@ -7,6 +7,8 @@ import { Message } from '../model/Message';
 import { OccurenceSpecification } from '../model/OccurenceSpecification';
 import { CommunicationController } from '../controller/CommunicationController';
 import * as Globals from '../globals';
+import * as R from 'ramda';
+import { Object3D } from 'three';
 
 export class Serializer{
 
@@ -46,15 +48,8 @@ export class Serializer{
         if(isDiagram){
             derefferencedObject = this.derefferenceDiagram(diagramObject, "Diagram");
         }
-        let temp: any = derefferencedObject._diagramView;
-        derefferencedObject._diagramView = null;
-        let res: any = JSON.stringify({
-            _diagramId: derefferencedObject._diagramId,
-            _layers: derefferencedObject.layers,
-            _verId: derefferencedObject._verId
-        });
 
-        return res;
+        return JSON.stringify(derefferencedObject);
     }
 
     deserializeObject(rawObject: any, objectType: string, realOccurenceContext: Map<string, any> = new Map<string, any>(), occurenceContext: Map<string, any>  = new Map<string, any>(), realMessageContext: Map<string, any>  = new Map<string, any>(), messageContext: Map<string, any>  = new Map<string, any>(), layerIndex:number = null, lifelineIndex:number = null, occurenceIndex:number = null, messageIndex:number = null, lifeline:any = null):any{
@@ -222,14 +217,20 @@ export class Serializer{
     }
 
     copyDiagram(diagramElement: any):any{
-        var diagramCopy = Object.assign({}, diagramElement);
-        diagramCopy.layers = diagramCopy._layers.map((layer:any) =>  Object.assign({}, layer));
+
+        let cleanCopy: (obj: any) => any = R.pickBy((v, k) => {
+            return (!(v instanceof Object3D));
+
+        });
+
+        var diagramCopy = cleanCopy(diagramElement);
+        diagramCopy.layers = diagramCopy._layers.map((layer:any) =>  cleanCopy(layer));
         diagramCopy.layers.forEach((layer: any) => {
-            layer.lifelines = layer.lifelines.map((lifeline:any) =>  Object.assign({}, lifeline));
+            layer.lifelines = layer.lifelines.map((lifeline:any) =>  cleanCopy(lifeline));
                 layer.lifelines.forEach((lifeline: any) => {
-                    lifeline.occurenceSpecifications = lifeline.occurenceSpecifications.map((occurenceSpecification:any) =>  Object.assign({}, occurenceSpecification));
+                    lifeline.occurenceSpecifications = lifeline.occurenceSpecifications.map((occurenceSpecification:any) =>  cleanCopy(occurenceSpecification));
                 });
-            layer.messages = layer.messages.map((message:any) =>  Object.assign({}, message));
+            layer.messages = layer.messages.map((message:any) => cleanCopy(message));
         });
         return diagramCopy;
     }

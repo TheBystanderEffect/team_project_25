@@ -6,8 +6,10 @@ import {DiagramView} from "../view/DiagramView";
 import { DiagramMetadata } from "./DiagramMetadata";
 import { BusinessElement } from "./BusinessElement";
 import { CommunicationController } from '../controller/CommunicationController';
+import * as R from "ramda";
+import { GraphicElement } from "../view/GraphicElement";
 
-export class Diagram extends BusinessElement{
+export class Diagram extends BusinessElement {
 
     private _layers: Layer[];
     private _diagramView: DiagramView;

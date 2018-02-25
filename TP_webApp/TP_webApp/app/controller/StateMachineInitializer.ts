@@ -13,6 +13,7 @@ import { Message } from "../model/Message";
 import { OccurenceSpecification } from "../model/OccurenceSpecification";
 import { CommunicationController } from "./CommunicationController";
 import { Serializer } from "./Serializer";
+import { GraphicElement } from "../view/GraphicElement";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
