@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>static mock view</title>
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="../js/app.bundle.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/mock.css">
+</head>
+    <body>
+
+        <div id="mySidenav" class="sidenav" style="width: 0px">
+            <a id="sideLife">Add Lifeline </a>
+            <a id="sideMessage">Add message  </a>
+            <a id="sideLayer">Add Layer    </a>
+            <a id = "sideDeleteLife" >delete lifeline</a>
+            <a id = "sideDeleteMessage" >delete message</a>
+            <a id = "sideDeleteLayer" >delete Layer</a>
+            <a id="resetViewpoint">resetViewpoint    </a>
+            <a id="saveViewpoint">saveViewpoint    </a>
+            <a id="saveDiagram">save diagram</a>
+        </div>
+
+        <div id="main" class="container" >
+            <button id="openMenu">Open</button>
+            <canvas id="webglCanvas" oncontextmenu="return false;"></canvas>
+        </div>
+    </body>
+
+
+    
+</html>

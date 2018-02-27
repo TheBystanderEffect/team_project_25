@@ -8,14 +8,16 @@ namespace TP_webApp.Model
     public class Diagram
     {
         
-        public Diagram(List<Layer> layers, String metadata)
+        public Diagram(int id, List<Layer> layers)
         {
+            this.id = id;
             this.layers = layers;
-            this.metadata = metadata;
+            
         }
 
         public List<Layer> layers { get; set; }
-        public String metadata { get; set; }
+       
+        public int id { get; set; }
 
         
     }
