@@ -159,6 +159,7 @@ export function initializeStateTransitions() {
 
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
 
+                (<any>window).lopata = msg;
                 break;
             }
         }
