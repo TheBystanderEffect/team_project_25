@@ -16,6 +16,7 @@ import { Serializer } from "./Serializer";
 import { Layer } from "../model/Layer";
 import { BusinessElement } from "../model/BusinessElement";
 import { GraphicElement } from "../view/GraphicElement";
+import { Vector3, Vector2 } from "three";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -103,67 +104,84 @@ export function initializeStateTransitions() {
     .finish(() => {});
 
     let startLifeline: Lifeline = null;
+    let endLifeline: Lifeline = null;
+    let newMessageView: MessageView = new MessageView(new Message("[Animation]",null,null,null,null));
 
-    StateSequence
+    let createMessagePreDrag = StateSequence
     .start('CREATE_MESSAGE')
-    .button('sideMessage')
+    .button('sideMessage');
+    
+    let holdLifelineView:LifelineView = null;
+    createMessagePreDrag
     .click((e: Event, h: CustomMesh[]) => {
         for (let obj of h) {
-            if (obj.metadata.parent instanceof LifelineView) {
+            if (obj.parent instanceof LifelineView) {
+                holdLifelineView = obj.parent;
                 return true;
             }
         }
         return false;
     },(e: Event, h: CustomMesh[]) => {
-
-        // TODO refactor this
-
-        for (let obj of h) {
-            if (obj.metadata.parent instanceof LifelineView) {
-                startLifeline = obj.metadata.parent.businessElement;
-                break;
-            }
-        }
+        startLifeline = holdLifelineView.businessElement;
+        holdLifelineView.parent.add(newMessageView);
+        newMessageView.source.copy(holdLifelineView.position)
     })
-    .click((e: Event, h: CustomMesh[]) => {
-        for (let obj of h) {
-            if (obj.metadata.parent instanceof LifelineView) {
-                let endLifeline: Lifeline = obj.metadata.parent.businessElement;
+    .drag((ev, hits) => {
+        for (let obj of hits) {
+            if (obj.parent instanceof LifelineView) {
+                endLifeline = obj.parent.businessElement;
                 return startLifeline != endLifeline;
             }
         }
         return false;
-    },(e: Event, h: CustomMesh[]) => {
+    },
+    (ev, hits) => {
+        //onsuccess                
+        let startOcc: OccurenceSpecification = new OccurenceSpecification(startLifeline, null);
+        let endOcc: OccurenceSpecification = new OccurenceSpecification(endLifeline, null);
 
-        // TODO refactor this
+        let msg: Message = new Message('new msg', null, null, startOcc, endOcc);
+        startOcc.message = msg;
+        endOcc.message = msg;
 
-        for (let obj of h) {
-            if (obj.metadata.parent instanceof LifelineView) {
+        startOcc.at = startLifeline;
+        endOcc.at = endLifeline;
 
-                let endLifeline: Lifeline = obj.metadata.parent.businessElement;
+        startLifeline.occurenceSpecifications.push(startOcc);
+        endLifeline.occurenceSpecifications.push(endOcc);
+
+        startLifeline.layer.AddMessage(msg);
+
+        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 
-                let startOcc: OccurenceSpecification = new OccurenceSpecification(startLifeline, null);
-                let endOcc: OccurenceSpecification = new OccurenceSpecification(endLifeline, null);
+    },
+    (ev, hits) => {
+        //onfail
+    },
+    (ev, hits) => {
+        //cleanup
+        startLifeline = null;
+        endLifeline = null;
+        holdLifelineView =null;
 
-                let msg: Message = new Message('new msg', null, null, startOcc, endOcc);
-                startOcc.message = msg;
-                endOcc.message = msg;
-
-                startOcc.at = startLifeline;
-                endOcc.at = endLifeline;
-
-                startLifeline.occurenceSpecifications.push(startOcc);
-                endLifeline.occurenceSpecifications.push(endOcc);
-
-                startLifeline.layer.AddMessage(msg);
-
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-
-                (<any>window).lopata = msg;
+        newMessageView.position.setY(10000); //advanced programing technique
+        newMessageView.parent.remove(newMessageView);
+    },
+    (ev, hits) => {
+        //onmouseevent
+        let castResult = RaycastControl.simpleDefaultIntersect(ev as MouseEvent);
+        for (let h of castResult){
+            if(h.object.parent instanceof LayerView){
+                newMessageView.redrawByDestination(new Vector3(
+                    h.point.x -newMessageView.parent.position.x,
+                    h.point.y -newMessageView.parent.position.y,
+                    0
+                ));
                 break;
             }
         }
-    })
+    },
+    createMessagePreDrag)
     .finish(() => {});
 
     StateSequence

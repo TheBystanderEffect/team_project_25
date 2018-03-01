@@ -15,9 +15,9 @@ export class MessageView extends GraphicElement{
     private arrowBody: CustomMesh;
     private arrowHead: CustomMesh;
     private text: Text3D;
-
-    private source: Vector3;
-    private destination: Vector3;
+    
+    private _source: Vector3;
+    public _destination: Vector3;
 
     //override
     businessElement: Message;
@@ -26,8 +26,8 @@ export class MessageView extends GraphicElement{
 
     public constructor(parent:BusinessElement) {
         super(parent);
-        this.source = new Vector3(0,0,0);
-        this.destination = new Vector3(0,0,0);
+        this._source = new Vector3(0,0,0);
+        this._destination = new Vector3(0,0,0);
 
         this.arrowBody = new CustomMesh(
             ASSETS.messageArrowBodyGeometry, 
@@ -58,9 +58,9 @@ export class MessageView extends GraphicElement{
         end.y += -Config.firstMessageOffset-Config.messageOffset*index
 
         //update only if current and correct points mismatch
-        if( !(this.source.equals(start) && this.destination.equals(end)) ){
-            this.source.copy(start);
-            this.destination.copy(end);
+        if( !(this._source.equals(start) && this._destination.equals(end)) ){
+            this._source.copy(start);
+            this._destination.copy(end);
             this.redraw();
         }
        
@@ -70,27 +70,27 @@ export class MessageView extends GraphicElement{
     }
 
     private redraw(){
-        this._length = Math.sqrt(Math.pow(this.source.x-this.destination.x,2)
-                                +Math.pow(this.source.y-this.destination.y,2)
-                                +Math.pow(this.source.z-this.destination.z,2));
+        this._length = Math.sqrt(Math.pow(this._destination.x-this._source.x,2)
+                                +Math.pow(this._destination.y-this._source.y,2)
+                                +Math.pow(this._destination.z-this._source.z,2));
         this.position.set(
-            (this.source.x + this.destination.x)/2, 
-            (this.source.y + this.destination.y)/2,
-            (this.source.z + this.destination.z)/2
+            (this._source.x + this._destination.x)/2, 
+            (this._source.y + this._destination.y)/2,
+            (this._source.z + this._destination.z)/2
         );
 
         let dirEuler = new Euler(
-            Math.atan2(this.destination.z-this.source.z, this.destination.y-this.source.y),
+            Math.atan2(this._destination.z-this._source.z, this._destination.y-this._source.y),
             0,
-            Math.atan2(this.destination.y-this.source.y, this.destination.x-this.source.x)-Math.PI/2
+            Math.atan2(this._destination.y-this._source.y, this._destination.x-this._source.x)-Math.PI/2
         );
         this.arrowHead.rotation.copy(dirEuler);
         this.arrowBody.rotation.copy(dirEuler);
 
         let dir = new Vector3(
-            this.destination.x-this.source.x,
-            this.destination.y-this.source.y,
-            this.destination.z-this.source.z
+            this._destination.x-this._source.x,
+            this._destination.y-this._source.y,
+            this._destination.z-this._source.z
         ).normalize();
 
         this.arrowHead.scale.setY(Config.messageArrowHeadLength);
@@ -99,19 +99,66 @@ export class MessageView extends GraphicElement{
         this.arrowBody.scale.setY(this._length - Config.lifelineRadius*2 - Config.messageArrowHeadLength + Config.messageArrowOverlap); 
         this.arrowBody.position.copy(dir).multiplyScalar(-Config.lifelineRadius);
 
+    } 
+    //optimized for always horizontal in one layer messages
+    private redrawSimple(){
+        this._length = Math.abs(this._destination.x-this._source.x);
+
+        this.position.set(
+            (this._source.x + this._destination.x)/2, 
+            this._source.y,
+            this._source.z
+        );
+
+        let halfPI = Math.PI/2;
+        this.arrowHead.rotation.z=-halfPI;
+        this.arrowBody.rotation.z=-halfPI;
+
+        let dir = 1;
+        if(this._destination.x < this._source.x){
+            dir = -1;
+            this.arrowHead.rotation.z= halfPI;
+            this.arrowBody.rotation.z= halfPI;
+        }
+
+        this.arrowHead.scale.setY(Config.messageArrowHeadLength);
+        this.arrowHead.position.x=dir*((this._length-Config.messageArrowHeadLength)/2-Config.lifelineRadius);
+        
+        this.arrowBody.scale.setY(this._length - Config.lifelineRadius*2 - Config.messageArrowHeadLength + Config.messageArrowOverlap); 
+        this.arrowBody.position.x=dir*(-Config.lifelineRadius);
+
     }
 
-    public setSource(source:Vector3){
-        this.source.copy(source);
-        this.redraw();
+    public redrawBySource(source:Vector3){
+        this._source.copy(source);
+        this._destination.setY(source.y);
+        this.redrawSimple();
     }
 
-    public setDestination(dest:Vector3){
-        this.destination.copy(dest);
+    public redrawByDestination(dest:Vector3){
+        this._destination.copy(dest);
+        this._source.setY(dest.y);
+        this.redrawSimple();
     }
 
     public resetPosition(){
         this.updateLayout(this.index);
+    }
+
+    public get source():Vector3{
+        return this._source;
+    }
+
+    public get destination():Vector3{
+        return this._destination;
+    }
+
+    public set source(source: Vector3){
+        this._source.copy(source);
+    }
+
+    public set destination(destination:Vector3){
+        this._destination.copy(destination);
     }
 
 }
