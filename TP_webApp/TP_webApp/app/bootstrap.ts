@@ -100,4 +100,8 @@ Promise.all([
 
     LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
     GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement);
+
+    let ser = Serializer.instance;
+    console.log(JSON.parse(ser.serialize(ser.createTestDiagram())));
+    console.log(ser.deserialize(ser.serialize(ser.createTestDiagram())));
 });

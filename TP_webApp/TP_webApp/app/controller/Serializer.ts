@@ -1,7 +1,7 @@
 import { Diagram } from "../model/Diagram";
 import { Lifeline } from "../model/Lifeline";
 import { Layer } from "../model/Layer";
-import { MessageOccurenceSpecification } from "../model/OccurenceSpecification";
+import { MessageOccurenceSpecification, OccurenceSpecification } from "../model/OccurenceSpecification";
 import { StoredMessage, Message, MessageKind } from "../model/Message";
 
 export class Serializer {
@@ -21,8 +21,64 @@ export class Serializer {
         });
     }
 
-    public deserialize(raw: any): Diagram {
-        throw new Error("Not implemented");
+    public deserialize(jsonDiagram: string): Diagram {
+
+        let rawDiagram: any = JSON.parse(jsonDiagram);
+
+        let diagram: Diagram = new Diagram();
+
+        diagram.id = rawDiagram._id;
+
+        let queuedOccurences: { rawOcc: any, occ: OccurenceSpecification }[] = [];
+
+        diagram.layers = rawDiagram._layers.map((rawLayer: any) => {
+            let layer: Layer = new Layer();
+            layer.diagram = diagram;
+
+            layer.lifelines = rawLayer._lifelines.map((rawLifeline: any) => {
+                let lifeline = new Lifeline();
+                lifeline.diagram = diagram;
+                lifeline.layer = layer;
+
+                lifeline.name = rawLifeline._name;
+
+                return lifeline;
+            });
+
+            layer.messages = rawLayer._messages.map((rawMessage: any) => {
+                let message = new StoredMessage();
+                message.name = rawMessage._name;
+                message.kind = rawMessage._kind;
+
+                message.diagram = diagram;
+                message.layer = layer;
+                
+                message.start = new MessageOccurenceSpecification();
+                message.end = new MessageOccurenceSpecification();
+
+                message.start.message = message;
+                message.end.message = message;
+
+                queuedOccurences.push({ occ: message.start, rawOcc: rawMessage._start }, { occ: message.end, rawOcc: rawMessage._end });
+
+                return message;
+            });
+            
+            return layer;
+        });
+
+        for (let queuedOcc of queuedOccurences) {
+            let layer: Layer = diagram.layers[queuedOcc.rawOcc.layer];
+            let lifeline: Lifeline = layer.lifelines[queuedOcc.rawOcc.lifeline];
+            
+            lifeline.occurenceSpecifications[queuedOcc.rawOcc.index] = queuedOcc.occ;
+
+            queuedOcc.occ.diagram = diagram;
+            queuedOcc.occ.layer = layer;
+            queuedOcc.occ.lifeline = lifeline;
+        }
+
+        return diagram;
     }
 
     public createTestDiagram(): Diagram {
