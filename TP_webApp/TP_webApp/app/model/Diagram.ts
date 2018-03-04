@@ -1,6 +1,7 @@
 import { Layer } from "./Layer";
+import { ModelElement } from "./ModelElement";
 
-export class Diagram {
+export class Diagram extends ModelElement {
 
     protected _id: number;
     protected _layers: Layer[];

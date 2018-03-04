@@ -1,6 +1,7 @@
 import { Diagram } from "./Diagram";
+import { ModelElement } from "./ModelElement";
 
-export abstract class DiagramElement {
+export abstract class DiagramElement extends ModelElement {
 
     protected __diagram: Diagram;
     
