@@ -1,6 +1,6 @@
 import { Lifeline } from "./Lifeline";
 import { LayerElement } from "./LayerElement";
-import { Message } from "./Message";
+import { StoredMessage } from "./Message";
 import { InteractionOperand } from "./InteractionOperand";
 
 export abstract class OccurenceSpecification extends LayerElement {
@@ -27,13 +27,13 @@ export abstract class OccurenceSpecification extends LayerElement {
 
 export class MessageOccurenceSpecification extends OccurenceSpecification {
 
-    protected __message: Message;
+    protected __message: StoredMessage;
 
-    public get message(): Message {
+    public get message(): StoredMessage {
         return this.__message;
     }
 
-    public set message(message: Message) {
+    public set message(message: StoredMessage) {
         this.__message = message;
     }
 

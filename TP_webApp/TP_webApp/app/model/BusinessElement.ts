@@ -1,6 +1,6 @@
 import { GraphicElement } from "../view/GraphicElement";
 
-export abstract class ModelElement {
+export abstract class BusinessElement {
 
     protected __graphicElement: GraphicElement;
 

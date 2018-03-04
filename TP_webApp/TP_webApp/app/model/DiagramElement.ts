@@ -1,7 +1,7 @@
 import { Diagram } from "./Diagram";
-import { ModelElement } from "./ModelElement";
+import { BusinessElement } from "./BusinessElement";
 
-export abstract class DiagramElement extends ModelElement {
+export abstract class DiagramElement extends BusinessElement {
 
     protected __diagram: Diagram;
     

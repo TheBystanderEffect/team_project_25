@@ -1,12 +1,12 @@
 import { Vector3, Euler } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
-import { BusinessElement } from '../model/BusinessElement';
 import { Message } from '../model/Message';
 import { LifelineView } from './LifelineView';
 import * as Config from "../config"
 import { ASSETS } from "../globals";
 import { Text3D } from './Text3D';
+import { BusinessElement } from '../model/BusinessElement';
 
 export class MessageView extends GraphicElement{
     private _length: number;
@@ -43,8 +43,8 @@ export class MessageView extends GraphicElement{
     }
     
     public updateLayout(index: number):MessageView{
-        var start = (this.businessElement.start.at.graphicElement as LifelineView).source;
-        var end = (this.businessElement.end.at.graphicElement as LifelineView).source;
+        var start = (this.businessElement.start.lifeline.graphicElement as LifelineView).source;
+        var end = (this.businessElement.end.lifeline.graphicElement as LifelineView).source;
 
         this._length = Math.sqrt(Math.pow(start.x-end.x,2)+Math.pow(start.y-end.y,2)+Math.pow(start.z-end.z,2));
         this.position.set(

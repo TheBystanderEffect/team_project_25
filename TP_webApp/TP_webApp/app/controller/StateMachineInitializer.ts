@@ -9,8 +9,8 @@ import { Diagram } from "../model/Diagram";
 import * as Globals from '../globals';
 import { LifelineView } from "../view/LifelineView";
 import { MessageView } from "../view/MessageView";
-import { Message } from "../model/Message";
-import { OccurenceSpecification } from "../model/OccurenceSpecification";
+import { Message, StoredMessage } from "../model/Message";
+import { OccurenceSpecification, MessageOccurenceSpecification, OperandOccurenceSpecification } from "../model/OccurenceSpecification";
 import { CommunicationController } from "./CommunicationController";
 import { Serializer } from "./Serializer";
 import { Layer } from "../model/Layer";
@@ -63,8 +63,12 @@ export function initializeStateTransitions() {
 
         for (let obj of h) {
             if (obj.metadata.parent instanceof LayerView) {
-                let lifelineNew = new Lifeline('Standard name','',[], obj.metadata.parent.businessElement);
-                obj.metadata.parent.businessElement.AddLifeline(lifelineNew);
+                let lifelineNew = new Lifeline();
+                lifelineNew.name = 'Standard name';
+                lifelineNew.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
+                lifelineNew.layer = obj.metadata.parent.businessElement;
+                lifelineNew.layer.lifelines.push(lifelineNew);
+
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
@@ -91,12 +95,37 @@ export function initializeStateTransitions() {
           
         for (let obj of h) {
             if (obj.metadata.parent instanceof LifelineView) {
-                obj.metadata.parent.businessElement.delete();        
+                let lifeline: Lifeline = obj.metadata.parent.businessElement;    
+                
+                lifeline.layer.lifelines.splice(lifeline.layer.lifelines.indexOf(lifeline), 1);
+
+                let toRemove: OccurenceSpecification[] = [];
+                let toRemoveMessages: StoredMessage[] = [];
+
+                for (let occurence of lifeline.occurenceSpecifications) {
+
+                    if (occurence instanceof MessageOccurenceSpecification) {
+                        toRemove.push(occurence.message.start, occurence.message.end);
+                        toRemoveMessages.push(occurence.message);
+
+                    } else if (occurence instanceof OperandOccurenceSpecification) {
+                        // TODO
+                    }
+                    
+                }
+
+                for (let occ of toRemove) {
+                    console.log('aaa');
+                    occ.lifeline.occurenceSpecifications.splice(occ.lifeline.occurenceSpecifications.indexOf(occ), 1);
+                }
+
+                for (let msg of toRemoveMessages) {
+                    console.log('bbb');
+                    msg.layer.messages.splice(msg.layer.messages.indexOf(msg), 1);
+                    msg.graphicElement.parent.remove(msg.graphicElement.parent);
+                }
+                
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-                // for (let child of GLContext.instance.scene.children) {
-                //     GLContext.instance.scene.remove(child);
-                // }
-                // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
             }
         }
     })
@@ -104,213 +133,213 @@ export function initializeStateTransitions() {
 
     let startLifeline: Lifeline = null;
 
-    StateSequence
-    .start('CREATE_MESSAGE')
-    .button('sideMessage')
-    .click((e: Event, h: CustomMesh[]) => {
-        for (let obj of h) {
-            if (obj.metadata.parent instanceof LifelineView) {
-                return true;
-            }
-        }
-        return false;
-    },(e: Event, h: CustomMesh[]) => {
+    // StateSequence
+    // .start('CREATE_MESSAGE')
+    // .button('sideMessage')
+    // .click((e: Event, h: CustomMesh[]) => {
+    //     for (let obj of h) {
+    //         if (obj.metadata.parent instanceof LifelineView) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // },(e: Event, h: CustomMesh[]) => {
 
-        // TODO refactor this
+    //     // TODO refactor this
 
-        for (let obj of h) {
-            if (obj.metadata.parent instanceof LifelineView) {
-                startLifeline = obj.metadata.parent.businessElement;
-                break;
-            }
-        }
-    })
-    .click((e: Event, h: CustomMesh[]) => {
-        for (let obj of h) {
-            if (obj.metadata.parent instanceof LifelineView) {
-                let endLifeline: Lifeline = obj.metadata.parent.businessElement;
-                return startLifeline != endLifeline;
-            }
-        }
-        return false;
-    },(e: Event, h: CustomMesh[]) => {
+    //     for (let obj of h) {
+    //         if (obj.metadata.parent instanceof LifelineView) {
+    //             startLifeline = obj.metadata.parent.businessElement;
+    //             break;
+    //         }
+    //     }
+    // })
+    // .click((e: Event, h: CustomMesh[]) => {
+    //     for (let obj of h) {
+    //         if (obj.metadata.parent instanceof LifelineView) {
+    //             let endLifeline: Lifeline = obj.metadata.parent.businessElement;
+    //             return startLifeline != endLifeline;
+    //         }
+    //     }
+    //     return false;
+    // },(e: Event, h: CustomMesh[]) => {
 
-        // TODO refactor this
+    //     // TODO refactor this
 
-        for (let obj of h) {
-            if (obj.metadata.parent instanceof LifelineView) {
+    //     for (let obj of h) {
+    //         if (obj.metadata.parent instanceof LifelineView) {
 
-                let endLifeline: Lifeline = obj.metadata.parent.businessElement;
+    //             let endLifeline: Lifeline = obj.metadata.parent.businessElement;
                 
-                let startOcc: OccurenceSpecification = new OccurenceSpecification(startLifeline, null);
-                let endOcc: OccurenceSpecification = new OccurenceSpecification(endLifeline, null);
+    //             let startOcc: OccurenceSpecification = new OccurenceSpecification(startLifeline, null);
+    //             let endOcc: OccurenceSpecification = new OccurenceSpecification(endLifeline, null);
 
-                let msg: Message = new Message('new msg', null, null, startOcc, endOcc);
-                startOcc.message = msg;
-                endOcc.message = msg;
+    //             let msg: Message = new Message('new msg', null, null, startOcc, endOcc);
+    //             startOcc.message = msg;
+    //             endOcc.message = msg;
 
-                startOcc.at = startLifeline;
-                endOcc.at = endLifeline;
+    //             startOcc.at = startLifeline;
+    //             endOcc.at = endLifeline;
 
-                startLifeline.occurenceSpecifications.push(startOcc);
-                endLifeline.occurenceSpecifications.push(endOcc);
+    //             startLifeline.occurenceSpecifications.push(startOcc);
+    //             endLifeline.occurenceSpecifications.push(endOcc);
 
-                startLifeline.layer.AddMessage(msg);
+    //             startLifeline.layer.AddMessage(msg);
 
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    //             LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
 
-                break;
-            }
-        }
-    })
-    .finish(() => {});
+    //             break;
+    //         }
+    //     }
+    // })
+    // .finish(() => {});
 
-    StateSequence
-    .start('DELETE_MESSAGE')
-    .button('sideDeleteMessage')
-    .click((e: Event, h: CustomMesh[]) =>{
-        for (let obj of h) {
-            if (obj.metadata.parent instanceof MessageView) {
-                return true;
-            }
-        }
-        return false;
+    // StateSequence
+    // .start('DELETE_MESSAGE')
+    // .button('sideDeleteMessage')
+    // .click((e: Event, h: CustomMesh[]) =>{
+    //     for (let obj of h) {
+    //         if (obj.metadata.parent instanceof MessageView) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
 
-    },(e: Event, h: CustomMesh[]) =>{
+    // },(e: Event, h: CustomMesh[]) =>{
 
-        //console.log(h)
-        for (let obj of h ) {
-            if (obj.metadata.parent instanceof MessageView) {
-                obj.metadata.parent.businessElement.delete();
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-                // for (let child of GLContext.instance.scene.children) {
-                //     GLContext.instance.scene.remove(child);
-                // }
-                // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
-            }
-        }
+    //     //console.log(h)
+    //     for (let obj of h ) {
+    //         if (obj.metadata.parent instanceof MessageView) {
+    //             obj.metadata.parent.businessElement.delete();
+    //             LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    //             // for (let child of GLContext.instance.scene.children) {
+    //             //     GLContext.instance.scene.remove(child);
+    //             // }
+    //             // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
+    //         }
+    //     }
 
-    })
-    .finish(() =>{})
+    // })
+    // .finish(() =>{})
 
-    StateSequence
-        .start("SAVE_DIAGRAM")
-        .button('saveDiagram')
-        .finish(() => {
-            CommunicationController.instance.saveDiagram(Serializer.instance.serialize(Globals.CURRENTLY_OPENED_DIAGRAM, true), () => { });
-            Globals.setDiagramSaved(true);
-        });
+    // StateSequence
+    //     .start("SAVE_DIAGRAM")
+    //     .button('saveDiagram')
+    //     .finish(() => {
+    //         CommunicationController.instance.saveDiagram(Serializer.instance.serialize(Globals.CURRENTLY_OPENED_DIAGRAM, true), () => { });
+    //         Globals.setDiagramSaved(true);
+    //     });
   
-    StateSequence
-    .start('CREATE_LAYER')
-    .button('sideLayer')
-    .finish(() => {
-        Globals.CURRENTLY_OPENED_DIAGRAM.addLayer(new Layer([], [], []));
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-    });
+    // StateSequence
+    // .start('CREATE_LAYER')
+    // .button('sideLayer')
+    // .finish(() => {
+    //     Globals.CURRENTLY_OPENED_DIAGRAM.addLayer(new Layer([], [], []));
+    //     LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    // });
 
-    StateSequence
-    .start('DELETE_LAYER')
-    .button('sideDeleteLayer')
-    .click((event: Event, hits: CustomMesh[]) => {
-        for (let hit of hits) {
-            if (hit.metadata.parent instanceof LayerView) {
-                return true;
-            }
-        }
-        return false;
-    },
-     (event: Event, hits: CustomMesh[]) => {
-        console.log(hits);
-        for (let hit of hits) {
-            console.log(hit.metadata.parent);
-            if (hit.metadata.parent instanceof LayerView) {
-                let lay: Layer = ((hit.metadata.parent as LayerView).businessElement as Layer);
-                Globals.CURRENTLY_OPENED_DIAGRAM.layers.splice(Globals.CURRENTLY_OPENED_DIAGRAM.layers.indexOf(lay), 1);
-                Globals.CURRENTLY_OPENED_DIAGRAM.diagramView.remove(lay.graphicElement);
-                console.log(Globals.CURRENTLY_OPENED_DIAGRAM);
+    // StateSequence
+    // .start('DELETE_LAYER')
+    // .button('sideDeleteLayer')
+    // .click((event: Event, hits: CustomMesh[]) => {
+    //     for (let hit of hits) {
+    //         if (hit.metadata.parent instanceof LayerView) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // },
+    //  (event: Event, hits: CustomMesh[]) => {
+    //     console.log(hits);
+    //     for (let hit of hits) {
+    //         console.log(hit.metadata.parent);
+    //         if (hit.metadata.parent instanceof LayerView) {
+    //             let lay: Layer = ((hit.metadata.parent as LayerView).businessElement as Layer);
+    //             Globals.CURRENTLY_OPENED_DIAGRAM.layers.splice(Globals.CURRENTLY_OPENED_DIAGRAM.layers.indexOf(lay), 1);
+    //             Globals.CURRENTLY_OPENED_DIAGRAM.diagramView.remove(lay.graphicElement);
+    //             console.log(Globals.CURRENTLY_OPENED_DIAGRAM);
 
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    //             LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
 
-                break;
-            }
-    }})
-    .finish(()=>{});
+    //             break;
+    //         }
+    // }})
+    // .finish(()=>{});
 
 
-    let movedLifeline: Lifeline = null;
+    // let movedLifeline: Lifeline = null;
 
-    let moveLifelineStart = StateSequence
-    .start('MOVE_LIFELINE');
+    // let moveLifelineStart = StateSequence
+    // .start('MOVE_LIFELINE');
 
-    let lastOffsetX: number = 0;
+    // let lastOffsetX: number = 0;
 
-    moveLifelineStart
-    .click((event, hits) => {
-        return hits.length != 0 && hits[0].metadata.parent instanceof LifelineView;
-    }, (event, hits) => {
-        movedLifeline = (hits[0].metadata.parent as GraphicElement).businessElement as Lifeline;
-        lastOffsetX = (event as MouseEvent).offsetX;
-    })
-    .drag((ev, hits) => true,
-    (ev, hits) => {
-        movedLifeline.layer.lifelines.sort((a,b) => {
-            return a.graphicElement.position.x - b.graphicElement.position.x;
-        });
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-    },
-    (ev, hits) => {
-        // empty
-    },
-    (ev, hits) => {
-        movedLifeline = null;
-        lastOffsetX = 0;
-    },
-    (ev, hits) => {
-        movedLifeline.graphicElement.position.x = movedLifeline.graphicElement.position.x + ((ev as MouseEvent).offsetX - lastOffsetX);
-        lastOffsetX = (ev as MouseEvent).offsetX;
-    },
-    moveLifelineStart)
-    .finish(() => {});
+    // moveLifelineStart
+    // .click((event, hits) => {
+    //     return hits.length != 0 && hits[0].metadata.parent instanceof LifelineView;
+    // }, (event, hits) => {
+    //     movedLifeline = (hits[0].metadata.parent as GraphicElement).businessElement as Lifeline;
+    //     lastOffsetX = (event as MouseEvent).offsetX;
+    // })
+    // .drag((ev, hits) => true,
+    // (ev, hits) => {
+    //     movedLifeline.layer.lifelines.sort((a,b) => {
+    //         return a.graphicElement.position.x - b.graphicElement.position.x;
+    //     });
+    //     LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    // },
+    // (ev, hits) => {
+    //     // empty
+    // },
+    // (ev, hits) => {
+    //     movedLifeline = null;
+    //     lastOffsetX = 0;
+    // },
+    // (ev, hits) => {
+    //     movedLifeline.graphicElement.position.x = movedLifeline.graphicElement.position.x + ((ev as MouseEvent).offsetX - lastOffsetX);
+    //     lastOffsetX = (ev as MouseEvent).offsetX;
+    // },
+    // moveLifelineStart)
+    // .finish(() => {});
 
-    let movedMessage: Message = null;
+    // let movedMessage: Message = null;
 
-    let moveMessageStart = StateSequence
-    .start('MOVE_MESSAGE');
+    // let moveMessageStart = StateSequence
+    // .start('MOVE_MESSAGE');
 
-    let lastOffsetY: number = 0;
+    // let lastOffsetY: number = 0;
 
-    moveMessageStart
-    .click((event, hits) => {
-        return hits.length != 0 && hits[0].metadata.parent instanceof MessageView;
-    }, (event, hits) => {
-        movedMessage = (hits[0].metadata.parent as GraphicElement).businessElement as Message;
-        lastOffsetY = (event as MouseEvent).offsetY;
-    })
-    .drag((ev, hits) => true,
-    (ev, hits) => {
-        movedMessage.parentLayer.messages.sort((a,b) => {
-            return -(a.graphicElement.position.y - b.graphicElement.position.y);
-        });
-        movedMessage.start.at.occurenceSpecifications.sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
-        movedMessage.end.at.occurenceSpecifications.sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-    },
-    (ev, hits) => {
-        // empty
-    },
-    (ev, hits) => {
-        movedMessage = null;
-        lastOffsetY = 0;
-    },
-    (ev, hits) => {
-        movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
-        lastOffsetY = (ev as MouseEvent).offsetY;
-    },
-    moveLifelineStart)
-    .finish(() => {});
+    // moveMessageStart
+    // .click((event, hits) => {
+    //     return hits.length != 0 && hits[0].metadata.parent instanceof MessageView;
+    // }, (event, hits) => {
+    //     movedMessage = (hits[0].metadata.parent as GraphicElement).businessElement as Message;
+    //     lastOffsetY = (event as MouseEvent).offsetY;
+    // })
+    // .drag((ev, hits) => true,
+    // (ev, hits) => {
+    //     movedMessage.parentLayer.messages.sort((a,b) => {
+    //         return -(a.graphicElement.position.y - b.graphicElement.position.y);
+    //     });
+    //     movedMessage.start.at.occurenceSpecifications.sort((a,b) => {
+    //         return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+    //     });
+    //     movedMessage.end.at.occurenceSpecifications.sort((a,b) => {
+    //         return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+    //     });
+    //     LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    // },
+    // (ev, hits) => {
+    //     // empty
+    // },
+    // (ev, hits) => {
+    //     movedMessage = null;
+    //     lastOffsetY = 0;
+    // },
+    // (ev, hits) => {
+    //     movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+    //     lastOffsetY = (ev as MouseEvent).offsetY;
+    // },
+    // moveLifelineStart)
+    // .finish(() => {});
 }

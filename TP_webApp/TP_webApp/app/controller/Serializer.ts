@@ -21,6 +21,10 @@ export class Serializer {
         });
     }
 
+    public deserialize(raw: any): Diagram {
+        throw new Error("Not implemented");
+    }
+
     public createTestDiagram(): Diagram {
 
         // diagram

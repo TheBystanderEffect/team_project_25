@@ -1,7 +1,7 @@
 import { Layer } from "./Layer";
-import { ModelElement } from "./ModelElement";
+import { BusinessElement } from "./BusinessElement";
 
-export class Diagram extends ModelElement {
+export class Diagram extends BusinessElement {
 
     protected _id: number;
     protected _layers: Layer[] = [];
