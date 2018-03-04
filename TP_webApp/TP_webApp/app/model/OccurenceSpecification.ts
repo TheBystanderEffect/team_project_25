@@ -11,12 +11,16 @@ export abstract class OccurenceSpecification extends LayerElement {
         return this.__lifeline;
     }
 
-    public toJSON(): string {
-        return JSON.stringify({
+    public set lifeline(lifeline: Lifeline) {
+        this.__lifeline = lifeline;
+    }
+
+    public toJSON(): any {
+        return {
             layer: this.diagram.layers.indexOf(this.layer),
             lifeline: this.layer.lifelines.indexOf(this.lifeline),
             index: this.lifeline.occurenceSpecifications.indexOf(this)
-        });
+        };
     }
 
 }

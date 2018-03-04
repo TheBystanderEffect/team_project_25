@@ -5,7 +5,7 @@ import { OperandOccurenceSpecification } from "./OccurenceSpecification";
 export class InteractionOperand extends InteractionFragment {
 
     protected __parent: CombinedFragment;
-    protected _children: CombinedFragment[];
+    protected _children: CombinedFragment[] = [];
 
     protected _interactionConstraint: string;
 

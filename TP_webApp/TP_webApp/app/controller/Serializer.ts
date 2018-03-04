@@ -1,320 +1,188 @@
-import { CombinedFragment } from '../model/CombinedFragment';
-import { Diagram } from '../model/Diagram';
-import { InteractionOperand } from '../model/InteractionOperand';
-import { Layer } from '../model/Layer';
-import { Lifeline } from '../model/Lifeline';
-import { Message } from '../model/Message';
-import { OccurenceSpecification } from '../model/OccurenceSpecification';
-import { CommunicationController } from '../controller/CommunicationController';
-import * as Globals from '../globals';
-import * as R from 'ramda';
-import { Object3D } from 'three';
+import { Diagram } from "../model/Diagram";
+import { Lifeline } from "../model/Lifeline";
+import { Layer } from "../model/Layer";
+import { MessageOccurenceSpecification } from "../model/OccurenceSpecification";
+import { StoredMessage, Message, MessageKind } from "../model/Message";
 
-export class Serializer{
+export class Serializer {
 
-    private static _instance: Serializer;
-    private serialized: string;
-
-    combinedFragment: CombinedFragment = new CombinedFragment("TestOperator", null);
-    diagram: Diagram = new Diagram(null,null);
-    interactionOperand: InteractionOperand = new InteractionOperand(null, null, null);
-    lifeline: Lifeline = new Lifeline("TestLifeline", "TestType", null, null);
-    layer: Layer = new Layer([this.lifeline], null, null);
-    occurenceSpecification: OccurenceSpecification = new OccurenceSpecification(null, null);
-
-    private constructor(){
+    private static _instance: Serializer = new Serializer();
+    private constructor(){}
+    public static get instance(): Serializer {
+        return Serializer._instance;
     }
 
-    public static get instance():Serializer{
-        if (this._instance == undefined){
-            this._instance = new Serializer();
-        }
-        return this._instance;
-    }
-
-    deserialize(jSONString: string, objectType: string):any{
-        var randomObject = JSON.parse(jSONString);
-        try {
-            return this.deserializeObject(randomObject, objectType);    
-        } catch (error) {
-            console.log("Unable to parse JSON");
-            console.log(error);
-            return null   
-        }
-    }
-
-    serialize(diagramObject: any, isDiagram: boolean = false): string {
-        var derefferencedObject = null;
-        if(isDiagram){
-            derefferencedObject = this.derefferenceDiagram(diagramObject, "Diagram");
-        }
-
-        return JSON.stringify(derefferencedObject);
-    }
-
-    deserializeObject(rawObject: any, objectType: string, realOccurenceContext: Map<string, any> = new Map<string, any>(), occurenceContext: Map<string, any>  = new Map<string, any>(), realMessageContext: Map<string, any>  = new Map<string, any>(), messageContext: Map<string, any>  = new Map<string, any>(), layerIndex:number = null, lifelineIndex:number = null, occurenceIndex:number = null, messageIndex:number = null, lifeline:any = null):any{
-        switch(objectType){
-            case "CombinedFragment":
-                return new CombinedFragment("null", null);
-            case "Diagram":
-                layerIndex = 0;
-                this.fillOccurenceContext("deserialize", rawObject, occurenceContext, realOccurenceContext); //Fill the occurenceContext with occurenceSpecifications for later derefference
-                this.fillMessageContext("deserialize", rawObject, messageContext, realMessageContext); // Fill messageContext with the messages for later derefference
-                var layers = rawObject.layers.map((e: any) => this.deserializeObject(e, "Layer", realOccurenceContext, occurenceContext, realMessageContext, messageContext, layerIndex++));
-                layers.forEach((la: Layer) => {
-                    la.messages.forEach((li: Message) => {
-                        li.start.at.layer = la;
-                        li.end.at.layer = la;
-                    });
-                });
-                let diag =  new Diagram(layers, null);
-                diag.diagramId = rawObject._diagramId;
-                return diag;
-            case "Lifeline":
-                occurenceIndex = 0;
-                return new Lifeline(rawObject.name, rawObject.type, rawObject.occurenceSpecifications.map((e: any) => this.deserializeObject(e, "OccurenceSpecification", realOccurenceContext, occurenceContext, realMessageContext, messageContext, layerIndex, lifelineIndex, occurenceIndex++)), null);
-            case "Layer": 
-                lifelineIndex = 0;
-                messageIndex = 0;
-                var lifelines = rawObject.lifelines.map((e: any) => this.deserializeObject(e, "Lifeline", realOccurenceContext, occurenceContext, realMessageContext, messageContext, layerIndex, lifelineIndex++)); 
-                lifelines.forEach((e: any) => {
-                    e.occurenceSpecifications.forEach((a:any) => {
-                        a.at = e;
-                    });
-                });
-                var messages = rawObject.messages.map((e: any) => this.deserializeObject(e, "Message", realOccurenceContext, occurenceContext, realMessageContext, messageContext, layerIndex, lifelineIndex, occurenceIndex, messageIndex++))
-                return new Layer(lifelines, rawObject.combinedFragments.map((e: any) => this.deserializeObject(e, "CombinedFragment", realOccurenceContext, occurenceContext, null,null)), messages);               
-            case "Message":
-                let message = realMessageContext.get("" + layerIndex + messageIndex);
-         
-                let messageRefference = messageContext.get("" + layerIndex + messageIndex);
-                message.start = realOccurenceContext.get("" + messageRefference.start.layerIndex + messageRefference.start.lifelineIndex + messageRefference.start.occurenceIndex);
-                message.end = realOccurenceContext.get("" + messageRefference.end.layerIndex + messageRefference.end.lifelineIndex + messageRefference.end.occurenceIndex);
-                return message;
-            case "OccurenceSpecification":
-                var occurrence = realOccurenceContext.get("" + layerIndex + lifelineIndex + occurenceIndex);
-                var occurrenceRefference = occurenceContext.get("" + layerIndex + lifelineIndex + occurenceIndex);
-                occurrence.message = realMessageContext.get("" + occurrenceRefference._message.layerIndex + occurrenceRefference._message.messageIndex);
-                occurrence.at = lifeline;
-                return occurrence;
-        }
-    }
-
-    derefferenceDiagram(diagramElement: any, elementType: string):any{
-        switch(elementType){
-            case "Diagram":
-                this.fillMessageContext("serialize", diagramElement);
-                this.fillOccurenceContext("serialize", diagramElement);
-                var diagramCopy = this.copyDiagram(diagramElement);
-                diagramCopy.layers = diagramCopy.layers.map((e: any) => this.derefferenceDiagram(e, "Layer"));
-                delete diagramCopy._layers;
-                this.cleanUpRefferences(diagramElement, diagramCopy);
-                return diagramCopy;
-            case "Layer":
-                diagramElement.lifelines = diagramElement.lifelines.map((e: any) => this.derefferenceDiagram(e, "Lifeline"));
-                diagramElement.messages = diagramElement.messages.map((e: any) => this.derefferenceDiagram(e, "Message"));
-                return diagramElement;
-            case "Lifeline":
-                diagramElement.occurenceSpecifications = diagramElement.occurenceSpecifications.map((e: any) => this.derefferenceDiagram(e, "OccurenceSpecification"));
-                delete diagramElement._layer;
-                return diagramElement;
-            case "Message":
-                diagramElement.start = {
-                    layerIndex: diagramElement.start.deserializerHelperObject.layerIndex,
-                    lifelineIndex: diagramElement.start.deserializerHelperObject.lifelineIndex,
-                    occurenceIndex: diagramElement.start.deserializerHelperObject.occurenceIndex
-                }; 
-                diagramElement.end = {
-                    layerIndex: diagramElement.end.deserializerHelperObject.layerIndex,
-                    lifelineIndex: diagramElement.end.deserializerHelperObject.lifelineIndex,
-                    occurenceIndex:diagramElement.end.deserializerHelperObject.occurenceIndex 
-                };
-                return diagramElement;
-            case "OccurenceSpecification":
-                delete diagramElement._at;
-                diagramElement._message = {
-                    layerIndex: diagramElement._message.deserializerHelperObject.layerIndex,
-                    messageIndex: diagramElement._message.deserializerHelperObject.messageIndex
-                }
-                return diagramElement;
-        }
-        var placeholderObject = {}
-    }
-
-    fillOccurenceContext(type: string, diagramObject: any, occurenceContext: Map<string, any> = null, realOccurenceContext: Map<string, any> = null) {
-        var layerIndex = 0;
-        var lifelineIndex = 0;
-        var occurenceIndex = 0;
-
-        diagramObject.layers.forEach((layer:any) => {
-            layer.lifelines.forEach((lifeline: any) => {
-                lifeline.occurenceSpecifications.forEach((occurenceSpecification: any) => {
-                    switch(type){
-                        case "deserialize":
-                            occurenceContext.set("" + layerIndex + lifelineIndex + occurenceIndex, occurenceSpecification);
-                            realOccurenceContext.set("" + layerIndex + lifelineIndex + occurenceIndex, new OccurenceSpecification(null, null));
-                        break;
-                        case "serialize":
-                            (occurenceSpecification as any).deserializerHelperObject = {
-                                layerIndex: layerIndex,
-                                lifelineIndex: lifelineIndex,
-                                occurenceIndex: occurenceIndex
-                            };    
-                        break;
-                    }
-                    occurenceIndex++;
-                });  
-                occurenceIndex = 0;
-                lifelineIndex++;
-            });
-            lifelineIndex = 0;
-            layerIndex++;
-        });      
-    }
-
-    fillMessageContext( type: string, diagramObject: any, messageContext: Map<string, any> = null, realMessageContext: Map<string, any> = null,) {
-        var layerIndex = 0;
-        var messageIndex = 0;
-        diagramObject.layers.forEach((layer:any) => {
-            layer.messages.forEach((message: any) => {
-                switch(type){
-                    case "deserialize":
-                        messageContext.set("" + layerIndex + messageIndex, message);
-                        realMessageContext.set("" + layerIndex + messageIndex, new Message(message.name, message.sort, message.kind, null, null)); 
-                    break;
-                    case "serialize":
-                        (message as any).deserializerHelperObject = {
-                            layerIndex: layerIndex,
-                            messageIndex: messageIndex
-                        };    
-                    break;
-                }
-                messageIndex++;
-            });
-            messageIndex = 0;
-            layerIndex++;
-        }); 
-    }
-
-    cleanUpRefferences(diagramObject: any,diagramCopy: any){
-        diagramObject.layers.forEach((layer:any) => {
-            layer.messages.forEach((message: any) => {
-                delete message.deserializerHelperObject;
-            });
-            layer.lifelines.forEach((lifeline: any) => {
-                lifeline.occurenceSpecifications.forEach((occurenceSpecification: any) => {
-                    delete occurenceSpecification.deserializerHelperObject;
-                });
-            });
+    public serialize(diagram: Diagram): string {
+        return JSON.stringify(diagram, (key, value) => {
+            if (key.startsWith('__')) {
+                return undefined;
+            }
+            return value;
         });
-        diagramCopy.layers.forEach((layer:any) => {
-            layer.messages.forEach((message: any) => {
-                delete message.deserializerHelperObject;
-            });
-            layer.lifelines.forEach((lifeline: any) => {
-                lifeline.occurenceSpecifications.forEach((occurenceSpecification: any) => {
-                    delete occurenceSpecification.deserializerHelperObject;
-                });
-            });
-        }); 
     }
 
-    copyDiagram(diagramElement: any):any{
+    public createTestDiagram(): Diagram {
 
-        let cleanCopy: (obj: any) => any = R.pickBy((v, k) => {
-            return (!(v instanceof Object3D));
+        // diagram
+        var diag = new Diagram();
 
-        });
+        diag.id = 0;
+    
+        // layer
+        var l1 = new Layer();
 
-        var diagramCopy = cleanCopy(diagramElement);
-        diagramCopy.layers = diagramCopy._layers.map((layer:any) =>  cleanCopy(layer));
-        diagramCopy.layers.forEach((layer: any) => {
-            layer.lifelines = layer.lifelines.map((lifeline:any) =>  cleanCopy(lifeline));
-                layer.lifelines.forEach((lifeline: any) => {
-                    lifeline.occurenceSpecifications = lifeline.occurenceSpecifications.map((occurenceSpecification:any) =>  cleanCopy(occurenceSpecification));
-                });
-            layer.messages = layer.messages.map((message:any) => cleanCopy(message));
-        });
-        return diagramCopy;
-    }
+        l1.diagram = diag;
 
-    createTestDiagram():Diagram{
-        var diag = new Diagram(null,null);
-        var ll1 = new Lifeline("ll1"," ",[],l1);
-        var ll2 = new Lifeline("ll2"," ",[],l1);
-        var ll3 = new Lifeline("ll3"," ",[],l1);
-        var l1: Layer = new Layer([ll1,ll2,ll3],[],[]);
-        diag.addLayer(l1);
+        diag.layers.push(l1);
+
+        // lifelines
+        var ll1 = new Lifeline();
+        var ll2 = new Lifeline();
+        var ll3 = new Lifeline();
+
+        ll1.name = "Lifeline 1";
+        ll2.name = "Lifeline 2";
+        ll3.name = "Lifeline 3";
+
+        ll1.diagram = diag;
+        ll2.diagram = diag;
+        ll3.diagram = diag;
+
         ll1.layer=l1;
         ll2.layer=l1;
         ll3.layer=l1;
-        //var l2 = new Layer([ll3],[],[]);
-        let oc1_1 = new OccurenceSpecification(ll1, null);
-        ll1.AddOccurenceSpecification(oc1_1);
-        let oc2_1 = new OccurenceSpecification(ll2, null);
-        ll2.AddOccurenceSpecification(oc2_1);
-        var m1 = new Message("test",1,1,oc1_1, oc2_1);
-        l1.AddMessage(m1);
-        m1.start.message = m1;
-        m1.end.message = m1;
-        let oc2_2 = new OccurenceSpecification(ll2, null);
-        ll2.AddOccurenceSpecification(oc2_2);
-        let oc3_1 = new OccurenceSpecification(ll3, null);
-        ll3.AddOccurenceSpecification(oc3_1);
-        var m2 = new Message("test2",1,1,oc2_2, oc3_1);
-        l1.AddMessage(m2);
-        m2.start.message = m2;
-        m2.end.message = m2;
-        let oc3_2 = new OccurenceSpecification(ll3, null);
-        ll3.AddOccurenceSpecification(oc3_2);
-        let oc2_3 = new OccurenceSpecification(ll2, null);
-        ll2.AddOccurenceSpecification(oc2_3);
-        var m3 = new Message("test3",1,1,oc3_2, oc2_3);
-        l1.AddMessage(m3);
-        m3.start.message = m3;
-        m3.end.message = m3;
-        let oc2_4 = new OccurenceSpecification(ll2, null);
-        ll2.AddOccurenceSpecification(oc2_4);
-        let oc1_2 = new OccurenceSpecification(ll1, null);
-        ll1.AddOccurenceSpecification(oc1_2);
-        var m4 = new Message("test4",1,1, oc2_4, oc1_2);
-        l1.AddMessage(m4);
-        m4.start.message = m4;
-        m4.end.message = m4;
-        return diag;
-    }
 
-    test(){
-        var diag = this.createTestDiagram();
-        console.log('Initialized diagram for serialization');
-        console.log(diag);
-        var serialized = this.serialize(diag, true);
-        console.log('SERIALIZED!');
-        console.log(serialized);
-        var deserialized = this.deserialize(serialized,"Diagram");
-        console.log('DESERIALIZED!');
-        console.log(deserialized);
-    }
-    
-    serverTest(){
-        var diag = this.createTestDiagram();
-        console.log('Initialized diagram for serialization');
-        console.log(diag);
-        var serialized = this.serialize(diag, true);
-        console.log('SERIALIZED!');
-        console.log(serialized);
-        console.log('Sent diagram in JSON to save on server. Diagram ID: ' + diag.diagramId);
-        let self = this;
-        let callbackPost = function() {
-            let callbackGet = function(data: string) {
-                serialized = data;
-                var deserialized = self.deserialize(serialized,"Diagram");
-                console.log('DESERIALIZED!');
-                console.log(deserialized);
-            }
-            CommunicationController.instance.getDiagram(diag.diagramId, callbackGet)
-        }
-        CommunicationController.instance.saveDiagram(serialized, callbackPost);
+        l1.lifelines.push(ll1, ll2, ll3);
+
+        // message 1
+        let oc1_1 = new MessageOccurenceSpecification();
+        let oc2_1 = new MessageOccurenceSpecification();
+        
+        oc1_1.diagram = diag;
+        oc2_1.diagram = diag;
+
+        oc1_1.layer=l1;
+        oc2_1.layer=l1;
+
+        oc1_1.lifeline = ll1;
+        oc2_1.lifeline = ll2;
+
+        ll1.occurenceSpecifications.push(oc1_1);
+        ll2.occurenceSpecifications.push(oc2_1);
+
+        var m1 = new StoredMessage();
+
+        m1.name = 'Message 1';
+        m1.kind = MessageKind.SYNC_CALL;
+
+        m1.diagram = diag;
+        m1.layer = l1;
+
+        m1.start = oc1_1;
+        m1.end = oc2_1;
+
+        oc1_1.message = m1;
+        oc2_1.message = m1;
+
+        l1.messages.push(m1);
+
+        // message 2
+        let oc1_2 = new MessageOccurenceSpecification();
+        let oc2_2 = new MessageOccurenceSpecification();
+        
+        oc1_2.diagram = diag;
+        oc2_2.diagram = diag;
+
+        oc1_2.layer=l1;
+        oc2_2.layer=l1;
+
+        oc1_2.lifeline = ll2;
+        oc2_2.lifeline = ll3;
+
+        ll2.occurenceSpecifications.push(oc1_2);
+        ll3.occurenceSpecifications.push(oc2_2);
+
+        var m2 = new StoredMessage();
+
+        m2.name = 'Message 2';
+        m2.kind = MessageKind.SYNC_CALL;
+
+        m2.diagram = diag;
+        m2.layer = l1;
+
+        m2.start = oc1_2;
+        m2.end = oc2_2;
+
+        oc1_2.message = m2;
+        oc2_2.message = m2;
+
+        l1.messages.push(m2);
+
+        // message 3
+        let oc1_3 = new MessageOccurenceSpecification();
+        let oc2_3 = new MessageOccurenceSpecification();
+        
+        oc1_3.diagram = diag;
+        oc2_3.diagram = diag;
+
+        oc1_3.layer=l1;
+        oc2_3.layer=l1;
+
+        oc1_3.lifeline = ll2;
+        oc2_3.lifeline = ll3;
+
+        ll2.occurenceSpecifications.push(oc1_3);
+        ll3.occurenceSpecifications.push(oc2_3);
+
+        var m3 = new StoredMessage();
+
+        m3.name = 'Message 3';
+        m3.kind = MessageKind.RETURN;
+
+        m3.diagram = diag;
+        m3.layer = l1;
+
+        m3.start = oc2_3;
+        m3.end = oc1_3;
+
+        oc1_3.message = m2;
+        oc2_3.message = m2;
+
+        l1.messages.push(m3);
+
+        // message 3
+        let oc1_4 = new MessageOccurenceSpecification();
+        let oc2_4 = new MessageOccurenceSpecification();
+        
+        oc1_4.diagram = diag;
+        oc2_4.diagram = diag;
+
+        oc1_4.layer=l1;
+        oc2_4.layer=l1;
+
+        oc1_4.lifeline = ll1;
+        oc2_4.lifeline = ll2;
+
+        ll1.occurenceSpecifications.push(oc1_4);
+        ll2.occurenceSpecifications.push(oc2_4);
+
+        var m4 = new StoredMessage();
+        
+        m4.name = 'Message 4';
+        m4.kind = MessageKind.RETURN;
+
+        m4.diagram = diag;
+        m4.layer = l1;
+
+        m4.start = oc2_4;
+        m4.end = oc1_4;
+
+        oc1_4.message = m2;
+        oc2_4.message = m2;
+
+        l1.messages.push(m4);
+
+        return diag;
     }
 
 }

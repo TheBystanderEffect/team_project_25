@@ -67,11 +67,11 @@ export class RefMessage extends Message {
         this.message.end = end;
     }
 
-    public toJSON(): string {
-        return JSON.stringify({
+    public toJSON(): any {
+        return {
             layer: this.message.diagram.layers.indexOf(this.message.layer),
             message: this.message.layer.messages.indexOf(this.message)
-        });
+        };
     }
 }
 

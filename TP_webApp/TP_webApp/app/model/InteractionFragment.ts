@@ -5,8 +5,8 @@ import { RefMessage } from "./Message";
 export abstract class InteractionFragment extends LayerElement {
 
     protected __parent: InteractionFragment;
-    protected _children: InteractionFragment[];
-    protected _messages: RefMessage[];
+    protected _children: InteractionFragment[] = [];
+    protected _messages: RefMessage[] = [];
 
     public get parent(): InteractionFragment {
         return this.__parent;

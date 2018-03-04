@@ -4,7 +4,7 @@ import { LayerElement } from "./LayerElement";
 export class Lifeline extends LayerElement {
 
     protected _name: string;
-    protected __occurenceSpecifications: OccurenceSpecification[];
+    protected __occurenceSpecifications: OccurenceSpecification[] = [];
     
     public get name(): string {
         return this._name;

@@ -10,7 +10,7 @@ export abstract class DiagramElement extends ModelElement {
     }
 
     public set diagram(diagram: Diagram) {
-        this.__diagram = this.diagram;
+        this.__diagram = diagram;
     }
 
 }

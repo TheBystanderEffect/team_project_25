@@ -4,7 +4,7 @@ import { ModelElement } from "./ModelElement";
 export class Diagram extends ModelElement {
 
     protected _id: number;
-    protected _layers: Layer[];
+    protected _layers: Layer[] = [];
 
     public get id(): number {
         return this._id;

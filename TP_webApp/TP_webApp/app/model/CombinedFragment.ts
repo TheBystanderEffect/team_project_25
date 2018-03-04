@@ -12,7 +12,7 @@ export enum InteractionOperator {
 export class CombinedFragment extends InteractionFragment {
 
     protected _interactionOperator: InteractionOperator;
-    protected _children: InteractionOperand[];
+    protected _children: InteractionOperand[] = [];
     protected __parent: InteractionOperand;
 
     public get interactionOperator(): InteractionOperator {

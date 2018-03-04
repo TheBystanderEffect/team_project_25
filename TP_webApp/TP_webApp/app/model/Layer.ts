@@ -6,9 +6,9 @@ import { CombinedFragment } from "./CombinedFragment";
 
 export class Layer extends DiagramElement {
 
-    protected _lifelines: Lifeline[];
-    protected _messages: StoredMessage[];
-    protected _fragments: CombinedFragment[];
+    protected _lifelines: Lifeline[] = [];
+    protected _messages: StoredMessage[] = [];
+    protected _fragments: CombinedFragment[] = [];
 
     public get lifelines(): Lifeline[] {
         return this._lifelines;
