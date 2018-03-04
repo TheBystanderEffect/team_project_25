@@ -60,12 +60,13 @@ function loadDiagram(id: number) {
 }
 
 export function makeButton(diagramId: number) {
-    let btn = document.createElement("BUTTON");
+    let btn = document.createElement("a");
     let text = document.createTextNode(`Diagram ${diagramId}`);
     btn.appendChild(text);
+    btn.className +=" sidenavButtom blue big";
     btn.id = `LOAD-DIAG-${diagramId}`;
     btn.onclick = loadDiagram.bind(null, diagramId);
-    document.getElementById("mySidenav").appendChild(btn);
+    document.getElementById("diagramOptions").appendChild(btn);
 }
 
 export function makeLoadViewpointButton(cameraControls: CameraControls, viewpointId: number): HTMLElement {
@@ -74,22 +75,23 @@ export function makeLoadViewpointButton(cameraControls: CameraControls, viewpoin
     let z: number = cameraControls.yawObject.position.z;
     let yaw: number = cameraControls.yawObject.rotation.y;
     let pitch: number = cameraControls.pitchObject.rotation.x;
-    let btn = document.createElement("BUTTON");
+    let btn = document.createElement("a");
     let text = document.createTextNode(`viewpoint ${viewpointId}`);
     btn.appendChild(text);
     //solve how to give yourself the camera controls
     btn.onclick = function(){cameraControls.loadViewpoint(x, y, z, yaw, pitch);};
-    document.getElementById("mySidenav").appendChild(btn);
+    document.getElementById("diagramOptions").appendChild(btn);
     return btn;
 }
 
 export function makeDeleteViewpointButton(loadBtn: HTMLElement, viewpointId: number) {
-    let btn = document.createElement("BUTTON");
+    let btn = document.createElement("a");
     let text = document.createTextNode(`Delete viewpoint ${viewpointId}`);
     btn.appendChild(text);
+    btn.className +=" sidenavButtom blue big";
     btn.onclick = function() {
-        document.getElementById("mySidenav").removeChild(loadBtn); //Remove the load button
-        document.getElementById("mySidenav").removeChild(btn); //Remove this button};
+        document.getElementById("diagramOptions").removeChild(loadBtn); //Remove the load button
+        document.getElementById("diagramOptions").removeChild(btn); //Remove this button};
     };
-    document.getElementById("mySidenav").appendChild(btn);
+    document.getElementById("diagramOptions").appendChild(btn);
 }
