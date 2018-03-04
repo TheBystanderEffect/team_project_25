@@ -149,8 +149,8 @@ export class Serializer {
         m3.start = oc2_3;
         m3.end = oc1_3;
 
-        oc1_3.message = m2;
-        oc2_3.message = m2;
+        oc1_3.message = m3;
+        oc2_3.message = m3;
 
         l1.messages.push(m3);
 
@@ -181,8 +181,8 @@ export class Serializer {
         m4.start = oc2_4;
         m4.end = oc1_4;
 
-        oc1_4.message = m2;
-        oc2_4.message = m2;
+        oc1_4.message = m4;
+        oc2_4.message = m4;
 
         l1.messages.push(m4);
 
