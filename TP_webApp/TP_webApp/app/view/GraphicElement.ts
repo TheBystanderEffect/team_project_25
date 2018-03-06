@@ -28,4 +28,9 @@ export class GraphicElement extends Object3D{
     // public get graphicElement():GraphicElement{
     //     return this;
     // }
+
+    public update(dt: number): void {
+        // update self
+        // update children
+    }
 }
