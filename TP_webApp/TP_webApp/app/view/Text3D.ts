@@ -37,6 +37,7 @@ export class Text3D extends Object3D{
             let geom = Text3D.makeText(newText);
             let mat = ASSETS.textMaterial;
             
+            this.displayText = newText;
             //remove old texts
             this.remove(this.textmeshFront);
             this.remove(this.textmeshBack);
