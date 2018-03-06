@@ -48,6 +48,34 @@ export function initializeStateTransitions() {
     // });
 
     StateSequence
+    .start('CREATE_FRAGMENT')
+    .button('sideFragment')
+    .click((e: Event, h: CustomMesh[]) => {
+        for (let obj of h) {
+            if (obj.metadata.parent instanceof LifelineView) {
+                return true;
+            }
+        }
+        return false;
+    },(e: Event, h: CustomMesh[]) => {
+
+        // TODO refactor this
+
+        // for (let obj of h) {
+        //     if (obj.metadata.parent instanceof LayerView) {
+        //         let lifelineNew = new Lifeline('Standard name','',[], obj.metadata.parent.businessElement);
+        //         obj.metadata.parent.businessElement.AddLifeline(lifelineNew);
+        //         LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                // for (let child of GLContext.instance.scene.children) {
+                //     GLContext.instance.scene.remove(child);
+                // }
+                // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
+            // }
+        // }
+    })
+    .finish(() => {});
+
+    StateSequence
     .start('CREATE_LIFELINE')
     .button('sideLife')
     .click((e: Event, h: CustomMesh[]) => {
