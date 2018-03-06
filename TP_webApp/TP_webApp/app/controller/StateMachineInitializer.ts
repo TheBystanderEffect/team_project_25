@@ -246,7 +246,7 @@ export function initializeStateTransitions() {
             if (hit.metadata.parent instanceof LayerView) {
                 let lay: Layer = ((hit.metadata.parent as LayerView).businessElement as Layer);
                 Globals.CURRENTLY_OPENED_DIAGRAM.layers.splice(Globals.CURRENTLY_OPENED_DIAGRAM.layers.indexOf(lay), 1);
-                Globals.CURRENTLY_OPENED_DIAGRAM.diagramView.remove(lay.graphicElement);
+                Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement.remove(lay.graphicElement);
                 console.log(Globals.CURRENTLY_OPENED_DIAGRAM);
 
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
@@ -327,7 +327,11 @@ export function initializeStateTransitions() {
         lastOffsetY = 0;
     },
     (ev, hits) => {
+        //movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
         movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        (movedMessage.graphicElement as MessageView).source.y = (movedMessage.graphicElement as MessageView).source.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        (movedMessage.graphicElement as MessageView).destination.y = (movedMessage.graphicElement as MessageView).destination.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        
         lastOffsetY = (ev as MouseEvent).offsetY;
     },
     moveLifelineStart)

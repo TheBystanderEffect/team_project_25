@@ -12,7 +12,6 @@ import { GraphicElement } from "../view/GraphicElement";
 export class Diagram extends BusinessElement {
 
     private _layers: Layer[];
-    private _diagramView: DiagramView;
     private _metadata: DiagramMetadata;
     private _diagramId: number;
     private _verId: number;
@@ -42,14 +41,6 @@ export class Diagram extends BusinessElement {
 
     public addLayer(layer:Layer){
         this._layers.push(layer);
-    }
-
-    public get diagramView(): DiagramView {
-        return this._diagramView;
-    }
-
-    public set diagramView(diagramView: DiagramView) {
-        this._diagramView = diagramView;
     }
 
 }

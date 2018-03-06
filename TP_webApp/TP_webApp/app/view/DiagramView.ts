@@ -3,12 +3,12 @@ import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
 import { Diagram } from "../model/Diagram"
 
-export class DiagramView extends Object3D{
+export class DiagramView extends GraphicElement{
 
     private _diagram:Diagram;
 
     public constructor(diagram:Diagram) {
-        super();
+        super(diagram);
         this._diagram=diagram;
         return this;
     }    

@@ -54,7 +54,7 @@ function loadDiagram(id: number) {
              GLContext.instance.scene.remove(child);
          }
          LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-         GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
+         GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement);
      });
      req.send();
 }
