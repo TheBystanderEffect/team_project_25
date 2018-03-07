@@ -42,14 +42,23 @@ export class MessageOccurenceSpecification extends OccurenceSpecification {
 export class OperandOccurenceSpecification extends OccurenceSpecification {
 
     // only interaction operands are allowed - a combined fragment is bounded by the aggregation of its operands
-    protected __operand: InteractionOperand;
+    protected __startsOperand: InteractionOperand; // the operand started by this occurence
+    protected __endsOperand: InteractionOperand; // the operand ended by this occurenc
 
-    public get operand(): InteractionOperand {
-        return this.__operand;
+    public get startsOperand(): InteractionOperand {
+        return this.__startsOperand;
     }
 
-    public set operand(operand: InteractionOperand) {
-        this.__operand = operand;
+    public set startsOperand(startsOperand: InteractionOperand) {
+        this.__startsOperand = startsOperand;
+    }
+
+    public get endsOperand(): InteractionOperand {
+        return this.__startsOperand;
+    }
+
+    public set endsOperand(endsOperand: InteractionOperand) {
+        this.__endsOperand = endsOperand;
     }
 
 }
