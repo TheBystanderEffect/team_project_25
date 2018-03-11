@@ -1,46 +1,25 @@
-import {Lifeline} from "./Lifeline";
-import {CombinedFragment} from "./CombinedFragment";
-import {Message} from "./Message";
-import {Layer} from "./Layer";
-import {DiagramView} from "../view/DiagramView";
-import { DiagramMetadata } from "./DiagramMetadata";
+import { Layer } from "./Layer";
 import { BusinessElement } from "./BusinessElement";
-import { CommunicationController } from '../controller/CommunicationController';
-import * as R from "ramda";
-import { GraphicElement } from "../view/GraphicElement";
 
 export class Diagram extends BusinessElement {
 
-    private _layers: Layer[];
-    private _metadata: DiagramMetadata;
-    private _diagramId: number;
-    private _verId: number;
+    protected _id: number;
+    protected _layers: Layer[] = [];
 
-    constructor(_layers: Layer[], _diagramView: DiagramView, verId: number = 0){
-        super();
-        this._layers = _layers ? _layers : [];
-        this._verId = verId;
-        this._diagramId = CommunicationController.instance.getNewDiagramId();
+    public get id(): number {
+        return this._id;
+    }
+
+    public set id(id: number) {
+        this._id = id;
     }
 
     public get layers(): Layer[] {
         return this._layers;
     }
 
-    public get diagramId(): number {
-        return this._diagramId;
-    }
-
-    public set diagramId(diagramId: number) {
-        this._diagramId = diagramId;    
-    }
-
     public set layers(layers: Layer[]) {
         this._layers = layers;
-    }
-
-    public addLayer(layer:Layer){
-        this._layers.push(layer);
     }
 
 }

@@ -55,4 +55,8 @@ export abstract class GraphicElement extends Object3D{
     public animate() {
         
     }
+
+    public toJSON(): undefined {
+        return undefined;
+    }
 }

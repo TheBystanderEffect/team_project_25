@@ -1,8 +1,7 @@
 import { TextGeometry, MeshBasicMaterial, Mesh, Scene, Vector3, Object3D, PlaneGeometry } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
-import { FONT, ASSETS } from "../globals"
-import { BusinessElement } from '../model/BusinessElement';
+import { FONT, ASSETS } from "../globals";
 import * as Config from "../config"
 import * as THREE from 'three';
 

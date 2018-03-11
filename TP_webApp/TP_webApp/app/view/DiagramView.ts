@@ -3,7 +3,7 @@ import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
 import { Diagram } from "../model/Diagram"
 
-export class DiagramView extends GraphicElement{
+export class DiagramView extends GraphicElement {
 
     private _diagram:Diagram;
 

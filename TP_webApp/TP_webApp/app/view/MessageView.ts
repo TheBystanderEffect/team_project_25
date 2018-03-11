@@ -1,12 +1,12 @@
 import { Vector3, Euler } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
-import { BusinessElement } from '../model/BusinessElement';
 import { Message } from '../model/Message';
 import { LifelineView } from './LifelineView';
 import * as Config from "../config"
 import { ASSETS } from "../globals";
 import { Text3D } from './Text3D';
+import { BusinessElement } from '../model/BusinessElement';
 
 export class MessageView extends GraphicElement{
     private _length: number;
@@ -63,8 +63,8 @@ export class MessageView extends GraphicElement{
     public updateLayout(index: number):MessageView{
         this.index = index;
         //calculate where the start,end points should be
-        var start = (this.businessElement.start.at.graphicElement as LifelineView).source.clone();
-        var end = (this.businessElement.end.at.graphicElement as LifelineView).source.clone();
+        var start = (this.businessElement.start.lifeline.graphicElement as LifelineView).source.clone();
+        var end = (this.businessElement.end.lifeline.graphicElement as LifelineView).source.clone();
         start.y += -Config.firstMessageOffset-Config.messageOffset*index
         end.y += -Config.firstMessageOffset-Config.messageOffset*index
 

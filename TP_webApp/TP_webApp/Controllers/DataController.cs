@@ -75,7 +75,7 @@ namespace API.Controllers
             //var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
-            var filter = Builders<BsonDocument>.Filter.Eq("_diagramId", id);
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
             var data = await coll.Find(filter).SingleAsync();
             var diagram = data.ToJson(new JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
 
@@ -111,7 +111,7 @@ namespace API.Controllers
 
             try{
                 var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json.ToString());
-                coll.ReplaceOneAsync(new BsonDocument {{"_diagramId", id}}, doc);
+                coll.ReplaceOneAsync(new BsonDocument {{"_id", id}}, doc);
                 Console.WriteLine("Replace with id: " + id);
             } catch (Exception e) {
                 Console.WriteLine("An exception was thrown: " + e);

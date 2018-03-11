@@ -48,7 +48,8 @@ function loadDiagram(id: number) {
      let req: XMLHttpRequest = new XMLHttpRequest();
      req.open('GET',`/api/data/diagram/${id}`);
      req.addEventListener("load", (ev: Event) => {
-         Globals.setOpenDiagram(Serializer.instance.deserialize(req.responseText, "Diagram"));
+         Globals.setOpenDiagram(Serializer.instance.deserialize(req.responseText
+         ));
          Globals.setDiagramSaved(true);
          for (let child of GLContext.instance.scene.children) {
              GLContext.instance.scene.remove(child);

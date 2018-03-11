@@ -54,7 +54,7 @@ export class CommunicationController {
     public saveDiagram(serializedDiagram: string, callback: Function):void{
         let url = "/api/data/diagram";
         if (Globals.IS_DIAGRAM_SAVED) {
-            url += `/${Globals.CURRENTLY_OPENED_DIAGRAM.diagramId}`;
+            url += `/${Globals.CURRENTLY_OPENED_DIAGRAM.id}`;
         }
         let xhr = new XMLHttpRequest();
 
