@@ -58,19 +58,28 @@ export function initializeStateTransitions() {
             }
         }
         return false;
-    },(e: Event, h: CustomMesh[]) => {
+    },(e: Event, hits: CustomMesh[]) => {
 
         // TODO refactor this
 
-        for (let obj of h) {
+        for (let obj of hits) {
             if (obj.metadata.parent instanceof LayerView) {
                 let lifelineNew = new Lifeline();
                 lifelineNew.name = 'Standard name';
                 lifelineNew.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
                 lifelineNew.layer = obj.metadata.parent.businessElement;
-                lifelineNew.layer.lifelines.push(lifelineNew);
+
+                let castResult = RaycastControl.simpleDefaultIntersect(e as MouseEvent);
+                for (let h of castResult){
+                    if(h.object.parent instanceof LayerView) {
+                        let left = lifelineNew.layer.lifelines.filter(e => e.graphicElement.position.x < h.point.x).length;
+                        lifelineNew.layer.lifelines.splice(left, 0, lifelineNew);
+                        break;
+                    }
+                }
 
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                break;
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
                 // }
