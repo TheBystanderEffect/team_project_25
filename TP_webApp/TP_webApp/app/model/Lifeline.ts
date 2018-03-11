@@ -1,53 +1,24 @@
 import { OccurenceSpecification } from "./OccurenceSpecification";
-import { LifelineView } from "../view/LifelineView";
-import { Layer } from "./Layer";
-import { BusinessElement } from "./BusinessElement";
+import { LayerElement } from "./LayerElement";
 
-export class Lifeline extends BusinessElement{
-    name:string;
-    type:string;
-    occurenceSpecifications:OccurenceSpecification[];
+export class Lifeline extends LayerElement {
 
-    private _layer: Layer;
-
-    constructor(name:string,type:string,occurence:OccurenceSpecification[], layer: Layer){
-        super();
-        this.name = name;
-        this.type = type;
-        this.layer = layer;
-        this.occurenceSpecifications = occurence;
-
-    }
+    protected _name: string;
+    protected __occurenceSpecifications: OccurenceSpecification[] = [];
     
-    public get layer() : Layer {
-        return this._layer;
+    public get name(): string {
+        return this._name;
     }
 
-    
-    public set layer(v : Layer) {
-        this._layer = v;
-    }
-    
-    AddOccurenceSpecification(occurenceSpecification:OccurenceSpecification){
-        this.occurenceSpecifications.push(occurenceSpecification);
+    public set name(name: string) {
+        this._name = name;
     }
 
-    public delete() {
-        for (let message of this.occurenceSpecifications.map(e => e.message)) {
-            
-            message.start.at.occurenceSpecifications.splice(message.start.at.occurenceSpecifications.indexOf(message.start),1);
-            message.end.at.occurenceSpecifications.splice(message.end.at.occurenceSpecifications.indexOf(message.end),1);
-            this.layer.messages.splice(this.layer.messages.indexOf(message),1);
+    public get occurenceSpecifications(): OccurenceSpecification[] {
+        return this.__occurenceSpecifications;
+    }
 
-            this.layer.graphicElement.remove(message.graphicElement);
-          
-        }
-        this.layer.lifelines.splice(this.layer.lifelines.indexOf(this),1);
-        
-        this.layer.graphicElement.remove(this.graphicElement);
-       
+    public set occurenceSpecifications(occurenceSpecifications: OccurenceSpecification[]) {
+        this.__occurenceSpecifications = occurenceSpecifications;
     }
 }
-
-
-    

@@ -1,15 +1,15 @@
 import { GraphicElement } from "../view/GraphicElement";
 
-export class BusinessElement{
+export abstract class BusinessElement {
 
-    private _graphicElement:GraphicElement;
+    protected __graphicElement: GraphicElement;
 
-    public get graphicElement():GraphicElement{
-        return this._graphicElement;
+    public get graphicElement(): GraphicElement {
+        return this.__graphicElement;
     }
 
-    public set graphicElement(graphicElement:GraphicElement){
-        this._graphicElement=graphicElement;
+    public set graphicElement(graphicElement: GraphicElement) {
+        this.__graphicElement = graphicElement;
     }
 
 }

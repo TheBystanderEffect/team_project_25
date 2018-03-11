@@ -1,12 +1,12 @@
 import { Vector3 } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
-import { BusinessElement } from '../model/BusinessElement';
 import { Lifeline } from '../model/Lifeline';
 import * as Config from "../config"
 import { LayerView } from './LayerView';
 import { ASSETS } from "../globals";
 import { Text3D } from './Text3D';
+import { BusinessElement } from '../model/BusinessElement';
 
 export class LifelineView extends GraphicElement {
     //substituted by getters
@@ -22,7 +22,7 @@ export class LifelineView extends GraphicElement {
     //override
     businessElement: Lifeline;
 
-    public constructor(parent:BusinessElement) {
+    public constructor(parent: BusinessElement) {
         super(parent);
         this.line = new CustomMesh(
             ASSETS.lifelineBodyGeometry,
@@ -34,7 +34,7 @@ export class LifelineView extends GraphicElement {
         this.add(this.text);
     }
 
-    public updateLayout(index: number):LifelineView{
+    public updateLayout(index: number): LifelineView {
         
         this.position.set(this.parent.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
             this.parent.source.y - Config.lifelineOffsetY,
