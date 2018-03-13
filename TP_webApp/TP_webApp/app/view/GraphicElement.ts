@@ -28,4 +28,8 @@ export class GraphicElement extends Object3D{
     // public get graphicElement():GraphicElement{
     //     return this;
     // }
+
+    public toJSON(): undefined {
+        return undefined;
+    }
 }

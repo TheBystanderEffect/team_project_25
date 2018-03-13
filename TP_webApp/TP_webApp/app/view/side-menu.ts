@@ -48,24 +48,26 @@ function loadDiagram(id: number) {
      let req: XMLHttpRequest = new XMLHttpRequest();
      req.open('GET',`/api/data/diagram/${id}`);
      req.addEventListener("load", (ev: Event) => {
-         Globals.setOpenDiagram(Serializer.instance.deserialize(req.responseText, "Diagram"));
+         Globals.setOpenDiagram(Serializer.instance.deserialize(req.responseText
+         ));
          Globals.setDiagramSaved(true);
          for (let child of GLContext.instance.scene.children) {
              GLContext.instance.scene.remove(child);
          }
          LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-         GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
+         GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement);
      });
      req.send();
 }
 
 export function makeButton(diagramId: number) {
-    let btn = document.createElement("BUTTON");
+    let btn = document.createElement("a");
     let text = document.createTextNode(`Diagram ${diagramId}`);
     btn.appendChild(text);
+    btn.className +=" sidenavButtom blue big";
     btn.id = `LOAD-DIAG-${diagramId}`;
     btn.onclick = loadDiagram.bind(null, diagramId);
-    document.getElementById("mySidenav").appendChild(btn);
+    document.getElementById("diagramOptions").appendChild(btn);
 }
 
 export function makeLoadViewpointButton(cameraControls: CameraControls, viewpointId: number): HTMLElement {
@@ -74,22 +76,23 @@ export function makeLoadViewpointButton(cameraControls: CameraControls, viewpoin
     let z: number = cameraControls.yawObject.position.z;
     let yaw: number = cameraControls.yawObject.rotation.y;
     let pitch: number = cameraControls.pitchObject.rotation.x;
-    let btn = document.createElement("BUTTON");
+    let btn = document.createElement("a");
     let text = document.createTextNode(`viewpoint ${viewpointId}`);
     btn.appendChild(text);
     //solve how to give yourself the camera controls
     btn.onclick = function(){cameraControls.loadViewpoint(x, y, z, yaw, pitch);};
-    document.getElementById("mySidenav").appendChild(btn);
+    document.getElementById("diagramOptions").appendChild(btn);
     return btn;
 }
 
 export function makeDeleteViewpointButton(loadBtn: HTMLElement, viewpointId: number) {
-    let btn = document.createElement("BUTTON");
+    let btn = document.createElement("a");
     let text = document.createTextNode(`Delete viewpoint ${viewpointId}`);
     btn.appendChild(text);
+    btn.className +=" sidenavButtom blue big";
     btn.onclick = function() {
-        document.getElementById("mySidenav").removeChild(loadBtn); //Remove the load button
-        document.getElementById("mySidenav").removeChild(btn); //Remove this button};
+        document.getElementById("diagramOptions").removeChild(loadBtn); //Remove the load button
+        document.getElementById("diagramOptions").removeChild(btn); //Remove this button};
     };
-    document.getElementById("mySidenav").appendChild(btn);
+    document.getElementById("diagramOptions").appendChild(btn);
 }
