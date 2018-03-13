@@ -74,7 +74,7 @@ export class MessageView extends GraphicElement{
             this.animation.start.destination.copy(this._destination);
             this.animation.end.source.copy(start);
             this.animation.end.destination.copy(end);
-            this.animationLength = 1;
+            this.animationLength = 0.4;
             this.animationProgress = 0;
             // this.redraw();
         }
