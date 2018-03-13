@@ -1,40 +1,117 @@
-import { OccurenceSpecification } from "./OccurenceSpecification"
-import { Layer } from "./Layer";
-enum kinds { "complete", "lost", "found", "unknown" };
-enum sorts { "synchCall", "asynchCall", "asynchSignal", "createMessage", "deleteMessage", "reply" };
-import { BusinessElement } from "./BusinessElement";
+import { LayerElement } from "./LayerElement";
+import { MessageOccurenceSpecification } from "./OccurenceSpecification";
 
-export class Message extends BusinessElement{
+export enum MessageKind {
+    SYNC_CALL = "SYNC_CALL",
+    ASYNC_CALL = "ASYNC_CALL",
+    RETURN = "RETURN"
+}
 
-    name: string;
-    sort: sorts;
-    kind: kinds;
-    start: OccurenceSpecification;
-    end: OccurenceSpecification;
+export abstract class Message extends LayerElement {
 
-    public get parentLayer(): Layer {
-        return this.start.at.layer;
+    public abstract get name(): string;
+    public abstract set name(name: string);
+
+    public abstract get kind(): MessageKind;
+    public abstract set kind(kind: MessageKind);
+
+    public abstract get start(): MessageOccurenceSpecification;
+    public abstract set start(start: MessageOccurenceSpecification);
+
+    public abstract get end(): MessageOccurenceSpecification;
+    public abstract set end(end: MessageOccurenceSpecification);
+
+}
+
+export class RefMessage extends Message {
+
+    protected __message: StoredMessage;
+
+    public get message(): StoredMessage {
+        return this.__message;
     }
 
-    constructor(name:string,sort:sorts,kind:kinds,start:OccurenceSpecification,end:OccurenceSpecification){
-        super();
-        this.name = name;   
-        this.kind = kind;
-        this.sort = sort;
-        this.start = start;
-        this.end = end;
+    public set message(message: StoredMessage) {
+        this.__message = message;
     }
 
-    public delete() {
-        console.log("deleting message")
-            
-            this.start.at.occurenceSpecifications.splice(this.start.at.occurenceSpecifications.indexOf(this.start),1);
-            this.end.at.occurenceSpecifications.splice(this.end.at.occurenceSpecifications.indexOf(this.end),1);
-            this.start.at.layer.messages.splice(this.start.at.layer.messages.indexOf(this),1);
-            //this.end.at.layer.messages.splice(this.end.at.layer.messages.indexOf(this),1)
+    public get name(): string {
+        return this.message.name;
+    }
 
-            this.parentLayer.graphicElement.remove(this.graphicElement);
+    public set name(name: string) {
+        this.message.name = name;
+    }
 
+    public get kind(): MessageKind {
+        return this.message.kind;
+    }
+
+    public set kind(kind: MessageKind) {
+        this.message.kind = kind;
+    }
+
+    public get start(): MessageOccurenceSpecification {
+        return this.message.start;
+    }
+
+    public set start(start: MessageOccurenceSpecification) {
+        this.message.start = start;
+    }
+
+    public get end(): MessageOccurenceSpecification {
+        return this.message.end;
+    }
+
+    public set end(end: MessageOccurenceSpecification) {
+        this.message.end = end;
+    }
+
+    public toJSON(): any {
+        return {
+            layer: this.message.diagram.layers.indexOf(this.message.layer),
+            message: this.message.layer.messages.indexOf(this.message)
+        };
     }
 }
 
+export class StoredMessage extends Message {
+
+    protected _name: string;
+    protected _kind: MessageKind;
+    protected _start: MessageOccurenceSpecification;
+    protected _end: MessageOccurenceSpecification;
+
+    public get name(): string {
+        return this._name;
+    }
+
+    public set name(name: string) {
+        this._name = name;
+    }
+
+    public get kind(): MessageKind {
+        return this._kind;
+    }
+
+    public set kind(kind: MessageKind) {
+        this._kind = kind;
+    }
+
+    public get start(): MessageOccurenceSpecification {
+        return this._start;
+    }
+
+    public set start(start: MessageOccurenceSpecification) {
+        this._start = start;
+    }
+
+    public get end(): MessageOccurenceSpecification {
+        return this._end;
+    }
+
+    public set end(end: MessageOccurenceSpecification) {
+        this._end = end;
+    }
+
+}

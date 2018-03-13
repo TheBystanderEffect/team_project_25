@@ -1,12 +1,12 @@
 import { Vector3, Euler } from 'three'
 import { GraphicElement } from "./GraphicElement";
 import { CustomMesh } from "./CustomMesh";
-import { BusinessElement } from '../model/BusinessElement';
 import { Message } from '../model/Message';
 import { LifelineView } from './LifelineView';
 import * as Config from "../config"
 import { ASSETS } from "../globals";
 import { Text3D } from './Text3D';
+import { BusinessElement } from '../model/BusinessElement';
 
 export class MessageView extends GraphicElement{
     private _length: number;
@@ -18,6 +18,17 @@ export class MessageView extends GraphicElement{
     
     private _source: Vector3;
     public _destination: Vector3;
+
+    private animation = {
+        start : {
+            source: new Vector3(0,0,0),
+            destination: new Vector3(0,0,0)
+        },
+        end : {
+            source: new Vector3(0,0,0),
+            destination: new Vector3(0,0,0)
+        }
+    }
 
     //override
     businessElement: Message;
@@ -52,16 +63,20 @@ export class MessageView extends GraphicElement{
     public updateLayout(index: number):MessageView{
         this.index = index;
         //calculate where the start,end points should be
-        var start = (this.businessElement.start.at.graphicElement as LifelineView).source.clone();
-        var end = (this.businessElement.end.at.graphicElement as LifelineView).source.clone();
+        var start = (this.businessElement.start.lifeline.graphicElement as LifelineView).source.clone();
+        var end = (this.businessElement.end.lifeline.graphicElement as LifelineView).source.clone();
         start.y += -Config.firstMessageOffset-Config.messageOffset*index
         end.y += -Config.firstMessageOffset-Config.messageOffset*index
 
         //update only if current and correct points mismatch
         if( !(this._source.equals(start) && this._destination.equals(end)) ){
-            this._source.copy(start);
-            this._destination.copy(end);
-            this.redraw();
+            this.animation.start.source.copy(this._source);
+            this.animation.start.destination.copy(this._destination);
+            this.animation.end.source.copy(start);
+            this.animation.end.destination.copy(end);
+            this.animationLength = 1;
+            this.animationProgress = 0;
+            // this.redraw();
         }
        
         this.text.update(this.businessElement.name);
@@ -145,7 +160,7 @@ export class MessageView extends GraphicElement{
         this.updateLayout(this.index);
     }
 
-    public get source():Vector3{
+    public get source():Vector3 {
         return this._source;
     }
 
@@ -159,6 +174,20 @@ export class MessageView extends GraphicElement{
 
     public set destination(destination:Vector3){
         this._destination.copy(destination);
+    }
+
+    public animate(): void {
+        this.source = this.animator(
+            this.animation.start.source, 
+            this.animation.end.source, 
+            this.animationProgress
+        );
+        this.destination = this.animator(
+            this.animation.start.destination, 
+            this.animation.end.destination, 
+            this.animationProgress
+        );
+        this.redraw();
     }
 
 }

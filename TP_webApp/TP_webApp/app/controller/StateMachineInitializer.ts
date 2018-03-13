@@ -9,8 +9,8 @@ import { Diagram } from "../model/Diagram";
 import * as Globals from '../globals';
 import { LifelineView } from "../view/LifelineView";
 import { MessageView } from "../view/MessageView";
-import { Message } from "../model/Message";
-import { OccurenceSpecification } from "../model/OccurenceSpecification";
+import { Message, StoredMessage, MessageKind } from "../model/Message";
+import { OccurenceSpecification, MessageOccurenceSpecification, OperandOccurenceSpecification } from "../model/OccurenceSpecification";
 import { CommunicationController } from "./CommunicationController";
 import { Serializer } from "./Serializer";
 import { Layer } from "../model/Layer";
@@ -86,15 +86,28 @@ export function initializeStateTransitions() {
             }
         }
         return false;
-    },(e: Event, h: CustomMesh[]) => {
+    },(e: Event, hits: CustomMesh[]) => {
 
         // TODO refactor this
 
-        for (let obj of h) {
+        for (let obj of hits) {
             if (obj.metadata.parent instanceof LayerView) {
-                let lifelineNew = new Lifeline('Standard name','',[], obj.metadata.parent.businessElement);
-                obj.metadata.parent.businessElement.AddLifeline(lifelineNew);
+                let lifelineNew = new Lifeline();
+                lifelineNew.name = 'Standard name';
+                lifelineNew.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
+                lifelineNew.layer = obj.metadata.parent.businessElement;
+
+                let castResult = RaycastControl.simpleDefaultIntersect(e as MouseEvent);
+                for (let h of castResult){
+                    if(h.object.parent instanceof LayerView) {
+                        let left = lifelineNew.layer.lifelines.filter(e => e.graphicElement.position.x < h.point.x).length;
+                        lifelineNew.layer.lifelines.splice(left, 0, lifelineNew);
+                        break;
+                    }
+                }
+
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                break;
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
                 // }
@@ -120,12 +133,36 @@ export function initializeStateTransitions() {
           
         for (let obj of h) {
             if (obj.metadata.parent instanceof LifelineView) {
-                obj.metadata.parent.businessElement.delete();        
+                let lifeline: Lifeline = obj.metadata.parent.businessElement;    
+                
+                lifeline.layer.lifelines.splice(lifeline.layer.lifelines.indexOf(lifeline), 1);
+                lifeline.graphicElement.parent.remove(lifeline.graphicElement);
+
+                let toRemove: OccurenceSpecification[] = [];
+                let toRemoveMessages: StoredMessage[] = [];
+
+                for (let occurence of lifeline.occurenceSpecifications) {
+
+                    if (occurence instanceof MessageOccurenceSpecification) {
+                        toRemove.push(occurence.message.start, occurence.message.end);
+                        toRemoveMessages.push(occurence.message);
+
+                    } else if (occurence instanceof OperandOccurenceSpecification) {
+                        // TODO
+                    }
+                    
+                }
+
+                for (let occ of toRemove) {
+                    occ.lifeline.occurenceSpecifications.splice(occ.lifeline.occurenceSpecifications.indexOf(occ), 1);
+                }
+
+                for (let msg of toRemoveMessages) {
+                    msg.layer.messages.splice(msg.layer.messages.indexOf(msg), 1);
+                    msg.graphicElement.parent.remove(msg.graphicElement);
+                }
+                
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-                // for (let child of GLContext.instance.scene.children) {
-                //     GLContext.instance.scene.remove(child);
-                // }
-                // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
             }
         }
     })
@@ -133,7 +170,9 @@ export function initializeStateTransitions() {
 
     let startLifeline: Lifeline = null;
     let endLifeline: Lifeline = null;
-    let newMessageView: MessageView = new MessageView(new Message("[Animation]",null,null,null,null));
+    let newMsg = new StoredMessage();
+    newMsg.name = '[Animation]';
+    let newMessageView: MessageView = new MessageView(newMsg);
 
     let createMessagePreDrag = StateSequence
     .start('CREATE_MESSAGE')
@@ -165,20 +204,50 @@ export function initializeStateTransitions() {
     },
     (ev, hits) => {
         //onsuccess                
-        let startOcc: OccurenceSpecification = new OccurenceSpecification(startLifeline, null);
-        let endOcc: OccurenceSpecification = new OccurenceSpecification(endLifeline, null);
+        let startOcc = new MessageOccurenceSpecification();
+        let endOcc = new MessageOccurenceSpecification();
 
-        let msg: Message = new Message('new msg', null, null, startOcc, endOcc);
+        startOcc.diagram = startLifeline.diagram;
+        endOcc.diagram = endLifeline.diagram;
+
+        startOcc.layer = startLifeline.layer;
+        endOcc.layer = endLifeline.layer;
+
+        let msg = new StoredMessage();
+
+        msg.diagram = startLifeline.diagram;
+        msg.layer = startLifeline.layer;
+        msg.name = 'new msg';
+        msg.kind = MessageKind.SYNC_CALL;
+        
+        msg.start = startOcc;
+        msg.end = endOcc;
+
         startOcc.message = msg;
         endOcc.message = msg;
 
-        startOcc.at = startLifeline;
-        endOcc.at = endLifeline;
+        startOcc.lifeline = startLifeline;
+        endOcc.lifeline = endLifeline;
 
         startLifeline.occurenceSpecifications.push(startOcc);
         endLifeline.occurenceSpecifications.push(endOcc);
 
-        startLifeline.layer.AddMessage(msg);
+        startLifeline.layer.messages.push(msg);
+
+        // hold my beer
+        msg.graphicElement = newMessageView;
+
+        msg.layer.messages.sort((a,b) => {
+            return -(a.graphicElement.position.y - b.graphicElement.position.y);
+        });
+        (msg.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+        (msg.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+
+        msg.graphicElement = null;
 
         LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 
@@ -228,7 +297,16 @@ export function initializeStateTransitions() {
         //console.log(h)
         for (let obj of h ) {
             if (obj.metadata.parent instanceof MessageView) {
-                obj.metadata.parent.businessElement.delete();
+                
+                let msg: StoredMessage = obj.metadata.parent.businessElement;
+
+                for (let occ of [ msg.start, msg.end ]) {
+                    occ.lifeline.occurenceSpecifications.splice(occ.lifeline.occurenceSpecifications.indexOf(occ), 1);
+                }
+
+                msg.layer.messages.splice(msg.layer.messages.indexOf(msg), 1);
+                msg.graphicElement.parent.remove(msg.graphicElement);
+
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
@@ -244,7 +322,7 @@ export function initializeStateTransitions() {
         .start("SAVE_DIAGRAM")
         .button('saveDiagram')
         .finish(() => {
-            CommunicationController.instance.saveDiagram(Serializer.instance.serialize(Globals.CURRENTLY_OPENED_DIAGRAM, true), () => { });
+            CommunicationController.instance.saveDiagram(Serializer.instance.serialize(Globals.CURRENTLY_OPENED_DIAGRAM), () => { });
             Globals.setDiagramSaved(true);
         });
   
@@ -252,7 +330,11 @@ export function initializeStateTransitions() {
     .start('CREATE_LAYER')
     .button('sideLayer')
     .finish(() => {
-        Globals.CURRENTLY_OPENED_DIAGRAM.addLayer(new Layer([], [], []));
+        let layer = new Layer();
+
+        layer.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
+
+        Globals.CURRENTLY_OPENED_DIAGRAM.layers.push(layer);
         LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
     });
 
@@ -274,7 +356,7 @@ export function initializeStateTransitions() {
             if (hit.metadata.parent instanceof LayerView) {
                 let lay: Layer = ((hit.metadata.parent as LayerView).businessElement as Layer);
                 Globals.CURRENTLY_OPENED_DIAGRAM.layers.splice(Globals.CURRENTLY_OPENED_DIAGRAM.layers.indexOf(lay), 1);
-                Globals.CURRENTLY_OPENED_DIAGRAM.diagramView.remove(lay.graphicElement);
+                Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement.remove(lay.graphicElement);
                 console.log(Globals.CURRENTLY_OPENED_DIAGRAM);
 
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
@@ -336,13 +418,13 @@ export function initializeStateTransitions() {
     })
     .drag((ev, hits) => true,
     (ev, hits) => {
-        movedMessage.parentLayer.messages.sort((a,b) => {
+        movedMessage.layer.messages.sort((a,b) => {
             return -(a.graphicElement.position.y - b.graphicElement.position.y);
         });
-        movedMessage.start.at.occurenceSpecifications.sort((a,b) => {
+        (movedMessage.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
             return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
         });
-        movedMessage.end.at.occurenceSpecifications.sort((a,b) => {
+        (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
             return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
         });
         LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
@@ -355,7 +437,11 @@ export function initializeStateTransitions() {
         lastOffsetY = 0;
     },
     (ev, hits) => {
+        //movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
         movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        (movedMessage.graphicElement as MessageView).source.y = (movedMessage.graphicElement as MessageView).source.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        (movedMessage.graphicElement as MessageView).destination.y = (movedMessage.graphicElement as MessageView).destination.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        
         lastOffsetY = (ev as MouseEvent).offsetY;
     },
     moveLifelineStart)

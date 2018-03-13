@@ -10,7 +10,7 @@ export class LayoutControl{
  
     public static magic(diagram:Diagram){
         // console.log("magic")
-        if(!diagram.diagramView) diagram.diagramView=new DiagramView(diagram);
+        if(!diagram.graphicElement) diagram.graphicElement=new DiagramView(diagram);
 
         diagram.layers.forEach((layer, index) => {
             //console.log("Layer:"+index);
@@ -31,7 +31,7 @@ export class LayoutControl{
             }
 
             if(!layer.graphicElement){
-                diagram.diagramView.add(new LayerView(layer)); 
+                diagram.graphicElement.add(new LayerView(layer)); 
                 (layer.graphicElement as LayerView).updateLayout(dynamicLayerWidth,dynamicLayerHeight,index);
             }
             //console.log(diagram.diagramView.children[0]);
@@ -51,10 +51,15 @@ export class LayoutControl{
             //console.log("Lifelines done");
             layer.messages.forEach((message,index) => {
                 //console.log("message:"+index);
+                let flag = false;
                 if(!message.graphicElement){
+                    flag = true;
                     layer.graphicElement.add(new MessageView(message));
                 }
                 (message.graphicElement as MessageView).updateLayout(index);
+                if (flag) {
+                    (message.graphicElement as MessageView).animationProgress = 0.99999999;
+                }
             });
             //console.log("Messages done");
           

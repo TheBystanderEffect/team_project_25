@@ -1,1 +1,0 @@
-{"version":3,"file":"InteractionOperand.js","sourceRoot":"","sources":["../../../../app/model/InteractionOperand.ts"],"names":[],"mappings":"AAGA,MAAM;IAKF,YAAY,qBAA6B,EAAE,gBAAmC,EAAE,QAAkB;QAC9F,IAAI,CAAC,qBAAqB,GAAG,qBAAqB,CAAC;QACnD,IAAI,CAAC,gBAAgB,GAAG,gBAAgB,CAAC;QACzC,IAAI,CAAC,QAAQ,GAAG,QAAQ,CAAC;IAC7B,CAAC;CACJ"}
