@@ -369,6 +369,7 @@ export function initializeStateTransitions() {
     },
     (ev, hits) => {
         movedLifeline.graphicElement.position.x = movedLifeline.graphicElement.position.x + ((ev as MouseEvent).offsetX - lastOffsetX);
+        (movedLifeline.graphicElement as LifelineView).updateMessages();
         lastOffsetX = (ev as MouseEvent).offsetX;
     },
     moveLifelineStart)

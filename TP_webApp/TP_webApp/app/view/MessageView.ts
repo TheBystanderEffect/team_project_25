@@ -63,8 +63,8 @@ export class MessageView extends GraphicElement{
     public updateLayout(index: number):MessageView{
         this.index = index;
         //calculate where the start,end points should be
-        var start = (this.businessElement.start.lifeline.graphicElement as LifelineView).source.clone();
-        var end = (this.businessElement.end.lifeline.graphicElement as LifelineView).source.clone();
+        var start = (this.businessElement.start.lifeline.graphicElement as LifelineView).animation.end.pos.clone();
+        var end = (this.businessElement.end.lifeline.graphicElement as LifelineView).animation.end.pos.clone();
         start.y += -Config.firstMessageOffset-Config.messageOffset*index
         end.y += -Config.firstMessageOffset-Config.messageOffset*index
 

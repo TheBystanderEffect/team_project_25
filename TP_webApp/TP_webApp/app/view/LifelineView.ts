@@ -7,6 +7,8 @@ import { LayerView } from './LayerView';
 import { ASSETS } from "../globals";
 import { Text3D } from './Text3D';
 import { BusinessElement } from '../model/BusinessElement';
+import { MessageView } from './MessageView';
+import { MessageOccurenceSpecification } from '../model/OccurenceSpecification';
 
 export class LifelineView extends GraphicElement {
     //substituted by getters
@@ -22,6 +24,15 @@ export class LifelineView extends GraphicElement {
     //override
     businessElement: Lifeline;
 
+    public animation = {
+        start : {
+            pos: new Vector3(0,0,0)
+        },
+        end : {
+            pos: new Vector3(0,0,0)
+        }
+    }
+
     public constructor(parent: BusinessElement) {
         super(parent);
         this.line = new CustomMesh(
@@ -36,9 +47,14 @@ export class LifelineView extends GraphicElement {
 
     public updateLayout(index: number): LifelineView {
         
-        this.position.set(this.parent.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
+        this.animation.start.pos = this.position.clone();
+        this.animation.end.pos.set(
+            this.parent.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
             this.parent.source.y - Config.lifelineOffsetY,
             0);
+        this.animationLength = 0.4;
+        this.animationProgress = 0;
+            
         this.line.scale.setY(this.parent.height-Config.lifelineOffsetY);
         // this._length = this.parent.height-Config.lifelineOffsetY;
         // this.line.scale.set(1,this.length,1);
@@ -58,4 +74,29 @@ export class LifelineView extends GraphicElement {
         return this.position;
     }
 
+    public animate(): void {
+        this.position.copy(this.animator(
+            this.animation.start.pos, 
+            this.animation.end.pos, 
+            this.animationProgress
+        ));
+    }
+
+    public updateMessages():void{
+        this.businessElement.occurenceSpecifications
+        .filter(e=>e instanceof MessageOccurenceSpecification)
+        .map(e=>(e as MessageOccurenceSpecification).message.graphicElement as MessageView)
+        .forEach(element => {
+            if(element.businessElement.start.lifeline != this.businessElement){
+                let t = element.destination.clone();
+                t.x=this.source.x;
+                element.redrawByDestination(t);
+            }else{
+                let t = element.source.clone();
+                t.x=this.source.x;
+                element.redrawBySource(t);
+            }
+        });
+
+    }
 }
