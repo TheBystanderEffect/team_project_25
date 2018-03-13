@@ -21,6 +21,9 @@ export class Diagram extends BusinessElement {
         super();
         this._layers = _layers ? _layers : [];
         this._verId = verId;
+    }
+
+    public initdiagramId(){
         this._diagramId = CommunicationController.instance.getNewDiagramId();
     }
 
