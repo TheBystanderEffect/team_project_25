@@ -17,7 +17,7 @@ import { Layer } from "../model/Layer";
 import { BusinessElement } from "../model/BusinessElement";
 import { GraphicElement } from "../view/GraphicElement";
 import { Vector3, Vector2 } from "three";
-import { createPopup, savePopup } from "../view/Popup";
+import { createPopup } from "../view/Popup";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -78,6 +78,12 @@ export function initializeStateTransitions() {
                         break;
                     }
                 }
+
+                createPopup({ 
+                    Name: null
+                }).then(({ Name }: { Name: string }) => {
+                    lifelineNew.name = Name;
+                });
 
                 LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 break;
@@ -419,21 +425,5 @@ export function initializeStateTransitions() {
         lastOffsetY = (ev as MouseEvent).offsetY;
     },
     moveLifelineStart)
-        .finish(() => { });
-
-    StateSequence.start('DIALOG_TEST')
-        .button('createPopupButton')
-        .finish(() => {
-
-            createPopup({"name":null, "type":['1','2']}).then((resulto: {[name:string]:string}) => {
-                // do-whatever
-            });
-        });
-
-    StateSequence.start('DIALOG_GET_TEST')
-        .button('submitButton')
-        .finish(() => {
-
-            savePopup();
-        });
+    .finish(() => { });
 }

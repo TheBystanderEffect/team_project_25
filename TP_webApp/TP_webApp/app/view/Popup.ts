@@ -1,7 +1,7 @@
 ﻿import * as $ from 'jquery';
 
 export function createPopup(input: { [name: string]: string | string[] }): Promise<{[name:string]:string}> {
-   
+    
     $('#popupBody').empty();
     for(var key in input){
         if(input[key] instanceof Array){
@@ -26,22 +26,18 @@ export function createPopup(input: { [name: string]: string | string[] }): Promi
 
     return new Promise<{[name:string]:string}>((resolve, reject) => {
          $('#submitButton').off().on('click', () => {
-            var outpur:{[name:string]:string} = {};
+            var output:{[name:string]:string} = {};
             for(var key in input){
                 
                 if(input[key] instanceof Array){
-                    outpur[key] = $('#combo_'+key).val() as string;
+                    output[key] = $('#combo_'+key).val() as string;
                 } 
                 else{
-                    outpur[key] = $('#field_'+key).val() as string;
+                    output[key] = $('#field_'+key).val() as string;
                 }
             }
-            resolve(outpur);
-        })
+            resolve(output);
+        });
     });
-
-}
-
-export function savePopup(): void {
 
 }
