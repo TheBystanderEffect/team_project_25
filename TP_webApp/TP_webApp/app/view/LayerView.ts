@@ -55,5 +55,8 @@ export class LayerView extends GraphicElement{
         return this.rectangle.scale.y;
     }
 
+    public getRectangleCenter():Vector3{
+        return this.rectangle.position.clone();
+    }
 }
 

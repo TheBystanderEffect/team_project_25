@@ -15,6 +15,18 @@ export class CameraControls {
         cameraSpeedVectorD: Vector3 = new Vector3( 0, 0, 0 );
         cameraSpeedVectorQ: Vector3 = new Vector3( 0, 0, 0 );
         cameraSpeedVectorE: Vector3 = new Vector3( 0, 0, 0 );
+        animationLength = 0.5;
+        animationProgress = 0;
+        private animation = {
+            start : {
+                source: new Vector3(0,0,0),
+                destination: new Vector3(0,0,0)
+            },
+            end : {
+                source: new Vector3(0,0,0),
+                destination: new Vector3(0,0,0)
+            }
+        }
 
         constructor(camera: PerspectiveCamera) {
             this.camera = camera;
@@ -138,7 +150,11 @@ export class CameraControls {
             let rotation = new Euler(0, 0, 0, "YXZ");
         }
 
-        public updateCamera(): void {
+        public updateCamera(delta:number): void {
+            if (this.animationProgress < 1) {
+                this.animationProgress = Math.min(1, this.animationProgress + delta / this.animationLength);
+                this.animate();
+            }
             this.pitchObject.updateMatrixWorld(false)
             this.yawObject.updateMatrixWorld(false);
             this.camera.updateMatrixWorld(false)
@@ -150,6 +166,18 @@ export class CameraControls {
             this.yawObject.position.set(x, y, z);
             this.yawObject.rotation.y = yaw;
             this.pitchObject.rotation.x = pitch;
-            this.updateCamera();
+            this.updateCamera(0);
         }
+
+        public animate(): void {
+        }
+
+        // public transitionToPosition(x: number, y: number, z: number, yaw: number, pitch: number): void{
+        //     this.animation.start.source.copy(this._source);
+        //     this.animation.start.destination.copy(this._destination);
+        //     this.animation.end.source.copy(start);
+        //     this.animation.end.destination.copy(end);
+        //     this.animationLength = 0.4;
+        //     this.animationProgress = 0;
+        // }
 }

@@ -110,7 +110,7 @@ export class GLContext {
         // execute rendering and scene interaction
         if (!this.renderPaused) {
 
-            this.cameraControls.updateCamera();
+            this.cameraControls.updateCamera(delta);
             this.stateMachine.acceptEvent(null, EventType.SCENE_UPDATE);
             this.renderer.render(this.scene, this.camera);
             Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement.update(delta);
