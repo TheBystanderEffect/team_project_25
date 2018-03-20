@@ -7,7 +7,7 @@ export class CameraControls {
         _pitchObject: Object3D = new Object3D();
         _yawObject: Object3D = new Object3D();
         _enabled: boolean = false;
-        CAMERA_SPEED: number = 3.5;
+        CAMERA_SPEED: number = 7.0;
         cameraSpeedVector: Vector3 = new Vector3( 0, 0, 0 );
         cameraSpeedVectorW: Vector3 = new Vector3( 0, 0, 0 );
         cameraSpeedVectorA: Vector3 = new Vector3( 0, 0, 0 );
