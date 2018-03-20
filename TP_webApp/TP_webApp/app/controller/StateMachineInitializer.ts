@@ -219,7 +219,10 @@ export function initializeStateTransitions() {
             return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
         });
 
-        msg.graphicElement = null;
+        //msg.graphicElement = null;
+        newMessageView = new MessageView(newMsg);
+        //holdLifelineView.parent.add(newMessageView);
+        msg.graphicElement.businessElement=msg;
 
         LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 
@@ -234,7 +237,7 @@ export function initializeStateTransitions() {
         holdLifelineView =null;
 
         newMessageView.position.setY(10000); //advanced programing technique
-        newMessageView.parent.remove(newMessageView);
+        //newMessageView.parent.remove(newMessageView);
     },
     (ev, hits) => {
         //onmouseevent

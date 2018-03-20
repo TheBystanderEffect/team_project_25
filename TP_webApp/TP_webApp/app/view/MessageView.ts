@@ -63,22 +63,26 @@ export class MessageView extends GraphicElement{
     public updateLayout(index: number):MessageView{
         this.index = index;
         //calculate where the start,end points should be
-        var start = (this.businessElement.start.lifeline.graphicElement as LifelineView).animation.end.pos.clone();
-        var end = (this.businessElement.end.lifeline.graphicElement as LifelineView).animation.end.pos.clone();
+        var start = (this.businessElement.start.lifeline.graphicElement as LifelineView).curPos;
+        var end = (this.businessElement.end.lifeline.graphicElement as LifelineView).curPos;
         start.y += -Config.firstMessageOffset-Config.messageOffset*index
         end.y += -Config.firstMessageOffset-Config.messageOffset*index
 
         //update only if current and correct points mismatch
         if( !(this._source.equals(start) && this._destination.equals(end)) ){
-            this.animation.start.source.copy(this._source);
-            this.animation.start.destination.copy(this._destination);
-            this.animation.end.source.copy(start);
-            this.animation.end.destination.copy(end);
-            this.animationLength = 0.4;
-            this.animationProgress = 0;
-            // this.redraw();
-        }
-       
+            if(this.shouldAnimate){
+                this.animation.start.source.copy(this._source);
+                this.animation.start.destination.copy(this._destination);
+                this.animation.end.source.copy(start);
+                this.animation.end.destination.copy(end);
+                this.animationLength = 0.4;
+                this.animationProgress = 0;
+            }else{
+                this.source.copy(start);
+                this.animation.end.destination.copy(end);
+                this.redraw();
+            }
+        } 
         this.text.update(this.businessElement.name);
 
         return this;

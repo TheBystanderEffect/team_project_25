@@ -11,10 +11,6 @@ import { MessageView } from './MessageView';
 import { MessageOccurenceSpecification } from '../model/OccurenceSpecification';
 
 export class LifelineView extends GraphicElement {
-    //substituted by getters
-    //private _length: number; //this.line.scale.y
-    //private _center: Vector3; //center of mesh in relation to layer, probably not needed
-    //private _source: Vector3; //source in relation to layer
 
     private line: CustomMesh;
     private text: Text3D;
@@ -24,14 +20,9 @@ export class LifelineView extends GraphicElement {
     //override
     businessElement: Lifeline;
 
-    public animation = {
-        start : {
-            pos: new Vector3(0,0,0)
-        },
-        end : {
-            pos: new Vector3(0,0,0)
-        }
-    }
+    private animation = {
+        start:{pos: new Vector3(0,0,0)},
+        end:{pos: new Vector3(0,0,0)}}
 
     public constructor(parent: BusinessElement) {
         super(parent);
@@ -47,13 +38,20 @@ export class LifelineView extends GraphicElement {
 
     public updateLayout(index: number): LifelineView {
         
-        this.animation.start.pos = this.position.clone();
-        this.animation.end.pos.set(
-            this.parent.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
-            this.parent.source.y - Config.lifelineOffsetY,
-            0);
-        this.animationLength = 0.4;
-        this.animationProgress = 0;
+        if(this.shouldAnimate){
+            this.animation.start.pos = this.position.clone();
+            this.animation.end.pos.set(
+                this.parent.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
+                this.parent.source.y - Config.lifelineOffsetY,
+                0);
+            this.animationLength = 0.4;
+            this.animationProgress = 0;
+        }else{
+            this.position.set(
+                this.parent.source.x + Config.firstLifelineOffsetX + Config.lifelineOffsetX*index,
+                this.parent.source.y - Config.lifelineOffsetY,
+                0);
+        }
             
         this.line.scale.setY(this.parent.height-Config.lifelineOffsetY);
         // this._length = this.parent.height-Config.lifelineOffsetY;
@@ -72,6 +70,13 @@ export class LifelineView extends GraphicElement {
 
     get source():Vector3{
         return this.position;
+    }
+
+    get curPos():Vector3{
+        if(this.shouldAnimate){
+            return this.animation.end.pos.clone();
+        }
+        return this.position.clone();
     }
 
     public animate(): void {
