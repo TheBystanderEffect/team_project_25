@@ -17,6 +17,7 @@ import { Layer } from "../model/Layer";
 import { BusinessElement } from "../model/BusinessElement";
 import { GraphicElement } from "../view/GraphicElement";
 import { Vector3, Vector2 } from "three";
+import { createPopup, savePopup } from "../view/Popup";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -418,5 +419,19 @@ export function initializeStateTransitions() {
         lastOffsetY = (ev as MouseEvent).offsetY;
     },
     moveLifelineStart)
-    .finish(() => {});
+        .finish(() => { });
+
+    StateSequence.start('DIALOG_TEST')
+        .button('createPopupButton')
+        .finish(() => {
+
+            createPopup({"name":"default", "type":['1','2']});
+        });
+
+    StateSequence.start('DIALOG_GET_TEST')
+        .button('submitButton')
+        .finish(() => {
+
+            savePopup();
+        });
 }
