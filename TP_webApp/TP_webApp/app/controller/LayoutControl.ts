@@ -51,10 +51,15 @@ export class LayoutControl{
             //console.log("Lifelines done");
             layer.messages.forEach((message,index) => {
                 //console.log("message:"+index);
+                let flag = false;
                 if(!message.graphicElement){
+                    flag = true;
                     layer.graphicElement.add(new MessageView(message));
                 }
                 (message.graphicElement as MessageView).updateLayout(index);
+                if (flag) {
+                    (message.graphicElement as MessageView).animationProgress = 0.99999999;
+                }
             });
             //console.log("Messages done");
           

@@ -6,6 +6,7 @@ import { State } from "../controller/State";
 import { stateNeutral } from "../controller/StateMachineBuilder";
 import { initializeStateTransitions } from "../controller/StateMachineInitializer";
 import { EventType } from "../controller/EventBus";
+import * as Globals from "../globals";
 
 export class GLContext {
 
@@ -93,11 +94,18 @@ export class GLContext {
         initializeStateTransitions();
         
         // start rendering
+        this.lastLoopStart = Date.now();
         requestAnimationFrame(this.renderLoop.bind(this));
 
     }
 
+    private lastLoopStart: number;
+
     private renderLoop(): void {
+
+        let loopStart = Date.now();
+        let frameDelay = 16;
+        let delta = (loopStart - this.lastLoopStart) / 1000;
 
         // execute rendering and scene interaction
         if (!this.renderPaused) {
@@ -105,9 +113,17 @@ export class GLContext {
             this.cameraControls.updateCamera();
             this.stateMachine.acceptEvent(null, EventType.SCENE_UPDATE);
             this.renderer.render(this.scene, this.camera);
+            Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement.update(delta);
         }
 
-        // queue next frame
-        requestAnimationFrame(this.renderLoop.bind(this));
+        let loopTime = Date.now() - loopStart;
+
+        this.lastLoopStart = loopStart;
+
+        if ((frameDelay - loopTime) > 0) {
+            setTimeout(frameDelay - loopTime, requestAnimationFrame(this.renderLoop.bind(this)));
+        } else {
+            requestAnimationFrame(this.renderLoop.bind(this));
+        }
     }
 }
