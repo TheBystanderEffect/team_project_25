@@ -425,7 +425,9 @@ export function initializeStateTransitions() {
         .button('createPopupButton')
         .finish(() => {
 
-            createPopup({"name":"default", "type":['1','2']});
+            createPopup({"name":null, "type":['1','2']}).then((resulto: {[name:string]:string}) => {
+                // do-whatever
+            });
         });
 
     StateSequence.start('DIALOG_GET_TEST')
