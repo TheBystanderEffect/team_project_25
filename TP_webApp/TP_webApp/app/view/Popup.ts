@@ -24,6 +24,9 @@ export function createPopup(input: { [name: string]: string | string[] }): Promi
         $('#popupBody').append('<hr>')
     }
 
+    $('#popupWindow').modal({ backdrop: 'static' });
+    $('#popupWindow').modal('toggle');
+
     return new Promise<{[name:string]:string}>((resolve, reject) => {
          $('#submitButton').off().on('click', () => {
             var output:{[name:string]:string} = {};

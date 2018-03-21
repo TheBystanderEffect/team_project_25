@@ -18,6 +18,7 @@ import { BusinessElement } from "../model/BusinessElement";
 import { GraphicElement } from "../view/GraphicElement";
 import { Vector3, Vector2 } from "three";
 import { createPopup } from "../view/Popup";
+import { State } from "./State";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -65,27 +66,28 @@ export function initializeStateTransitions() {
 
         for (let obj of hits) {
             if (obj.metadata.parent instanceof LayerView) {
-                let lifelineNew = new Lifeline();
-                lifelineNew.name = 'Standard name';
-                lifelineNew.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
-                lifelineNew.layer = obj.metadata.parent.businessElement;
+
+                let left = 0;
 
                 let castResult = RaycastControl.simpleDefaultIntersect(e as MouseEvent);
                 for (let h of castResult){
                     if(h.object.parent instanceof LayerView) {
-                        let left = lifelineNew.layer.lifelines.filter(e => e.graphicElement.position.x < h.point.x).length;
-                        lifelineNew.layer.lifelines.splice(left, 0, lifelineNew);
+                        left = (obj.metadata.parent.businessElement as Layer).lifelines.filter(e => e.graphicElement.position.x < h.point.x).length;
                         break;
                     }
                 }
-
                 createPopup({ 
                     Name: null
                 }).then(({ Name }: { Name: string }) => {
+                    let lifelineNew = new Lifeline();
                     lifelineNew.name = Name;
-                });
+                    lifelineNew.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
+                    lifelineNew.layer = obj.metadata.parent.businessElement;
 
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                    lifelineNew.layer.lifelines.splice(left, 0, lifelineNew);
+
+                    LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                });
                 break;
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
@@ -228,7 +230,15 @@ export function initializeStateTransitions() {
 
         msg.graphicElement = null;
 
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+        createPopup({ Name: null, Type: [
+            MessageKind.SYNC_CALL,
+            MessageKind.ASYNC_CALL,
+            MessageKind.RETURN
+        ]}).then(({ Name, Type }: { Name: string, Type: MessageKind }) => {
+            msg.name = Name;
+            msg.kind = Type;
+            LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+        });
                 
     },
     (ev, hits) => {
@@ -424,6 +434,49 @@ export function initializeStateTransitions() {
         
         lastOffsetY = (ev as MouseEvent).offsetY;
     },
-    moveLifelineStart)
+    moveMessageStart)
     .finish(() => { });
+
+    let lifelineRenamed: Lifeline = null;
+    StateSequence
+    .start('RENAME_LIFELINE')
+    .click((event, hits) => {
+        return hits.length != 0 && hits[0].metadata.parent instanceof LifelineView;
+    }, (event, hits) => {
+        lifelineRenamed = hits[0].metadata.parent.businessElement;
+    })
+    .click((event, hits) => {
+        return hits.length != 0 && hits[0].metadata.parent == lifelineRenamed.graphicElement;
+    }, () => {
+        let rename = lifelineRenamed;
+        createPopup({ Name: rename.name }).then(({ Name }: { Name: string }) => {
+            rename.name = Name;
+            LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+        });
+    })
+    .finish(() => {});
+
+    let messageRenamed: Message = null;
+    StateSequence
+    .start('RENAME_MESSAGE')
+    .click((event, hits) => {
+        return hits.length != 0 && hits[0].metadata.parent instanceof MessageView;
+    }, (event, hits) => {
+        messageRenamed = hits[0].metadata.parent.businessElement;
+    })
+    .click((event, hits) => {
+        return hits.length != 0 && hits[0].metadata.parent == messageRenamed.graphicElement;
+    }, () => {
+        let rename = messageRenamed;
+        createPopup({ Name: rename.name, Type: [
+            MessageKind.SYNC_CALL,
+            MessageKind.ASYNC_CALL,
+            MessageKind.RETURN
+        ] }).then(({ Name, Type }: { Name: string, Type: MessageKind }) => {
+            rename.name = Name;
+            rename.kind = Type;
+            LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+        });
+    })
+    .finish(() => {});
 }
