@@ -11,6 +11,7 @@ import { Message } from "../model/Message";
 import { OccurenceSpecification } from "../model/OccurenceSpecification";
 import { RaycastControl } from "./RaycastControl";
 import * as Globals from '../globals';
+import { Serializer } from "./Serializer";
 
 export class CommunicationController {
 
@@ -51,16 +52,13 @@ export class CommunicationController {
         }
     }
 
-    public saveDiagram(serializedDiagram: string, callback: Function):void{
+    public saveDiagram(diagram: Diagram): void {
+        let serializedDiagram = Serializer.instance.serialize(diagram);
         let url = "/api/data/diagram";
         if (Globals.IS_DIAGRAM_SAVED) {
-            url += `/${Globals.CURRENTLY_OPENED_DIAGRAM.id}`;
+            url += `/${diagram.id}`;
         }
         let xhr = new XMLHttpRequest();
-
-        xhr.onload = function() {
-            callback();
-        }
 
         xhr.onerror = function () {
             alert("Error while calling Web API");
@@ -71,16 +69,11 @@ export class CommunicationController {
         xhr.send(serializedDiagram);
     }
 
-    public getDiagram(diagramId: number, callback: Function):void{
+    public getDiagram(diagramId: number):void{
 
         //TODO get url from config
         let url = "/api/data/diagram/" + diagramId;
         let xhr = new XMLHttpRequest();
-
-        xhr.onload = function() {
-            let data = xhr.responseText;
-            callback(data);
-        }
 
         xhr.onerror = function () {
             alert("Error while calling Web API");
