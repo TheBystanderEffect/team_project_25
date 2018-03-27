@@ -80,8 +80,8 @@ export class MessageView extends GraphicElement{
                 this.animationLength = 0.4;
                 this.animationProgress = 0;
             }else{
-                this.source.copy(start);
-                this.animation.end.destination.copy(end);
+                this._source.copy(start);
+                this._destination.copy(end);
                 this.redraw();
             }
         } 
@@ -118,7 +118,7 @@ export class MessageView extends GraphicElement{
         this.arrowHead.position.copy(dir).multiplyScalar((this._length-Config.messageArrowHeadLength)/2-Config.lifelineRadius);
         
         this.arrowBody.scale.setY(this._length - Config.lifelineRadius*2 - Config.messageArrowHeadLength + Config.messageArrowOverlap); 
-        this.arrowBody.position.copy(dir).multiplyScalar(-Config.lifelineRadius);
+        this.arrowBody.position.copy(dir).multiplyScalar(-Config.messageArrowHeadLength/2);
 
     } 
     //optimized for always horizontal in one layer messages
@@ -146,7 +146,7 @@ export class MessageView extends GraphicElement{
         this.arrowHead.position.x=dir*((this._length-Config.messageArrowHeadLength)/2-Config.lifelineRadius);
         
         this.arrowBody.scale.setY(this._length - Config.lifelineRadius*2 - Config.messageArrowHeadLength + Config.messageArrowOverlap); 
-        this.arrowBody.position.x=dir*(-Config.lifelineRadius);
+        this.arrowBody.position.x=dir*( - Config.messageArrowHeadLength/2);
 
     }
 
