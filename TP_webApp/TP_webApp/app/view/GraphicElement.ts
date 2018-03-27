@@ -25,6 +25,10 @@ export abstract class GraphicElement extends Object3D{
 
     }
 
+    public get viewObject():GraphicElement{
+        return this;
+    }
+
     public update(dt: number): void {
         if(this.shouldAnimate){
             // update self
