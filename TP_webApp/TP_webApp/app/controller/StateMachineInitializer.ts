@@ -437,9 +437,11 @@ export function initializeStateTransitions() {
     moveMessageStart)
     .finish(() => { });
 
+    let rename = StateSequence.start('RENAME')
+    .button('rename');
+
     let lifelineRenamed: Lifeline = null;
-    StateSequence
-    .start('RENAME_LIFELINE')
+    rename
     .click((event, hits) => {
         return hits.length != 0 && hits[0].metadata.parent instanceof LifelineView;
     }, (event, hits) => {
@@ -457,8 +459,7 @@ export function initializeStateTransitions() {
     .finish(() => {});
 
     let messageRenamed: Message = null;
-    StateSequence
-    .start('RENAME_MESSAGE')
+    rename
     .click((event, hits) => {
         return hits.length != 0 && hits[0].metadata.parent instanceof MessageView;
     }, (event, hits) => {
