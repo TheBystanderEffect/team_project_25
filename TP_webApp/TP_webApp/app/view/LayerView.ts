@@ -30,7 +30,22 @@ export class LayerView extends GraphicElement{
         return this;
     }    
 
-    public updateLayout(dynamicLayerWidth:number,dynamicLayerHeight:number,index:number):LayerView{
+    public updateLayout(index:number):LayerView{
+        var dynamicLayerWidth = Config.firstLifelineOffsetX +
+            (this.businessElement.lifelines.length - 1) * Config.lifelineOffsetX +
+            Config.firstLifelineOffsetX;
+        if(dynamicLayerWidth < Config.layerWidth){
+            dynamicLayerWidth = Config.layerWidth;
+        }
+
+        var dynamicLayerHeight = Config.lifelineOffsetY + 
+            Config.firstMessageOffset + 
+            (this.businessElement.messages.length - 1) * Config.messageOffset
+            +Config.firstMessageOffset;
+        if(dynamicLayerHeight < Config.layerHeight){
+            dynamicLayerHeight = Config.layerHeight;
+        }
+        
         if(this.shouldAnimate){
             this.animation.start.pos.copy(this.position);
             this.animation.end.pos.set(0,0,-Config.firstLayerOffset - Config.layerOffset*index);

@@ -57,6 +57,8 @@ export class MessageView extends GraphicElement{
         this.text = new Text3D(this);
         this.add(this.text);
 
+        this.animationProgress = 0.99999999;
+
         return this;
     }
     

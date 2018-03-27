@@ -21,6 +21,10 @@ export abstract class GraphicElement extends Object3D{
         this.businessElement.graphicElement = this;
     }
 
+    public updateLayout(index: number):void{
+
+    }
+
     public update(dt: number): void {
         if(this.shouldAnimate){
             // update self

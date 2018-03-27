@@ -98,7 +98,7 @@ Promise.all([
     Globals.setOpenDiagram(Serializer.instance.createTestDiagram());
     Globals.setDiagramSaved(false);
 
-    LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement);
 
 });

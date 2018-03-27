@@ -78,7 +78,7 @@ export function initializeStateTransitions() {
                     }
                 }
 
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
                 break;
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
@@ -134,7 +134,7 @@ export function initializeStateTransitions() {
                     msg.graphicElement.parent.remove(msg.graphicElement);
                 }
                 
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
             }
         }
     })
@@ -224,7 +224,7 @@ export function initializeStateTransitions() {
         //holdLifelineView.parent.add(newMessageView);
         msg.graphicElement.businessElement=msg;
 
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
                 
     },
     (ev, hits) => {
@@ -282,7 +282,7 @@ export function initializeStateTransitions() {
                 msg.layer.messages.splice(msg.layer.messages.indexOf(msg), 1);
                 msg.graphicElement.parent.remove(msg.graphicElement);
 
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
                 // }
@@ -310,7 +310,7 @@ export function initializeStateTransitions() {
         layer.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
 
         Globals.CURRENTLY_OPENED_DIAGRAM.layers.push(layer);
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     });
 
     StateSequence
@@ -334,7 +334,7 @@ export function initializeStateTransitions() {
                 Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement.remove(lay.graphicElement);
                 console.log(Globals.CURRENTLY_OPENED_DIAGRAM);
 
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
 
                 break;
             }
@@ -361,7 +361,7 @@ export function initializeStateTransitions() {
         movedLifeline.layer.lifelines.sort((a,b) => {
             return a.graphicElement.position.x - b.graphicElement.position.x;
         });
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     },
     (ev, hits) => {
         // empty
@@ -403,7 +403,7 @@ export function initializeStateTransitions() {
         (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
             return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
         });
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     },
     (ev, hits) => {
         // empty
