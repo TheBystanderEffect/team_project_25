@@ -4,23 +4,27 @@ export function createPopup(input: { [name: string]: string | string[] }): Promi
     
     $('#popupBody').empty();
     for(var key in input){
-        if(input[key] instanceof Array){
-            $('#popupBody').append('<label for="combo_'+key+'">'+key+' </label>');
-            $('#popupBody').append('<select id="combo_'+key+'"></select>');
+        if (input[key] instanceof Array) {
+            $('#popupBody').append('<div class="form-group" id="'+key+'_form"> </div>');
+            $('#'+key+'_form').append('<label for="combo_'+key+'">'+key+':</label>');
+            $('#' + key + '_form').append('<select class="form-control" id="combo_'+key+'"></select>');
             (input[key] as Array<any>).forEach(element => {
                 $('#combo_'+key).append('<option value="'+element+'">'+element+'</option>');
             });
+            
       
         }else{
-            
-            $('#popupBody').append('<label for="field_'+key+'">'+key+' </label>');
+
+            $('#popupBody').append('<div class="form-group" id="' + key +'_form">');
+            $('#' + key + '_form').append('<label for="field_'+key+'">'+key+':</label>');
            
             if(input[key] == null){
-                $('#popupBody').append('<input type="text" id="field_'+key+'" placeholder="'+key+'">');
+                $('#' + key + '_form').append('<input class="form-control" type="text" id="field_'+key+'" placeholder="'+key+'">');
             }else{
-                $('#popupBody').append('<input type="text" id="field_'+key+'" placeholder="'+key+'" value="'+input[key]+'">');
+                $('#' + key + '_form').append('<input class="form-control" type="text" id="field_'+key+'" placeholder="'+key+'" value="'+input[key]+'">');
             }
         }
+        
         $('#popupBody').append('<hr>')
     }
 
