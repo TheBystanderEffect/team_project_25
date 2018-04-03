@@ -443,12 +443,8 @@ export function initializeStateTransitions() {
     let lifelineRenamed: Lifeline = null;
     rename
     .click((event, hits) => {
-        return hits.length != 0 && hits[0].metadata.parent instanceof LifelineView;
-    }, (event, hits) => {
         lifelineRenamed = hits[0].metadata.parent.businessElement;
-    })
-    .click((event, hits) => {
-        return hits.length != 0 && hits[0].metadata.parent == lifelineRenamed.graphicElement;
+        return hits.length != 0 && hits[0].metadata.parent instanceof LifelineView;        
     }, () => {
         let rename = lifelineRenamed;
         createPopup({ Name: rename.name }).then(({ Name }: { Name: string }) => {
@@ -461,12 +457,8 @@ export function initializeStateTransitions() {
     let messageRenamed: Message = null;
     rename
     .click((event, hits) => {
-        return hits.length != 0 && hits[0].metadata.parent instanceof MessageView;
-    }, (event, hits) => {
         messageRenamed = hits[0].metadata.parent.businessElement;
-    })
-    .click((event, hits) => {
-        return hits.length != 0 && hits[0].metadata.parent == messageRenamed.graphicElement;
+        return hits.length != 0 && hits[0].metadata.parent instanceof MessageView;
     }, () => {
         let rename = messageRenamed;
         createPopup({ Name: rename.name, Type: [
