@@ -7,6 +7,7 @@ import * as Config from "../config"
 import { ASSETS } from "../globals";
 import { Text3D } from './Text3D';
 import { BusinessElement } from '../model/BusinessElement';
+import { LayerView } from './LayerView';
 
 export class MessageView extends GraphicElement{
     private _length: number;
@@ -195,5 +196,8 @@ export class MessageView extends GraphicElement{
         );
         this.redraw();
     }
+     public get layerView():LayerView{
+         return this.parent as LayerView; 
+     }
 
 }

@@ -1,4 +1,4 @@
-import { StateSequence } from "./StateMachineBuilder";
+import { StateSequence, stateNeutral } from "./StateMachineBuilder";
 import { RaycastControl } from "./RaycastControl";
 import { GLContext } from "../view/GLContext";
 import { CustomMesh } from "../view/CustomMesh";
@@ -17,6 +17,7 @@ import { Layer } from "../model/Layer";
 import { BusinessElement } from "../model/BusinessElement";
 import { GraphicElement } from "../view/GraphicElement";
 import { Vector3, Vector2 } from "three";
+import * as Config from "../config"
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -145,6 +146,7 @@ export function initializeStateTransitions() {
     let newMsg = new StoredMessage();
     newMsg.name = '[Animation]';
     let newMessageView: MessageView = new MessageView(newMsg);
+    newMessageView.shouldAnimate = false;
 
     let createMessagePreDrag = StateSequence
     .start('CREATE_MESSAGE')
@@ -208,6 +210,7 @@ export function initializeStateTransitions() {
 
         // hold my beer
         msg.graphicElement = newMessageView;
+        msg.graphicElement.shouldAnimate = true;
 
         msg.layer.messages.sort((a,b) => {
             return -(a.graphicElement.position.y - b.graphicElement.position.y);
@@ -221,6 +224,7 @@ export function initializeStateTransitions() {
 
         //msg.graphicElement = null;
         newMessageView = new MessageView(newMsg);
+        newMessageView.shouldAnimate = false;
         //holdLifelineView.parent.add(newMessageView);
         msg.graphicElement.businessElement=msg;
 
@@ -254,7 +258,7 @@ export function initializeStateTransitions() {
         }
     },
     createMessagePreDrag)
-    .finish(() => {});
+.finish(() => {});
 
     StateSequence
     .start('DELETE_MESSAGE')
@@ -377,6 +381,176 @@ export function initializeStateTransitions() {
     },
     moveLifelineStart)
     .finish(() => {});
+
+
+
+    let MessageDragByDestination = StateSequence
+    .start('MESSAGE_DRAG_DEST')
+    
+    MessageDragByDestination
+    .click((event, hits) => {
+        let h = null;
+        h = RaycastControl.simpleDefaultIntersect(event as MouseEvent)
+        let m = null;
+        if(h[0].object instanceof CustomMesh){
+            let m = (h[0].object as CustomMesh).viewObject
+            if (m instanceof MessageView){
+                let p:Vector3 = h[0].point;
+                if(p.distanceTo(m.layerView.getWorldPosition().add(m.destination)) < Config.maxMessageEndInteractionDistance){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }, (event, hits) => {
+        movedMessage = (hits[0].metadata.parent as GraphicElement).businessElement as Message;   
+        startLifeline = movedMessage.start.lifeline;
+    })
+    .drag((ev, hits) => {
+        for (let obj of hits) {
+            if (obj.viewObject instanceof LifelineView) {
+                endLifeline = obj.viewObject.businessElement;
+                return startLifeline != endLifeline;
+            }
+        }
+        return false;
+    },
+    (ev, hits) => {
+        //onsuccess
+
+        movedMessage.end.lifeline.occurenceSpecifications = 
+        movedMessage.end.lifeline.occurenceSpecifications.filter(e => e != movedMessage.end);
+
+        movedMessage.end.lifeline = endLifeline;
+
+        movedMessage.end.lifeline.occurenceSpecifications.push(movedMessage.end);
+
+        //TODO occurence specifications need to be updated to be linked with the changed lifeline
+
+        movedMessage.layer.messages.sort((a,b) => {
+            return -(a.graphicElement.position.y - b.graphicElement.position.y);
+        });
+        (movedMessage.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+        (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+                
+    },
+    (ev, hits) => {
+        //onfail
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
+    (ev, hits) => {
+        //cleanup
+        startLifeline = null;
+        endLifeline = null;
+        movedMessage = null;
+
+    },
+    (ev, hits) => {
+        //onmouseevent
+        let castResult = RaycastControl.simpleDefaultIntersect(ev as MouseEvent);
+        for (let h of castResult){
+            if(h.object.parent instanceof LayerView){
+                (movedMessage.graphicElement as MessageView).redrawByDestination(new Vector3(
+                    h.point.x -movedMessage.graphicElement.parent.position.x,
+                    h.point.y -movedMessage.graphicElement.parent.position.y,
+                    0
+                ));
+                break;
+            }
+        }
+    },
+    MessageDragByDestination)
+    .finish(() => {});
+
+    let MessageDragBySource = StateSequence
+    .start('MESSAGE_DRAG_DEST')
+    
+    MessageDragBySource
+    .click((event, hits) => {
+        let h = null;
+        h = RaycastControl.simpleDefaultIntersect(event as MouseEvent)
+        let m = null;
+        if(h[0].object instanceof CustomMesh){
+            let m = (h[0].object as CustomMesh).viewObject
+            if (m instanceof MessageView){
+                let p:Vector3 = h[0].point;
+                if(p.distanceTo(m.layerView.getWorldPosition().add(m.source)) < Config.maxMessageEndInteractionDistance){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }, (event, hits) => {
+        movedMessage = (hits[0].metadata.parent as GraphicElement).businessElement as Message;   
+        endLifeline = movedMessage.start.lifeline;
+    })
+    .drag((ev, hits) => {
+        for (let obj of hits) {
+            if (obj.viewObject instanceof LifelineView) {
+                startLifeline = obj.viewObject.businessElement;
+                return startLifeline != endLifeline;
+            }
+        }
+        return false;
+    },
+    (ev, hits) => {
+        //onsuccess
+        movedMessage.start.lifeline.occurenceSpecifications = 
+        movedMessage.start.lifeline.occurenceSpecifications.filter(e => e != movedMessage.start);
+
+        movedMessage.start.lifeline = startLifeline;
+
+        movedMessage.start.lifeline.occurenceSpecifications.push(movedMessage.start);
+
+        //TODO occurence specifications need to be updated to be linked with the changed lifeline
+
+        movedMessage.layer.messages.sort((a,b) => {
+            return -(a.graphicElement.position.y - b.graphicElement.position.y);
+        });
+        (movedMessage.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+        (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+                
+    },
+    (ev, hits) => {
+        //onfail
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
+    (ev, hits) => {
+        //cleanup
+        startLifeline = null;
+        endLifeline = null;
+        movedMessage = null;
+
+    },
+    (ev, hits) => {
+        //onmouseevent
+        let castResult = RaycastControl.simpleDefaultIntersect(ev as MouseEvent);
+        for (let h of castResult){
+            if(h.object.parent instanceof LayerView){
+                (movedMessage.graphicElement as MessageView).redrawBySource(new Vector3(
+                    h.point.x -movedMessage.graphicElement.parent.position.x,
+                    h.point.y -movedMessage.graphicElement.parent.position.y,
+                    0
+                ));
+                break;
+            }
+        }
+    },
+    MessageDragBySource)
+    .finish(() => {});
+
 
     let movedMessage: Message = null;
 
