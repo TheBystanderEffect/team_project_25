@@ -1,15 +1,17 @@
 import { Serializer } from '../TP_webApp/TP_webApp/app/controller/Serializer';
+import { CombinedFragment } from '../TP_webApp/TP_webApp/app/model/CombinedFragment';
+import { Diagram } from '../TP_webApp/TP_webApp/app/model/Diagram';
+import { InteractionOperand } from '../TP_webApp/TP_webApp/app/model/InteractionOperand';
+import { Layer } from '../TP_webApp/TP_webApp/app/model/Layer';
+import { Lifeline } from '../TP_webApp/TP_webApp/app/model/Lifeline';
+import { Message } from '../TP_webApp/TP_webApp/app/model/Message';
+import { OccurenceSpecification } from '../TP_webApp/TP_webApp/app/model/OccurenceSpecification';
+import * as Globals from '../TP_webApp/TP_webApp/app/globals';
 import * as assert from 'assert';
-import { CombinedFragment } from '../Tp_webApp/TP_webApp/app/model/CombinedFragment';
-import { Diagram } from '../Tp_webApp/TP_webApp/app/model/Diagram';
-import { InteractionOperand } from '../Tp_webApp/TP_webApp/app/model/InteractionOperand';
-import { Layer } from '../Tp_webApp/TP_webApp/app/model/Layer';
-import { Lifeline } from '../Tp_webApp/TP_webApp/app/model/Lifeline';
-import { Message } from '../Tp_webApp/TP_webApp/app/model/Message';
-import { OccurenceSpecification } from '../Tp_webApp/TP_webApp/app/model/OccurenceSpecification';
-import * as Globals from '../Tp_webApp/TP_webApp/app/globals';
+
 import * as R from 'ramda';
 import { Object3D } from 'three';
+import { MessageOccurenceSpecification } from '../TP_webApp/TP_webApp/app/model/OccurenceSpecification';
 
 describe('Serializer pipeline test', () => {
   var diag = new Diagram(null,null);
@@ -56,7 +58,7 @@ describe('Serializer pipeline test', () => {
   m4.start.message = m4;
   m4.end.message = m4;
 
-  var processedDiagram = Serializer.instance.deserialize(Serializer.instance.serialize(diag,true),"Diagram");
+  var processedDiagram = Serializer.instance.deserialize(Serializer.instance.serialize(diag));
   it('should return the same diagram we send to serialization', () => {
     it('should return the same lifeline contents', () => {
       assert.equal(diag.layers[0].lifelines[0].name, processedDiagram.layers[0].lifelines[0].name); 
@@ -71,8 +73,10 @@ describe('Serializer pipeline test', () => {
     });
     it('should reconstruct circular refferences', () => {
       assert.equal(diag.layers[0].lifelines[0].occurenceSpecifications[0].at, processedDiagram.layers[0].lifelines[0]);
-      assert.equal(diag.layers[0].lifelines[0].occurenceSpecifications[0].message, processedDiagram.layers[0].lifelines[1].occurenceSpecifications[0].message); 
+      assert.equal(diag.layers[0].lifelines[0].occurenceSpecifications[0].message, (processedDiagram.layers[0].lifelines[1].occurenceSpecifications[0] as MessageOccurenceSpecification ).message); 
     });
   });
 });
+
+
 
