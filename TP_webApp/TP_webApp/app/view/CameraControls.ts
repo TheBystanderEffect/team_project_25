@@ -16,16 +16,12 @@ export class CameraControls {
         cameraSpeedVectorQ: Vector3 = new Vector3( 0, 0, 0 );
         cameraSpeedVectorE: Vector3 = new Vector3( 0, 0, 0 );
         animationLength = 0.5;
-        animationProgress = 0;
+        animationProgress = 1;
         private animation = {
-            start : {
-                source: new Vector3(0,0,0),
-                destination: new Vector3(0,0,0)
-            },
-            end : {
-                source: new Vector3(0,0,0),
-                destination: new Vector3(0,0,0)
-            }
+            sourcePosition: new Vector3(0,0,0),
+            destinationPosition: new Vector3(0,0,0),
+            sourceRotation: new Vector3(0,0,0), //PITCH YAW ROLL
+            destinationRotation: new Vector3(0,0,0) //PITCH YAW ROLL
         }
 
         constructor(camera: PerspectiveCamera) {
@@ -49,6 +45,7 @@ export class CameraControls {
             return this._enabled;
         }
         
+
         onmousemove(event: MouseEvent) {
               
             if ( !this.enabled ) {
@@ -56,8 +53,12 @@ export class CameraControls {
             }
             let movementX = event.movementX || 0;
             let movementY = event.movementY || 0;
-            this.yawObject.rotation.y -= movementX * 0.002;
-            this.pitchObject.rotation.x -= movementY * 0.002;
+            this.rotateCamera(movementX  * 0.002, movementY * 0.002);
+        }
+
+        rotateCamera(movementX:number, movementY:number) {
+            this.yawObject.rotation.y -= movementX;
+            this.pitchObject.rotation.x -= movementY;
             this.pitchObject.rotation.x = Math.max(-(Math.PI / 2), Math.min(Math.PI, this.pitchObject.rotation.x));
         }
 
@@ -103,7 +104,6 @@ export class CameraControls {
                     this.cameraSpeedVectorE.y = -this.CAMERA_SPEED;
                     break;
             }
-            this.cameraSpeedVector = new Vector3( 0, 0, 0 );
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorW);
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorA);
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorS);
@@ -111,6 +111,7 @@ export class CameraControls {
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorQ);
             this.cameraSpeedVector = this.cameraSpeedVector.add(this.cameraSpeedVectorE);
             this.yawObject.position.add(this.cameraSpeedVector);
+            this.cameraSpeedVector = new Vector3( 0, 0, 0 );
         }
         
         onkeyup(event: KeyboardEvent) {
@@ -152,8 +153,12 @@ export class CameraControls {
 
         public updateCamera(delta:number): void {
             if (this.animationProgress < 1) {
+
+
+
                 this.animationProgress = Math.min(1, this.animationProgress + delta / this.animationLength);
-                this.animate();
+
+                this.animate(delta);
             }
             this.pitchObject.updateMatrixWorld(false)
             this.yawObject.updateMatrixWorld(false);
@@ -162,22 +167,49 @@ export class CameraControls {
         }
         
         public loadViewpoint(x: number, y: number, z: number, yaw: number, pitch: number): void{
-            console.log("X:" + x + " Y:" + y + " Z:" + z + " Yaw:" + yaw + " Pitch:" + pitch + " YawObject:" + this.yawObject + " PitchObject:" + this.pitchObject);
-            this.yawObject.position.set(x, y, z);
-            this.yawObject.rotation.y = yaw;
-            this.pitchObject.rotation.x = pitch;
-            this.updateCamera(0);
+            this.animation.destinationPosition.set(x, y, z);
+            this.animation.destinationRotation = new Vector3(pitch, yaw, 0);
+            this.animation.sourcePosition = this.yawObject.position.clone();
+            this.animation.sourceRotation = new Vector3(this.pitchObject.rotation.x, this.yawObject.rotation.y, 0);
+            this.animationProgress = 0;
+            // updates the view without animation, add an option for that
+                // this.yawObject.position.set(x, y, z);
+                // this.yawObject.rotation.y = yaw;
+                // this.pitchObject.rotation.x = pitch;
+                // this.updateCamera(0);
         }
 
-        public animate(): void {
+        public animate(delta: number): void {
+            let cameraSpeedVectorAnimation = this.animatorPosition(
+                this.animation.sourcePosition, 
+                this.animation.destinationPosition, 
+                this.animationProgress,
+                delta/this.animationLength
+            );
+            this.cameraSpeedVector = this.cameraSpeedVector.add(cameraSpeedVectorAnimation);
+            this.yawObject.position.add(this.cameraSpeedVector);
+            this.cameraSpeedVector.sub(cameraSpeedVectorAnimation);
+            let rotationVector = this.animatorRotation(
+                this.animation.sourceRotation, 
+                this.animation.destinationRotation, 
+                this.animationProgress,
+                delta/this.animationLength
+            )
+            this.rotateCamera(-rotationVector.y, -rotationVector.x)
         }
 
-        // public transitionToPosition(x: number, y: number, z: number, yaw: number, pitch: number): void{
-        //     this.animation.start.source.copy(this._source);
-        //     this.animation.start.destination.copy(this._destination);
-        //     this.animation.end.source.copy(start);
-        //     this.animation.end.destination.copy(end);
-        //     this.animationLength = 0.4;
-        //     this.animationProgress = 0;
-        // }
+        public animatorPosition: (start: Vector3, end: Vector3, progress: number, delta: number) => Vector3 = (start, end, progress, delta) => {
+            let finalVector = start.clone().multiplyScalar(1 - progress).add(end.clone().multiplyScalar(progress));
+            let startingVector = start.clone().multiplyScalar(1 - (progress - delta)).add(end.clone().multiplyScalar(progress - delta));
+            let newSpeedVector = finalVector.sub(startingVector);
+            return newSpeedVector;
+        }; 
+        
+        public animatorRotation: (start: Vector3, end: Vector3, progress: number, delta: number) => Vector3 = (start, end, progress, delta) => {
+            let finalVector = start.clone().multiplyScalar(1 - progress).add(end.clone().multiplyScalar(progress));
+            let startingVector = start.clone().multiplyScalar(1 - (progress - delta)).add(end.clone().multiplyScalar(progress - delta));
+            let newRotationVector = finalVector.sub(startingVector);
+            return newRotationVector;
+            //HAS TO RETURN VECTOR THAT IS ACTUALLY THE CHANGE FROM THE PREVIOUS VECTOR
+        };
 }

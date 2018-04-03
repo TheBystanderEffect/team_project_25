@@ -437,7 +437,6 @@ export function initializeStateTransitions() {
                 let layer:Layer = hit.parent.businessElement as Layer;
                 let layerView = layer.graphicElement as LayerView;
                 let layerRectangle = layerView.getRectangleCenter();
-                // console.log("HERESY" + layerView.position.z + " " + layerRectangle.z)
                 GLContext.instance.cameraControls.loadViewpoint(layerRectangle.x, layerRectangle.y, layerView.position.z + Config.layerOffset, 0, 0)
                 break;
             }
