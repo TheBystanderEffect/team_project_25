@@ -73,4 +73,8 @@ export class Text3D extends Object3D{
             curveSegments: 12,
         });
     }
+
+    public get viewObject():GraphicElement{
+        return this._link.viewObject;
+    }
 }
