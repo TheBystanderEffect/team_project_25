@@ -1,4 +1,4 @@
-import { PlaneGeometry, CylinderGeometry, MeshLambertMaterial, MeshBasicMaterial, DoubleSide} from 'three'
+import { PlaneGeometry, CylinderGeometry, MeshLambertMaterial, MeshBasicMaterial, DoubleSide, CubeGeometry} from 'three'
 import * as Config from "../config"
 
 export class Assets{
@@ -33,7 +33,7 @@ export class Assets{
         this.messageArrowHeadMaterial = new MeshBasicMaterial( {color: 0x000000});
 
         this.textMaterial = new MeshBasicMaterial( {color: 0xffffff});
-        this.textBackPlateGeometry = new PlaneGeometry(1,1);
+        this.textBackPlateGeometry = new CubeGeometry(1,1,1)//PlaneGeometry(1,1);
         this.textBackPlateMaterial = new MeshBasicMaterial({color: 0x8080f0, side: DoubleSide});
 
     }
