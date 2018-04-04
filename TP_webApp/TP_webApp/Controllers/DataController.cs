@@ -86,11 +86,13 @@ namespace API.Controllers
         // POST api/data/diagram
         [HttpPost]
         [ActionName("diagram")]
-        public void Post([FromBody]JObject test_json)
+        public JObject Post([FromBody]JObject test_json)
         {
            // var client = new MongoClient();
             var db = client.GetDatabase("tp");
             var coll = db.GetCollection<BsonDocument>("diagrams");
+
+            test_json["_id"] = GetNextId();
 
             try{
                 var doc = MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(test_json.ToString());
@@ -98,12 +100,14 @@ namespace API.Controllers
             } catch (Exception e) {
                 Console.WriteLine("An exception was thrown: " + e);
             }
+
+            return test_json;
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
         [ActionName("diagram")]
-        public void Post([FromBody]JObject test_json, int id)
+        public JObject Post([FromBody]JObject test_json, int id)
         {
           //  var client = new MongoClient();
             var db = client.GetDatabase("tp");
@@ -116,6 +120,8 @@ namespace API.Controllers
             } catch (Exception e) {
                 Console.WriteLine("An exception was thrown: " + e);
             }
+
+            return test_json;
         }
 
         // DELETE api/values/5

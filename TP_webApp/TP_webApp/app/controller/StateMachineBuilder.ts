@@ -89,10 +89,6 @@ export class StateSequence {
         return newSeq;
     }
 
-    public dialog(callback: (dto: any) => void): StateSequence {
-        throw new Error("Not implemented yet");
-    }
-
     public finish(action: (event: Event, hits: CustomMesh[]) => void): void {
         let newSeq: StateSequence = new StateSequence(this.name, this.sequencePool, this.state);
         newSeq.state = stateNeutral;
