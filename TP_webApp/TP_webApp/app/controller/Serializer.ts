@@ -1,8 +1,11 @@
 import { Diagram } from "../model/Diagram";
 import { Lifeline } from "../model/Lifeline";
 import { Layer } from "../model/Layer";
-import { MessageOccurenceSpecification, OccurenceSpecification } from "../model/OccurenceSpecification";
-import { StoredMessage, Message, MessageKind } from "../model/Message";
+import { MessageOccurenceSpecification, OccurenceSpecification, OperandOccurenceSpecification } from "../model/OccurenceSpecification";
+import { StoredMessage, Message, MessageKind, RefMessage } from "../model/Message";
+import { InteractionOperand } from "../model/InteractionOperand";
+import { CombinedFragment, InteractionOperator } from "../model/CombinedFragment";
+import { InteractionFragment } from "../model/InteractionFragment";
 
 export class Serializer {
 
@@ -132,7 +135,7 @@ export class Serializer {
 
         var m1 = new StoredMessage();
 
-        m1.name = 'Message 1';
+        m1.name = 'Msg1';
         m1.kind = MessageKind.SYNC_CALL;
 
         m1.diagram = diag;
@@ -164,7 +167,7 @@ export class Serializer {
 
         var m2 = new StoredMessage();
 
-        m2.name = 'Message 2';
+        m2.name = 'Msg2';
         m2.kind = MessageKind.SYNC_CALL;
 
         m2.diagram = diag;
@@ -196,7 +199,7 @@ export class Serializer {
 
         var m3 = new StoredMessage();
 
-        m3.name = 'Message 3';
+        m3.name = 'Msg3';
         m3.kind = MessageKind.RETURN;
 
         m3.diagram = diag;
@@ -210,7 +213,7 @@ export class Serializer {
 
         l1.messages.push(m3);
 
-        // message 3
+        // message 4
         let oc1_4 = new MessageOccurenceSpecification();
         let oc2_4 = new MessageOccurenceSpecification();
         
@@ -223,12 +226,11 @@ export class Serializer {
         oc1_4.lifeline = ll1;
         oc2_4.lifeline = ll2;
 
-        ll1.occurenceSpecifications.push(oc1_4);
-        ll2.occurenceSpecifications.push(oc2_4);
+
 
         var m4 = new StoredMessage();
         
-        m4.name = 'Message 4';
+        m4.name = 'Msg4';
         m4.kind = MessageKind.RETURN;
 
         m4.diagram = diag;
@@ -241,6 +243,84 @@ export class Serializer {
         oc2_4.message = m4;
 
         l1.messages.push(m4);
+
+        // fragment
+
+        let oc1s_6 = new OperandOccurenceSpecification();
+        let oc1e_6 = new OperandOccurenceSpecification();
+        let oc2s_6 = new OperandOccurenceSpecification();
+        let oc2e_6 = new OperandOccurenceSpecification();
+        let oc3s_6 = new OperandOccurenceSpecification();
+        let oc3e_6 = new OperandOccurenceSpecification();
+
+        oc1s_6.diagram = diag;
+        oc1e_6.diagram = diag;
+        oc2s_6.diagram = diag;
+        oc2e_6.diagram = diag;
+        oc3s_6.diagram = diag;
+        oc3e_6.diagram = diag;
+
+        oc1s_6.layer = l1;
+        oc1e_6.layer = l1;
+        oc2s_6.layer = l1;
+        oc2e_6.layer = l1;
+        oc3s_6.layer = l1;
+        oc3e_6.layer = l1;
+
+        oc1s_6.lifeline = ll1;
+        oc1e_6.lifeline = ll1;
+        oc2s_6.lifeline = ll2;
+        oc2e_6.lifeline = ll2;
+        oc3s_6.lifeline = ll3;
+        oc3e_6.lifeline = ll3;
+
+        ll1.occurenceSpecifications.push(oc1s_6);
+        ll1.occurenceSpecifications.push(oc1_4);
+        ll1.occurenceSpecifications.push(oc1e_6);
+        ll2.occurenceSpecifications.push(oc2s_6);
+        ll2.occurenceSpecifications.push(oc2_4);
+        ll2.occurenceSpecifications.push(oc2e_6);
+        ll3.occurenceSpecifications.push(oc3s_6);
+        ll3.occurenceSpecifications.push(oc3e_6);
+
+        var comb1 = new CombinedFragment();
+        var inter1 = new InteractionOperand();
+
+        comb1.diagram = diag;
+
+        comb1.layer = l1;
+
+        comb1.parent = null;
+        comb1.children = [inter1];
+
+        comb1.interactionOperator = InteractionOperator.OPT;
+        
+        inter1.parent = comb1;
+                
+        inter1.children = [];
+
+        oc1s_6.startsOperand = inter1;
+        oc2s_6.startsOperand = inter1;
+        oc3s_6.startsOperand = inter1;
+        oc1e_6.endsOperand = inter1;
+        oc2e_6.endsOperand = inter1;
+        oc3e_6.endsOperand = inter1;
+
+        // inter1.startingOccurences = [oc1s_6, oc2s_6];
+        // inter1.endingOccurences = [oc1e_6, oc2e_6];
+        inter1.startingOccurences = [oc1s_6, oc2s_6, oc3s_6];
+        inter1.endingOccurences = [oc1e_6, oc2e_6, oc3e_6];
+
+        inter1.diagram = diag;
+
+        inter1.layer = l1;
+
+        inter1.interactionConstraint = "x < 2";
+
+        inter1.messages = [ new RefMessage() ];
+        inter1.messages[0].message = m4;
+
+        l1.fragments.push(comb1);
 
         // message 5
         let oc1_5 = new MessageOccurenceSpecification();
@@ -260,7 +340,7 @@ export class Serializer {
 
         var m5 = new StoredMessage();
 
-        m5.name = '...';
+        m5.name = 'Msg5';
         m5.kind = MessageKind.SYNC_CALL;
 
         m5.diagram = diag;

@@ -1,0 +1,1 @@
+{"version":3,"file":"LayerElement.js","sourceRoot":"","sources":["../../../../app/model/LayerElement.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,cAAc,EAAE,MAAM,kBAAkB,CAAC;AAElD,MAAM,mBAA6B,SAAQ,cAAc;IAIrD,IAAW,KAAK;QACZ,MAAM,CAAC,IAAI,CAAC,OAAO,CAAC;IACxB,CAAC;IAED,IAAW,KAAK,CAAC,KAAY;QACzB,IAAI,CAAC,OAAO,GAAG,KAAK,CAAC;IACzB,CAAC;CAEJ"}

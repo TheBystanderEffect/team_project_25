@@ -1,0 +1,1 @@
+{"version":3,"file":"BusinessElement.js","sourceRoot":"","sources":["../../../../app/model/BusinessElement.ts"],"names":[],"mappings":"AAEA,MAAM;IAIF,IAAW,cAAc;QACrB,MAAM,CAAC,IAAI,CAAC,gBAAgB,CAAC;IACjC,CAAC;IAED,IAAW,cAAc,CAAC,cAA8B;QACpD,IAAI,CAAC,gBAAgB,GAAG,cAAc,CAAC;IAC3C,CAAC;CAEJ"}

@@ -1,0 +1,22 @@
+export const canvasId = "webglCanvas";
+//Layouting config
+export const firstLayerOffset = 1000;
+export const layerOffset = 1000;
+export const layerWidth = 500;
+export const layerHeight = 600;
+export const firstLifelineOffsetX = 50;
+export const lifelineOffsetX = 200;
+export const lifelineOffsetY = 50;
+export const lifelineTextSize = 15;
+export const lifelineRadius = 6;
+export const firstMessageOffset = 25;
+export const messageOffset = 25;
+export const messageTextSize = 10;
+export const messageArrowBodyRadius = 2.5;
+export const messageArrowHeadRadiusBase = 10;
+export const messageArrowHeadRadiusTip = 0;
+export const messageArrowHeadLength = 10;
+export const messageArrowOverlap = 2;
+export const fragmentBodyRadius = 2.5;
+//export const : number = ;
+//# sourceMappingURL=config.js.map

@@ -73,6 +73,7 @@ export function initializeStateTransitions() {
                 // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
             // }
         // }
+        console.log("create farag");
     })
     .finish(() => {});
 

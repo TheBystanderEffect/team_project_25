@@ -1,0 +1,1 @@
+{"version":3,"file":"DiagramElement.js","sourceRoot":"","sources":["../../../../app/model/DiagramElement.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,eAAe,EAAE,MAAM,mBAAmB,CAAC;AAEpD,MAAM,qBAA+B,SAAQ,eAAe;IAIxD,IAAW,OAAO;QACd,MAAM,CAAC,IAAI,CAAC,SAAS,CAAC;IAC1B,CAAC;IAED,IAAW,OAAO,CAAC,OAAgB;QAC/B,IAAI,CAAC,SAAS,GAAG,OAAO,CAAC;IAC7B,CAAC;CAEJ"}

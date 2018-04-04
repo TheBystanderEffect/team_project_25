@@ -1,4 +1,4 @@
-import { PlaneGeometry, CylinderGeometry, MeshLambertMaterial, MeshBasicMaterial, DoubleSide} from 'three'
+import { PlaneGeometry, CylinderGeometry, MeshLambertMaterial, MeshBasicMaterial, DoubleSide, SphereGeometry} from 'three'
 import * as Config from "../config"
 
 export class Assets{
@@ -14,6 +14,12 @@ export class Assets{
     public messageArrowHeadGeometry: CylinderGeometry;
     public messageArrowBodyMaterial: MeshBasicMaterial;
     public messageArrowHeadMaterial: MeshBasicMaterial;
+
+    public fragmentBodyGeometry: CylinderGeometry;
+    public fragmentBodyMaterial: MeshBasicMaterial;
+
+    public fragmentBallGeometry: SphereGeometry;
+    public fragmentBallMaterial: MeshBasicMaterial;
 
     public textMaterial: MeshBasicMaterial;
     public textBackPlateGeometry: PlaneGeometry;
@@ -31,6 +37,11 @@ export class Assets{
         this.messageArrowHeadGeometry = new CylinderGeometry( Config.messageArrowHeadRadiusTip, Config.messageArrowHeadRadiusBase, 1, 16 ); 
         this.messageArrowBodyMaterial = new MeshBasicMaterial( {color: 0x00FF00});
         this.messageArrowHeadMaterial = new MeshBasicMaterial( {color: 0x00FF00});
+
+        this.fragmentBodyGeometry = new CylinderGeometry( Config.fragmentBodyRadius, Config.fragmentBodyRadius, 1, 8 );
+        this.fragmentBodyMaterial = new MeshBasicMaterial( {color: 0x000000});
+        this.fragmentBallGeometry = new SphereGeometry(Config.fragmentBallRadius, 20, 20);
+        this.fragmentBallMaterial = new MeshBasicMaterial( {color: 0x000000});
 
         this.textMaterial = new MeshBasicMaterial( {color: 0x000000});
         this.textBackPlateGeometry = new PlaneGeometry(1,1);
