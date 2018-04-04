@@ -626,7 +626,7 @@ export function initializeStateTransitions() {
         let rename = lifelineRenamed;
         createPopup({ Name: rename.name }).then(({ Name }: { Name: string }) => {
             rename.name = Name;
-            LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
         });
     })
     .finish(() => {});
@@ -645,7 +645,7 @@ export function initializeStateTransitions() {
         ] }).then(({ Name, Type }: { Name: string, Type: MessageKind }) => {
             rename.name = Name;
             rename.kind = Type;
-            LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
         });
     })
     .finish(() => {});
