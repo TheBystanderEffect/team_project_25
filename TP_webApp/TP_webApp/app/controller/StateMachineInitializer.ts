@@ -186,62 +186,68 @@ export function initializeStateTransitions() {
         return false;
     },
     (ev, hits) => {
+
+        let startLife = startLifeline;
+        let endLife = endLifeline;
         //onsuccess                
-        let startOcc = new MessageOccurenceSpecification();
-        let endOcc = new MessageOccurenceSpecification();
-
-        startOcc.diagram = startLifeline.diagram;
-        endOcc.diagram = endLifeline.diagram;
-
-        startOcc.layer = startLifeline.layer;
-        endOcc.layer = endLifeline.layer;
-
-        let msg = new StoredMessage();
-
-        msg.diagram = startLifeline.diagram;
-        msg.layer = startLifeline.layer;
-        msg.name = 'new msg';
-        msg.kind = MessageKind.SYNC_CALL;
-        
-        msg.start = startOcc;
-        msg.end = endOcc;
-
-        startOcc.message = msg;
-        endOcc.message = msg;
-
-        startOcc.lifeline = startLifeline;
-        endOcc.lifeline = endLifeline;
-
-        startLifeline.occurenceSpecifications.push(startOcc);
-        endLifeline.occurenceSpecifications.push(endOcc);
-
-        startLifeline.layer.messages.push(msg);
-
-        // hold my beer
-        msg.graphicElement = newMessageView;
-        msg.graphicElement.shouldAnimate = true;
-
-        msg.layer.messages.sort((a,b) => {
-            return -(a.graphicElement.position.y - b.graphicElement.position.y);
-        });
-        (msg.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
-        (msg.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
-
-        //msg.graphicElement = null;
-        newMessageView = new MessageView(newMsg);
-        newMessageView.shouldAnimate = false;
-        //holdLifelineView.parent.add(newMessageView);
-        msg.graphicElement.businessElement=msg;
-
         createPopup({ Name: null, Type: [
             MessageKind.SYNC_CALL,
             MessageKind.ASYNC_CALL,
             MessageKind.RETURN
         ]}).then(({ Name, Type }: { Name: string, Type: MessageKind }) => {
+
+            let startOcc = new MessageOccurenceSpecification();
+            let endOcc = new MessageOccurenceSpecification();
+
+            startOcc.diagram = startLife.diagram;
+            endOcc.diagram = endLife.diagram;
+
+            startOcc.layer = startLife.layer;
+            endOcc.layer = endLife.layer;
+
+            let msg = new StoredMessage();
+
+            msg.diagram = startLife.diagram;
+            msg.layer = startLife.layer;
+            msg.name = 'new msg';
+            msg.kind = MessageKind.SYNC_CALL;
+            
+            msg.start = startOcc;
+            msg.end = endOcc;
+
+            startOcc.message = msg;
+            endOcc.message = msg;
+
+            startOcc.lifeline = startLife;
+            endOcc.lifeline = endLife;
+
+            startLife.occurenceSpecifications.push(startOcc);
+            endLife .occurenceSpecifications.push(endOcc);
+
+            startLife.layer.messages.push(msg);
+
+            // hold my beer
+            msg.graphicElement = newMessageView;
+            msg.graphicElement.shouldAnimate = true;
+
+            msg.layer.messages.sort((a,b) => {
+                return -(a.graphicElement.position.y - b.graphicElement.position.y);
+            });
+            (msg.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+                return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+            });
+            (msg.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+                return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+            });
+
+            //msg.graphicElement = null;
+            newMessageView = new MessageView(newMsg);
+            newMessageView.shouldAnimate = false;
+            //holdLifelineView.parent.add(newMessageView);
+            msg.graphicElement.businessElement=msg;
+
+            newMessageView.position.setY(10000); //advanced programing technique
+
             msg.name = Name;
             msg.kind = Type;
             LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
@@ -257,7 +263,8 @@ export function initializeStateTransitions() {
         endLifeline = null;
         holdLifelineView =null;
 
-        newMessageView.position.setY(10000); //advanced programing technique
+        // newMessageView.position.setY(10000); //advanced programing technique
+        // advanced programming technique moved to after asynchronous handler finishes
         //newMessageView.parent.remove(newMessageView);
     },
     (ev, hits) => {
@@ -409,7 +416,7 @@ export function initializeStateTransitions() {
         let h = null;
         h = RaycastControl.simpleDefaultIntersect(event as MouseEvent)
         let m = null;
-        if(h[0].object instanceof CustomMesh){
+        if(h[0] && h[0].object instanceof CustomMesh){
             let m = (h[0].object as CustomMesh).viewObject
             if (m instanceof MessageView){
                 let p:Vector3 = h[0].point;
@@ -427,7 +434,7 @@ export function initializeStateTransitions() {
         for (let obj of hits) {
             if (obj.viewObject instanceof LifelineView) {
                 endLifeline = obj.viewObject.businessElement;
-                return startLifeline != endLifeline;
+                return true;
             }
         }
         return false;
@@ -493,7 +500,7 @@ export function initializeStateTransitions() {
         let h = null;
         h = RaycastControl.simpleDefaultIntersect(event as MouseEvent)
         let m = null;
-        if(h[0].object instanceof CustomMesh){
+        if(h[0] && h[0].object instanceof CustomMesh){
             let m = (h[0].object as CustomMesh).viewObject
             if (m instanceof MessageView){
                 let p:Vector3 = h[0].point;
@@ -511,7 +518,7 @@ export function initializeStateTransitions() {
         for (let obj of hits) {
             if (obj.viewObject instanceof LifelineView) {
                 startLifeline = obj.viewObject.businessElement;
-                return startLifeline != endLifeline;
+                return true;
             }
         }
         return false;
