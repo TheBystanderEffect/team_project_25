@@ -1,79 +1,111 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>static mock view</title>
-    <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <title>Sequence3D</title>
     <script src="../js/app.bundle.js"></script>
-
-    <link rel="stylesheet" type="text/css" href="../css/mock.css">
 </head>
-    <body>
+<body>
 
-        <div id="mySidenav" class="sidenav" style="width: 0px">
-            <!-- <h1>ADD elements</h1>
-            <hr class="style18">
-            <a class= "sidenavButtom blue  big "id="sideLife">Add Lifeline </a>
-            <a class= "sidenavButtom blue  big "id="sideMessage">Add message  </a>
-            <a class= "sidenavButtom blue  big "id="sideLayer">Add Layer    </a>
-            <h1>Delete elements</h1>
-            <hr class="style18">
-            <a class= "sidenavButtom blue  big "id = "sideDeleteLife" >delete lifeline</a>
-            <a class= "sidenavButtom blue big "id = "sideDeleteMessage" >delete message</a>
-            <a class= "sidenavButtom blue  big"id = "sideDeleteLayer" >delete Layer</a>
-            <h1>viewpoint elements</h1> -->
-            <!-- <hr class="style18">
-            <a class= "sidenavButtom blue big "id="resetViewpoint">resetViewpoint    </a>
-            <a class= "sidenavButtom blue big "id="saveViewpoint">saveViewpoint    </a> -->
 
-            <!-- <a class= "sidenavButtom blue big"id="saveDiagram">save diagram</a> -->
-            <ul>
-                    <li class="block">
-                        <input type="checkbox" name="Add" id="item1" />   
-                        <label for="item1"><i aria-hidden="true" ></i> Add elements <span>124</span></label>
-                        <ul class="options">
-                            <li><a id="sideLife"><i aria-hidden="true" ></i> Lifeline</a></li>
-                            <li><a id="sideMessage"><i aria-hidden="true"></i> Message</a></li>
-                            <li><a id="sideLayer"><i aria-hidden="true"></i> Layer</a></li>
-                        </ul>
-                    </li>
-                    <li class="block">
-                        <input type="checkbox" name="Dell" id="item2" />   
-                        <label for="item2"><i aria-hidden="true" class="icon-film"></i> Delete Elements </label>
-                        <ul class="options">
-                            <li><a id = "sideDeleteLife" ><i aria-hidden="true"></i> Lifeline </a></li>
-                            <li><a id = "sideDeleteMessage"><i aria-hidden="true" ></i>Message </a></li>
-                            <li><a id = "sideDeleteLayer"><i aria-hidden="true" ></i>Layer</a></li>
-                        </ul>
-                    </li>
 
-                    <li class ="block">
-                        <input type="checkbox" name="View" id="item3">
-                        <label for="item3"><i aria-hidden="true" class="icon-film"></i> Viewport  </label>
-                         <ul class="options">
-                                <li><a id="lookAtLayer"><i aria-hidden="true"></i> Look at Layer </a></li>
-                                <li><a id="resetViewpoint"><i aria-hidden="true"></i> reset </a></li>
-                                <li><a id="saveViewpoint"><i aria-hidden="true" ></i>save </a></li>
 
-                         </ul>
-                    </li>
+   
+    <div class="modal fade" id="popupWindow" role="dialog">
+        <div class="modal-dialog">
 
-                    <li class="block">
-                            <input type="checkbox" name="View" id="item4">
-                            <label for="item4"><i aria-hidden="true" class="icon-film"></i> Diagram  </label>
-                            <ul class="options" id="diagramOptions">
-                                    <li><a id="saveDiagram"><i aria-hidden="true"></i> Save </a></li>
-                            </ul>
-                    </li>
-                  
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!--<h4 class="modal-title"></h4>-->
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="popupBody">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="submitButton" type="button" class="btn btn-success" data-dismiss="modal">Submit</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <div id="mySidenav" class="sidenav" style="width: 0px">
+        <!-- <h1>ADD elements</h1>
+        <hr class="style18">
+        <a class= "sidenavButtom blue  big "id="sideLife">Add Lifeline </a>
+        <a class= "sidenavButtom blue  big "id="sideMessage">Add message  </a>
+        <a class= "sidenavButtom blue  big "id="sideLayer">Add Layer    </a>
+        <h1>Delete elements</h1>
+        <hr class="style18">
+        <a class= "sidenavButtom blue  big "id = "sideDeleteLife" >delete lifeline</a>
+        <a class= "sidenavButtom blue big "id = "sideDeleteMessage" >delete message</a>
+        <a class= "sidenavButtom blue  big"id = "sideDeleteLayer" >delete Layer</a>
+        <h1>viewpoint elements</h1> -->
+        <!-- <hr class="style18">
+        <a class= "sidenavButtom blue big "id="resetViewpoint">resetViewpoint    </a>
+        <a class= "sidenavButtom blue big "id="saveViewpoint">saveViewpoint    </a> -->
+        <!-- <a class= "sidenavButtom blue big"id="saveDiagram">save diagram</a> -->
+        <ul>
+            <li class="block">
+                <input type="checkbox" name="Add" id="item1" />
+                <label for="item1"><i aria-hidden="true"></i> Add elements <span>124</span></label>
+                <ul class="options">
+                    <li><a id="sideLife"><i aria-hidden="true"></i> Lifeline</a></li>
+                    <li><a id="sideMessage"><i aria-hidden="true"></i> Message</a></li>
+                    <li><a id="sideLayer"><i aria-hidden="true"></i> Layer</a></li>
                 </ul>
-        </div>
+            </li>
+            <li class="block">
+                <input type="checkbox" name="Dell" id="item2" />
+                <label for="item2"><i aria-hidden="true" class="icon-film"></i> Delete Elements </label>
+                <ul class="options">
+                    <li><a id="sideDeleteLife"><i aria-hidden="true"></i> Lifeline </a></li>
+                    <li><a id="sideDeleteMessage"><i aria-hidden="true"></i>Message </a></li>
+                    <li><a id="sideDeleteLayer"><i aria-hidden="true"></i>Layer</a></li>
+                </ul>
+            </li>
 
-        <div id="main" class="container" >
-            <button id="openMenu">Open</button>
-            <canvas id="webglCanvas" oncontextmenu="return false;"></canvas>
-        </div>
-    </body>
+            <li class="block">
+                <input type="checkbox" name="View" id="item3">
+                <label for="item3"><i aria-hidden="true" class="icon-film"></i> Rename  </label>
+                <ul class="options">
+                    <li><a id="rename"><i aria-hidden="true"></i> rename </a></li>
+                </ul>
+            </li>
+
+            <li class="block">
+                <input type="checkbox" name="View" id="item4">
+                <label for="item4"><i aria-hidden="true" class="icon-film"></i> Viewport  </label>
+                <ul class="options">
+                    <li><a id="resetViewpoint"><i aria-hidden="true"></i> reset </a></li>
+                    <li><a id="saveViewpoint"><i aria-hidden="true"></i>save </a></li>
+
+                </ul>
+            </li>
+
+            <li class="block">
+                <input type="checkbox" name="View" id="item5">
+                <label for="item5"><i aria-hidden="true" class="icon-film"></i> Diagram  </label>
+                <ul class="options" id="diagramOptions">
+                    <li><a id="saveDiagram"><i aria-hidden="true"></i> Save </a></li>
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+
+    <div id="main" class="">
+        <button id="openMenu">Open</button>
+        <canvas id="webglCanvas" oncontextmenu="return false;"></canvas>
+    </div>
+</body>
 
 
-    
+
 </html>

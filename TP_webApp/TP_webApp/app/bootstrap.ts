@@ -1,6 +1,10 @@
 /*
 The entry point of the application
 */
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../wwwroot/css/mock.css';
+
 import * as Globals from './globals';
 import { Font, FontLoader } from 'three';
 import { GLContext } from './view/GLContext';
@@ -18,7 +22,6 @@ import { Assets } from './view/Assets';
 /*
 Load resources
 */
-
 function loadFont(font_url: string): Promise<Font> {
 
     let font_loader: FontLoader = new FontLoader();
@@ -98,7 +101,7 @@ Promise.all([
     Globals.setOpenDiagram(Serializer.instance.createTestDiagram());
     Globals.setDiagramSaved(false);
 
-    LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement);
 
 });

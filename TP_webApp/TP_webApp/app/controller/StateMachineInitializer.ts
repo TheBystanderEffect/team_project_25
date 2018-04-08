@@ -1,4 +1,4 @@
-import { StateSequence } from "./StateMachineBuilder";
+import { StateSequence, stateNeutral } from "./StateMachineBuilder";
 import { RaycastControl } from "./RaycastControl";
 import { GLContext } from "../view/GLContext";
 import { CustomMesh } from "../view/CustomMesh";
@@ -19,6 +19,8 @@ import { GraphicElement } from "../view/GraphicElement";
 import { Vector3, Vector2 } from "three";
 import { CameraControls } from "../view/CameraControls";
 import * as Config from "../config";
+import { createPopup } from "../view/Popup";
+import { State } from "./State";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -66,21 +68,28 @@ export function initializeStateTransitions() {
 
         for (let obj of hits) {
             if (obj.metadata.parent instanceof LayerView) {
-                let lifelineNew = new Lifeline();
-                lifelineNew.name = 'Standard name';
-                lifelineNew.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
-                lifelineNew.layer = obj.metadata.parent.businessElement;
+
+                let left = 0;
 
                 let castResult = RaycastControl.simpleDefaultIntersect(e as MouseEvent);
                 for (let h of castResult){
                     if(h.object.parent instanceof LayerView) {
-                        let left = lifelineNew.layer.lifelines.filter(e => e.graphicElement.position.x < h.point.x).length;
-                        lifelineNew.layer.lifelines.splice(left, 0, lifelineNew);
+                        left = (obj.metadata.parent.businessElement as Layer).lifelines.filter(e => e.graphicElement.position.x < h.point.x).length;
                         break;
                     }
                 }
+                createPopup({ 
+                    Name: null
+                }).then(({ Name }: { Name: string }) => {
+                    let lifelineNew = new Lifeline();
+                    lifelineNew.name = Name;
+                    lifelineNew.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
+                    lifelineNew.layer = obj.metadata.parent.businessElement;
 
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                    lifelineNew.layer.lifelines.splice(left, 0, lifelineNew);
+
+                    LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+                });
                 break;
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
@@ -136,7 +145,7 @@ export function initializeStateTransitions() {
                     msg.graphicElement.parent.remove(msg.graphicElement);
                 }
                 
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
             }
         }
     })
@@ -147,6 +156,7 @@ export function initializeStateTransitions() {
     let newMsg = new StoredMessage();
     newMsg.name = '[Animation]';
     let newMessageView: MessageView = new MessageView(newMsg);
+    newMessageView.shouldAnimate = false;
 
     let createMessagePreDrag = StateSequence
     .start('CREATE_MESSAGE')
@@ -177,53 +187,72 @@ export function initializeStateTransitions() {
         return false;
     },
     (ev, hits) => {
+
+        let startLife = startLifeline;
+        let endLife = endLifeline;
         //onsuccess                
-        let startOcc = new MessageOccurenceSpecification();
-        let endOcc = new MessageOccurenceSpecification();
+        createPopup({ Name: null, Type: [
+            MessageKind.SYNC_CALL,
+            MessageKind.ASYNC_CALL,
+            MessageKind.RETURN
+        ]}).then(({ Name, Type }: { Name: string, Type: MessageKind }) => {
 
-        startOcc.diagram = startLifeline.diagram;
-        endOcc.diagram = endLifeline.diagram;
+            let startOcc = new MessageOccurenceSpecification();
+            let endOcc = new MessageOccurenceSpecification();
 
-        startOcc.layer = startLifeline.layer;
-        endOcc.layer = endLifeline.layer;
+            startOcc.diagram = startLife.diagram;
+            endOcc.diagram = endLife.diagram;
 
-        let msg = new StoredMessage();
+            startOcc.layer = startLife.layer;
+            endOcc.layer = endLife.layer;
 
-        msg.diagram = startLifeline.diagram;
-        msg.layer = startLifeline.layer;
-        msg.name = 'new msg';
-        msg.kind = MessageKind.SYNC_CALL;
-        
-        msg.start = startOcc;
-        msg.end = endOcc;
+            let msg = new StoredMessage();
 
-        startOcc.message = msg;
-        endOcc.message = msg;
+            msg.diagram = startLife.diagram;
+            msg.layer = startLife.layer;
+            msg.name = 'new msg';
+            msg.kind = MessageKind.SYNC_CALL;
+            
+            msg.start = startOcc;
+            msg.end = endOcc;
 
-        startOcc.lifeline = startLifeline;
-        endOcc.lifeline = endLifeline;
+            startOcc.message = msg;
+            endOcc.message = msg;
 
-        startLifeline.occurenceSpecifications.push(startOcc);
-        endLifeline.occurenceSpecifications.push(endOcc);
+            startOcc.lifeline = startLife;
+            endOcc.lifeline = endLife;
 
-        startLifeline.layer.messages.push(msg);
+            startLife.occurenceSpecifications.push(startOcc);
+            endLife .occurenceSpecifications.push(endOcc);
 
-        // hold my beer
-        msg.graphicElement = newMessageView;
+            startLife.layer.messages.push(msg);
 
-        msg.layer.messages.sort((a,b) => {
-            return -(a.graphicElement.position.y - b.graphicElement.position.y);
+            // hold my beer
+            msg.graphicElement = newMessageView;
+            msg.graphicElement.shouldAnimate = true;
+
+            msg.layer.messages.sort((a,b) => {
+                return -(a.graphicElement.position.y - b.graphicElement.position.y);
+            });
+            (msg.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+                return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+            });
+            (msg.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+                return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+            });
+
+            //msg.graphicElement = null;
+            newMessageView = new MessageView(newMsg);
+            newMessageView.shouldAnimate = false;
+            //holdLifelineView.parent.add(newMessageView);
+            msg.graphicElement.businessElement=msg;
+
+            newMessageView.position.setY(10000); //advanced programing technique
+
+            msg.name = Name;
+            msg.kind = Type;
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
         });
-        (msg.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
-        (msg.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
-
-        msg.graphicElement = null;
-
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
                 
     },
     (ev, hits) => {
@@ -235,8 +264,9 @@ export function initializeStateTransitions() {
         endLifeline = null;
         holdLifelineView =null;
 
-        newMessageView.position.setY(10000); //advanced programing technique
-        newMessageView.parent.remove(newMessageView);
+        // newMessageView.position.setY(10000); //advanced programing technique
+        // advanced programming technique moved to after asynchronous handler finishes
+        //newMessageView.parent.remove(newMessageView);
     },
     (ev, hits) => {
         //onmouseevent
@@ -253,7 +283,7 @@ export function initializeStateTransitions() {
         }
     },
     createMessagePreDrag)
-    .finish(() => {});
+.finish(() => {});
 
     StateSequence
     .start('DELETE_MESSAGE')
@@ -281,7 +311,7 @@ export function initializeStateTransitions() {
                 msg.layer.messages.splice(msg.layer.messages.indexOf(msg), 1);
                 msg.graphicElement.parent.remove(msg.graphicElement);
 
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
                 // }
@@ -296,7 +326,7 @@ export function initializeStateTransitions() {
         .start("SAVE_DIAGRAM")
         .button('saveDiagram')
         .finish(() => {
-            CommunicationController.instance.saveDiagram(Serializer.instance.serialize(Globals.CURRENTLY_OPENED_DIAGRAM), () => { });
+            CommunicationController.instance.saveDiagram(Globals.CURRENTLY_OPENED_DIAGRAM);
             Globals.setDiagramSaved(true);
         });
   
@@ -309,7 +339,7 @@ export function initializeStateTransitions() {
         layer.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
 
         Globals.CURRENTLY_OPENED_DIAGRAM.layers.push(layer);
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     });
 
     StateSequence
@@ -333,7 +363,7 @@ export function initializeStateTransitions() {
                 Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement.remove(lay.graphicElement);
                 console.log(Globals.CURRENTLY_OPENED_DIAGRAM);
 
-                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
 
                 break;
             }
@@ -360,7 +390,7 @@ export function initializeStateTransitions() {
         movedLifeline.layer.lifelines.sort((a,b) => {
             return a.graphicElement.position.x - b.graphicElement.position.x;
         });
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     },
     (ev, hits) => {
         // empty
@@ -376,6 +406,176 @@ export function initializeStateTransitions() {
     },
     moveLifelineStart)
     .finish(() => {});
+
+
+
+    let MessageDragByDestination = StateSequence
+    .start('MESSAGE_DRAG_DEST')
+    
+    MessageDragByDestination
+    .click((event, hits) => {
+        let h = null;
+        h = RaycastControl.simpleDefaultIntersect(event as MouseEvent)
+        let m = null;
+        if(h[0] && h[0].object instanceof CustomMesh){
+            let m = (h[0].object as CustomMesh).viewObject
+            if (m instanceof MessageView){
+                let p:Vector3 = h[0].point;
+                if(p.distanceTo(m.layerView.getWorldPosition().add(m.destination)) < Config.maxMessageEndInteractionDistance){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }, (event, hits) => {
+        movedMessage = (hits[0].metadata.parent as GraphicElement).businessElement as Message;   
+        startLifeline = movedMessage.start.lifeline;
+    })
+    .drag((ev, hits) => {
+        for (let obj of hits) {
+            if (obj.viewObject instanceof LifelineView) {
+                endLifeline = obj.viewObject.businessElement;
+                return true;
+            }
+        }
+        return false;
+    },
+    (ev, hits) => {
+        //onsuccess
+
+        movedMessage.end.lifeline.occurenceSpecifications = 
+        movedMessage.end.lifeline.occurenceSpecifications.filter(e => e != movedMessage.end);
+
+        movedMessage.end.lifeline = endLifeline;
+
+        movedMessage.end.lifeline.occurenceSpecifications.push(movedMessage.end);
+
+        //TODO occurence specifications need to be updated to be linked with the changed lifeline
+
+        movedMessage.layer.messages.sort((a,b) => {
+            return -(a.graphicElement.position.y - b.graphicElement.position.y);
+        });
+        (movedMessage.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+        (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+                
+    },
+    (ev, hits) => {
+        //onfail
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
+    (ev, hits) => {
+        //cleanup
+        startLifeline = null;
+        endLifeline = null;
+        movedMessage = null;
+
+    },
+    (ev, hits) => {
+        //onmouseevent
+        let castResult = RaycastControl.simpleDefaultIntersect(ev as MouseEvent);
+        for (let h of castResult){
+            if(h.object.parent instanceof LayerView){
+                (movedMessage.graphicElement as MessageView).redrawByDestination(new Vector3(
+                    h.point.x -movedMessage.graphicElement.parent.position.x,
+                    h.point.y -movedMessage.graphicElement.parent.position.y,
+                    0
+                ));
+                break;
+            }
+        }
+    },
+    MessageDragByDestination)
+    .finish(() => {});
+
+    let MessageDragBySource = StateSequence
+    .start('MESSAGE_DRAG_DEST')
+    
+    MessageDragBySource
+    .click((event, hits) => {
+        let h = null;
+        h = RaycastControl.simpleDefaultIntersect(event as MouseEvent)
+        let m = null;
+        if(h[0] && h[0].object instanceof CustomMesh){
+            let m = (h[0].object as CustomMesh).viewObject
+            if (m instanceof MessageView){
+                let p:Vector3 = h[0].point;
+                if(p.distanceTo(m.layerView.getWorldPosition().add(m.source)) < Config.maxMessageEndInteractionDistance){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }, (event, hits) => {
+        movedMessage = (hits[0].metadata.parent as GraphicElement).businessElement as Message;   
+        endLifeline = movedMessage.start.lifeline;
+    })
+    .drag((ev, hits) => {
+        for (let obj of hits) {
+            if (obj.viewObject instanceof LifelineView) {
+                startLifeline = obj.viewObject.businessElement;
+                return true;
+            }
+        }
+        return false;
+    },
+    (ev, hits) => {
+        //onsuccess
+        movedMessage.start.lifeline.occurenceSpecifications = 
+        movedMessage.start.lifeline.occurenceSpecifications.filter(e => e != movedMessage.start);
+
+        movedMessage.start.lifeline = startLifeline;
+
+        movedMessage.start.lifeline.occurenceSpecifications.push(movedMessage.start);
+
+        //TODO occurence specifications need to be updated to be linked with the changed lifeline
+
+        movedMessage.layer.messages.sort((a,b) => {
+            return -(a.graphicElement.position.y - b.graphicElement.position.y);
+        });
+        (movedMessage.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+        (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+                
+    },
+    (ev, hits) => {
+        //onfail
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
+    (ev, hits) => {
+        //cleanup
+        startLifeline = null;
+        endLifeline = null;
+        movedMessage = null;
+
+    },
+    (ev, hits) => {
+        //onmouseevent
+        let castResult = RaycastControl.simpleDefaultIntersect(ev as MouseEvent);
+        for (let h of castResult){
+            if(h.object.parent instanceof LayerView){
+                (movedMessage.graphicElement as MessageView).redrawBySource(new Vector3(
+                    h.point.x -movedMessage.graphicElement.parent.position.x,
+                    h.point.y -movedMessage.graphicElement.parent.position.y,
+                    0
+                ));
+                break;
+            }
+        }
+    },
+    MessageDragBySource)
+    .finish(() => {});
+
 
     let movedMessage: Message = null;
 
@@ -402,7 +602,7 @@ export function initializeStateTransitions() {
         (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
             return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
         });
-        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     },
     (ev, hits) => {
         // empty
@@ -419,7 +619,43 @@ export function initializeStateTransitions() {
         
         lastOffsetY = (ev as MouseEvent).offsetY;
     },
-    moveLifelineStart)
+    moveMessageStart)
+    .finish(() => { });
+
+    let rename = StateSequence.start('RENAME')
+    .button('rename');
+
+    let lifelineRenamed: Lifeline = null;
+    rename
+    .click((event, hits) => {
+        lifelineRenamed = hits[0].metadata.parent.businessElement;
+        return hits.length != 0 && hits[0].metadata.parent instanceof LifelineView;        
+    }, () => {
+        let rename = lifelineRenamed;
+        createPopup({ Name: rename.name }).then(({ Name }: { Name: string }) => {
+            rename.name = Name;
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+        });
+    })
+    .finish(() => {});
+
+    let messageRenamed: Message = null;
+    rename
+    .click((event, hits) => {
+        messageRenamed = hits[0].metadata.parent.businessElement;
+        return hits.length != 0 && hits[0].metadata.parent instanceof MessageView;
+    }, () => {
+        let rename = messageRenamed;
+        createPopup({ Name: rename.name, Type: [
+            MessageKind.SYNC_CALL,
+            MessageKind.ASYNC_CALL,
+            MessageKind.RETURN
+        ] }).then(({ Name, Type }: { Name: string, Type: MessageKind }) => {
+            rename.name = Name;
+            rename.kind = Type;
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+        });
+    })
     .finish(() => {});
 
     StateSequence

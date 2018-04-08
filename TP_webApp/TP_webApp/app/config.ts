@@ -1,5 +1,7 @@
 export const canvasId: string = "webglCanvas";
 
+export const maxMessageEndInteractionDistance = 25;
+
 //Layouting config
 export const firstLayerOffset: number = 1000;
 export const layerOffset: number = 1000;

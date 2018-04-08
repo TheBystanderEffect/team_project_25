@@ -68,6 +68,7 @@ export class EventBus {
     }
 
     public handleMouseDown(event: MouseEvent) {
+        event.preventDefault();
         if (this.sendMouseDown) {
             this._callback(event, EventType.MOUSE_DOWN);
         } 
