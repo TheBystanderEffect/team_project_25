@@ -20,8 +20,8 @@ export class CameraControls {
         private animation = {
             sourcePosition: new Vector3(0,0,0),
             destinationPosition: new Vector3(0,0,0),
-            sourceRotation: new Vector3(0,0,0), //PITCH YAW ROLL
-            destinationRotation: new Vector3(0,0,0) //PITCH YAW ROLL
+            sourceRotation: new Vector3(0,0,0),
+            destinationRotation: new Vector3(0,0,0)
         }
 
         constructor(camera: PerspectiveCamera) {
@@ -56,10 +56,12 @@ export class CameraControls {
             this.rotateCamera(movementX  * 0.002, movementY * 0.002);
         }
 
+        //x -> pitch, y -> yaw, z -> roll(disabled)
+        //pich -> up/down, yaw -> left/right, roll -> barrel roll
         rotateCamera(movementX:number, movementY:number) {
             this.yawObject.rotation.y -= movementX;
             this.pitchObject.rotation.x -= movementY;
-            this.pitchObject.rotation.x = Math.max(-(Math.PI / 2), Math.min(Math.PI, this.pitchObject.rotation.x));
+            this.pitchObject.rotation.x = Math.max(-(Math.PI / 2), Math.min((Math.PI/2), this.pitchObject.rotation.x));
         }
 
         onmousedown(event: MouseEvent) {
@@ -172,11 +174,6 @@ export class CameraControls {
             this.animation.sourcePosition = this.yawObject.position.clone();
             this.animation.sourceRotation = new Vector3(this.pitchObject.rotation.x, this.yawObject.rotation.y, 0);
             this.animationProgress = 0;
-            // updates the view without animation, add an option for that
-                // this.yawObject.position.set(x, y, z);
-                // this.yawObject.rotation.y = yaw;
-                // this.pitchObject.rotation.x = pitch;
-                // this.updateCamera(0);
         }
 
         public animate(delta: number): void {
@@ -210,6 +207,5 @@ export class CameraControls {
             let startingVector = start.clone().multiplyScalar(1 - (progress - delta)).add(end.clone().multiplyScalar(progress - delta));
             let newRotationVector = finalVector.sub(startingVector);
             return newRotationVector;
-            //HAS TO RETURN VECTOR THAT IS ACTUALLY THE CHANGE FROM THE PREVIOUS VECTOR
         };
 }
