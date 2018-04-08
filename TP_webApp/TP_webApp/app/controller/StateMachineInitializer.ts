@@ -17,9 +17,10 @@ import { Layer } from "../model/Layer";
 import { BusinessElement } from "../model/BusinessElement";
 import { GraphicElement } from "../view/GraphicElement";
 import { Vector3, Vector2 } from "three";
+import { CameraControls } from "../view/CameraControls";
+import * as Config from "../config";
 import { createPopup } from "../view/Popup";
 import { State } from "./State";
-import * as Config from "../config"
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -656,4 +657,26 @@ export function initializeStateTransitions() {
         });
     })
     .finish(() => {});
+
+    StateSequence
+    .start('ZoomToLayer')
+    .button('lookAtLayer')
+    .click((event, hits)=>{
+        for(let hit of hits){
+            if(hit.parent instanceof LayerView)
+            return true;
+        }
+        return false
+    },(event, hits)=>{
+        for(let hit of hits){
+            if(hit.parent instanceof LayerView){
+                let layer:Layer = hit.parent.businessElement as Layer;
+                let layerView = layer.graphicElement as LayerView;
+                let layerRectangle = layerView.getRectangleCenter();
+                GLContext.instance.cameraControls.loadViewpoint(layerRectangle.x, layerRectangle.y, layerView.position.z + Config.layerOffset, 0, 0)
+                break;
+            }
+        }
+    })
+    .finish(()=>{});
 }

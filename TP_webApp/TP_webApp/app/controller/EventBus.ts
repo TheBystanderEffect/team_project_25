@@ -17,7 +17,8 @@ export enum EventType {
     MOUSE_DOWN = "MOUSE_DOWN",
     MOUSE_UP = "MOUSE_UP",
     MOUSE_MOVE = "MOUSE_MOVE",
-    SCENE_UPDATE = "SCENE_UPDATE"
+    SCENE_UPDATE = "SCENE_UPDATE",
+    KEY_PRESSED = "KEY_PRESSED"
 }
 
 export class EventBus {
@@ -30,6 +31,7 @@ export class EventBus {
         this._canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
         this._canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
         document.addEventListener('click', this.handleButtonPressed.bind(this));
+        document.addEventListener('keydown', this.handleKeyPressed.bind(this));
     }
 
     private _sendMouseDown: boolean = true;
@@ -37,6 +39,7 @@ export class EventBus {
     private _sendMouseMovement: boolean = true;
     private _sendButtonPressed: boolean = true;
     private _sendSceneUpdate: boolean = true;
+    private _sendKeyPressed: boolean = true;
 
     public get sendMouseDown() {
         return this._sendMouseDown;
@@ -52,6 +55,10 @@ export class EventBus {
 
     public get sendButtonPressed() {
         return this._sendButtonPressed;
+    }
+
+    public get sendKeyPressed() {
+        return this._sendKeyPressed;
     }
 
     public handleMouseMove(event: MouseEvent) {
@@ -83,6 +90,12 @@ export class EventBus {
     public handleSceneUpdate(event: Event) {
         if (this.handleSceneUpdate) {
             this._callback(event, EventType.SCENE_UPDATE);
+        }
+    }
+
+    public handleKeyPressed(event: Event) {
+        if (this.handleKeyPressed) {
+            this._callback(event, EventType.KEY_PRESSED);
         }
     }
 

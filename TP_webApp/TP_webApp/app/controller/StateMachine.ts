@@ -29,7 +29,7 @@ export class StateMachine {
     public acceptEvent(e: MouseEvent, eventType: EventType) {
 
         let hits: CustomMesh[] = null;
-        if (e != null) {
+        if (e != null && e instanceof MouseEvent) {
             hits = RaycastControl.instance.cast(GLContext.instance.camera, GLContext.instance.scene, e);
         }
 
