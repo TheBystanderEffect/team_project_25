@@ -45,6 +45,9 @@ export function createPopup(input: { [name: string]: string | string[] }): Promi
             }
             resolve(output);
         });
+        $('#cancelButton').off().on('click', () => {
+            reject();
+        });
     });
 
 }

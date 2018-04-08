@@ -252,6 +252,9 @@ export function initializeStateTransitions() {
             msg.name = Name;
             msg.kind = Type;
             LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+        }).catch(() => {
+            newMessageView.position.setY(10000); //advanced programing technique  
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
         });
                 
     },
