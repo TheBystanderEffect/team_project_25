@@ -260,6 +260,7 @@ export function initializeStateTransitions() {
     },
     (ev, hits) => {
         //onfail
+        newMessageView.position.setY(10000); //advanced programing technique
     },
     (ev, hits) => {
         //cleanup
