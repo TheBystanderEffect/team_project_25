@@ -56,7 +56,7 @@ export class MessageView extends GraphicElement{
         this.add(this.arrowHead)
 
         this.text = new Text3D(this);
-        this.add(this.text);
+        //this.add(this.text); //text will ad itself when approperiate
 
         this.animationProgress = 0.99999999;
 
