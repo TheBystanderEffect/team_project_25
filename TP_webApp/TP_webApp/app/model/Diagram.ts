@@ -6,19 +6,8 @@ export class Diagram extends BusinessElement {
     protected _id: number;
     protected _layers: Layer[] = [];
 
-<<<<<<< HEAD
-    constructor(_layers: Layer[], _diagramView: DiagramView, verId: number = 0){
-        super();
-        this._layers = _layers ? _layers : [];
-        this._verId = verId;
-    }
-
-    public initdiagramId(){
-        this._diagramId = CommunicationController.instance.getNewDiagramId();
-=======
     public get id(): number {
         return this._id;
->>>>>>> dev
     }
 
     public set id(id: number) {
