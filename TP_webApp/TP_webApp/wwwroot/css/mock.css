@@ -238,7 +238,11 @@ ul ul li a {
 }
 
 ul ul li a:hover {
-	color:#44c6eb;
+	color:#44c6eb !important;
+	cursor: pointer;
+}
+.actv{
+	background-color: #1E90FF !important;
 }
 
 ul ul li a span {
@@ -267,4 +271,7 @@ ul ul li:last-child {
 	height: 0;
 	display: block;
 	overflow: hidden;
+}
+li:hover{
+	cursor: pointer;
 }

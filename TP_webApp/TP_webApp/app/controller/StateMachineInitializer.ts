@@ -21,6 +21,7 @@ import { CameraControls } from "../view/CameraControls";
 import * as Config from "../config";
 import { createPopup } from "../view/Popup";
 import { State } from "./State";
+import * as $ from 'jquery';
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -54,7 +55,9 @@ export function initializeStateTransitions() {
 
     StateSequence
     .start('CREATE_LIFELINE')
-    .button('sideLife')
+    .button('sideLife',()=>{
+        $('#sideLife').addClass('actv');
+    })
     .click((e: Event, h: CustomMesh[]) => {
         for (let obj of h) {
             if (obj.metadata.parent instanceof LayerView) {
@@ -98,11 +101,15 @@ export function initializeStateTransitions() {
             }
         }
     })
-    .finish(() => {});
+    .finish(() => {
+        $('#sideLife').removeClass('actv');
+    });
 
     StateSequence
     .start('DELETE_LIFELINE')
-    .button('sideDeleteLife')
+    .button('sideDeleteLife',()=>{
+        $('#sideDeleteLife').addClass('actv');
+    })
     .click((e: Event, h: CustomMesh[]) => {
         for (let obj of h) {
             if (obj.metadata.parent instanceof LifelineView) {
@@ -149,7 +156,9 @@ export function initializeStateTransitions() {
             }
         }
     })
-    .finish(() => {});
+    .finish(() => {
+        $('#sideDeleteLife').removeClass('actv');
+    });
 
     let startLifeline: Lifeline = null;
     let endLifeline: Lifeline = null;
@@ -160,7 +169,9 @@ export function initializeStateTransitions() {
 
     let createMessagePreDrag = StateSequence
     .start('CREATE_MESSAGE')
-    .button('sideMessage');
+    .button('sideMessage',()=>{
+        $('#sideMessage').addClass('actv');
+    });
     
     let holdLifelineView:LifelineView = null;
     createMessagePreDrag
@@ -287,11 +298,15 @@ export function initializeStateTransitions() {
         }
     },
     createMessagePreDrag)
-.finish(() => {});
+.finish(() => {
+    $('#sideMessage').removeClass('actv');
+});
 
     StateSequence
     .start('DELETE_MESSAGE')
-    .button('sideDeleteMessage')
+    .button('sideDeleteMessage',()=>{
+        $('#sideDeleteMessage').addClass('actv');
+    })
     .click((e: Event, h: CustomMesh[]) =>{
         for (let obj of h) {
             if (obj.metadata.parent instanceof MessageView) {
@@ -324,19 +339,26 @@ export function initializeStateTransitions() {
         }
 
     })
-    .finish(() =>{})
+    .finish(() =>{
+        $('#sideDeleteMessage').removeClass('actv');
+    })
 
     StateSequence
         .start("SAVE_DIAGRAM")
-        .button('saveDiagram')
+        .button('saveDiagram',()=>{
+            $('#saveDiagram').addClass('actv');
+        })
         .finish(() => {
             CommunicationController.instance.saveDiagram(Globals.CURRENTLY_OPENED_DIAGRAM);
             Globals.setDiagramSaved(true);
+            $('#saveDiagram').removeClass('actv');
         });
   
     StateSequence
     .start('CREATE_LAYER')
-    .button('sideLayer')
+    .button('sideLayer',()=>{
+        $('#sideLayer').addClass('actv');
+    })
     .finish(() => {
         let layer = new Layer();
 
@@ -344,11 +366,14 @@ export function initializeStateTransitions() {
 
         Globals.CURRENTLY_OPENED_DIAGRAM.layers.push(layer);
         LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+        $('#sideLayer').removeClass('actv');
     });
 
     StateSequence
     .start('DELETE_LAYER')
-    .button('sideDeleteLayer')
+    .button('sideDeleteLayer',()=>{
+        $('#sideDeleteLayer').addClass('actv');
+    })
     .click((event: Event, hits: CustomMesh[]) => {
         for (let hit of hits) {
             if (hit.metadata.parent instanceof LayerView) {
@@ -372,7 +397,9 @@ export function initializeStateTransitions() {
                 break;
             }
     }})
-    .finish(()=>{});
+    .finish(()=>{
+        $('#sideDeleteLayer').removeClass('actv');
+    });
 
 
     let movedLifeline: Lifeline = null;
@@ -627,7 +654,9 @@ export function initializeStateTransitions() {
     .finish(() => { });
 
     let rename = StateSequence.start('RENAME')
-    .button('rename');
+    .button('rename',()=>{
+        $('#rename').addClass('actv');
+    });
 
     let lifelineRenamed: Lifeline = null;
     rename
@@ -641,7 +670,9 @@ export function initializeStateTransitions() {
             LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
         });
     })
-    .finish(() => {});
+    .finish(() => {
+        $('#rename').removeClass('actv');
+    });
 
     let messageRenamed: Message = null;
     rename
@@ -664,7 +695,9 @@ export function initializeStateTransitions() {
 
     StateSequence
     .start('ZoomToLayer')
-    .button('lookAtLayer')
+    .button('lookAtLayer',()=>{
+        $('#lookAtLayer').addClass('actv');
+    })
     .click((event, hits)=>{
         for(let hit of hits){
             if(hit.parent instanceof LayerView)
@@ -682,5 +715,7 @@ export function initializeStateTransitions() {
             }
         }
     })
-    .finish(()=>{});
+    .finish(()=>{
+        $('#lookAtLayer').removeClass('actv');
+    });
 }
