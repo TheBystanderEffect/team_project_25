@@ -54,11 +54,24 @@ function loadDiagram(id: number) {
          for (let child of GLContext.instance.scene.children) {
              GLContext.instance.scene.remove(child);
          }
-         LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+         LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
          GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement);
      });
      req.send();
 }
+
+// export function turnLayerViewOnOFF(cameraControls: CameraControls, viewpointId: number): HTMLElement {
+    
+//     let yaw: number = cameraControls.yawObject.rotation.y;
+//     let pitch: number = cameraControls.pitchObject.rotation.x;
+//     let btn = document.createElement("a");
+//     let text = document.createTextNode(`viewpoint ${viewpointId}`);
+//     btn.appendChild(text);
+//     //solve how to give yourself the camera controls
+//     btn.onclick = function(){cameraControls.loadViewpoint(x, y, z, yaw, pitch);};
+//     document.getElementById("diagramOptions").appendChild(btn);
+//     return btn;
+// }
 
 export function makeButton(diagramId: number) {
     let btn = document.createElement("a");
@@ -79,6 +92,7 @@ export function makeLoadViewpointButton(cameraControls: CameraControls, viewpoin
     let btn = document.createElement("a");
     let text = document.createTextNode(`viewpoint ${viewpointId}`);
     btn.appendChild(text);
+    btn.className +=" sidenavButtom blue big";
     //solve how to give yourself the camera controls
     btn.onclick = function(){cameraControls.loadViewpoint(x, y, z, yaw, pitch);};
     document.getElementById("diagramOptions").appendChild(btn);

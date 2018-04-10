@@ -22,13 +22,22 @@
   },
   "homepage": "https://github.com/TheBystanderEffect/team_project_25#readme",
   "dependencies": {
+<<<<<<< HEAD
     "@types/assert": "0.0.31",
     "@types/mocha": "^2.2.48",
+=======
+    "@types/bootstrap": "^4.0.1",
+    "@types/jquery": "^3.3.1",
+>>>>>>> origin/dev
     "@types/ramda": "^0.25.18",
     "@types/three": "^0.84.27",
     "assert": "^1.4.1",
+    "bootstrap": "^4.0.0",
+    "css-loader": "^0.28.11",
+    "jquery": "^3.3.1",
     "mocha": "^4.0.1",
     "ramda": "^0.25.0",
+    "style-loader": "^0.20.3",
     "three": "^0.87.1",
     "ts-loader": "^3.0.5",
     "ts-node": "^5.0.1",
