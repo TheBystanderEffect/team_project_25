@@ -2,7 +2,6 @@
 The entry point of the application
 */
 import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import '../wwwroot/css/mock.css';
 
 import * as Globals from './globals';
