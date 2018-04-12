@@ -67,7 +67,7 @@ export class Text3D extends Object3D{
             this.position.set(0,3+Config.messageArrowBodyRadius+height/2,0)
 
             //if name is only whitespace width is 0 and text should not show
-            if(width==0){
+            if(this.width==0){
                 this.update("");
             }
         }

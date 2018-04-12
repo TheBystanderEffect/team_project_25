@@ -1,7 +1,6 @@
 import { Diagram } from "../model/Diagram";
 import { Lifeline } from "../model/Lifeline";
 import { Layer } from "../model/Layer";
-<<<<<<< HEAD
 import { MessageOccurenceSpecification, OccurenceSpecification, OperandOccurenceSpecification } from "../model/OccurenceSpecification";
 import { StoredMessage, Message, MessageKind, RefMessage } from "../model/Message";
 import { InteractionOperand } from "../model/InteractionOperand";
@@ -39,42 +38,6 @@ export class Serializer {
             let layer: Layer = new Layer();
             layer.diagram = diagram;
 
-=======
-import { MessageOccurenceSpecification, OccurenceSpecification } from "../model/OccurenceSpecification";
-import { StoredMessage, Message, MessageKind } from "../model/Message";
-
-export class Serializer {
-
-    private static _instance: Serializer = new Serializer();
-    private constructor(){}
-    public static get instance(): Serializer {
-        return Serializer._instance;
-    }
-
-    public serialize(diagram: Diagram): string {
-        return JSON.stringify(diagram, (key, value) => {
-            if (key.startsWith('__')) {
-                return undefined;
-            }
-            return value;
-        });
-    }
-
-    public deserialize(jsonDiagram: string): Diagram {
-
-        let rawDiagram: any = JSON.parse(jsonDiagram);
-
-        let diagram: Diagram = new Diagram();
-
-        diagram.id = rawDiagram._id;
-
-        let queuedOccurences: { rawOcc: any, occ: OccurenceSpecification }[] = [];
-
-        diagram.layers = rawDiagram._layers.map((rawLayer: any) => {
-            let layer: Layer = new Layer();
-            layer.diagram = diagram;
-
->>>>>>> dev
             layer.lifelines = rawLayer._lifelines.map((rawLifeline: any) => {
                 let lifeline = new Lifeline();
                 lifeline.diagram = diagram;
@@ -172,11 +135,7 @@ export class Serializer {
 
         var m1 = new StoredMessage();
 
-<<<<<<< HEAD
         m1.name = 'Msg1';
-=======
-        m1.name = 'Message 1';
->>>>>>> dev
         m1.kind = MessageKind.SYNC_CALL;
 
         m1.diagram = diag;
@@ -190,7 +149,6 @@ export class Serializer {
 
         l1.messages.push(m1);
 
-<<<<<<< HEAD
         // message 1
         let oc1_X = new MessageOccurenceSpecification();
         let oc2_X = new MessageOccurenceSpecification();
@@ -287,8 +245,6 @@ export class Serializer {
 
         l1.messages.push(mZ);
 
-=======
->>>>>>> dev
         // message 2
         let oc1_2 = new MessageOccurenceSpecification();
         let oc2_2 = new MessageOccurenceSpecification();
@@ -307,11 +263,7 @@ export class Serializer {
 
         var m2 = new StoredMessage();
 
-<<<<<<< HEAD
         m2.name = 'Msg2';
-=======
-        m2.name = 'Message 2';
->>>>>>> dev
         m2.kind = MessageKind.SYNC_CALL;
 
         m2.diagram = diag;
@@ -343,11 +295,7 @@ export class Serializer {
 
         var m3 = new StoredMessage();
 
-<<<<<<< HEAD
         m3.name = 'Msg3';
-=======
-        m3.name = 'Message 3';
->>>>>>> dev
         m3.kind = MessageKind.RETURN;
 
         m3.diagram = diag;
@@ -361,11 +309,7 @@ export class Serializer {
 
         l1.messages.push(m3);
 
-<<<<<<< HEAD
         // message 4
-=======
-        // message 3
->>>>>>> dev
         let oc1_4 = new MessageOccurenceSpecification();
         let oc2_4 = new MessageOccurenceSpecification();
         
@@ -378,20 +322,11 @@ export class Serializer {
         oc1_4.lifeline = ll1;
         oc2_4.lifeline = ll2;
 
-<<<<<<< HEAD
 
 
         var m4 = new StoredMessage();
         
         m4.name = 'Msg4';
-=======
-        ll1.occurenceSpecifications.push(oc1_4);
-        ll2.occurenceSpecifications.push(oc2_4);
-
-        var m4 = new StoredMessage();
-        
-        m4.name = 'Message 4';
->>>>>>> dev
         m4.kind = MessageKind.RETURN;
 
         m4.diagram = diag;
@@ -405,7 +340,6 @@ export class Serializer {
 
         l1.messages.push(m4);
 
-<<<<<<< HEAD
         // fragment
 
         let oc1s_6 = new OperandOccurenceSpecification();
@@ -651,8 +585,6 @@ export class Serializer {
 
         // l1.messages.push(m5);
 
-=======
->>>>>>> dev
         return diag;
     }
 

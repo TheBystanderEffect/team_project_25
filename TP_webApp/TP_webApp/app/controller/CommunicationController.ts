@@ -56,11 +56,7 @@ export class CommunicationController {
         let serializedDiagram = Serializer.instance.serialize(diagram);
         let url = "/api/data/diagram";
         if (Globals.IS_DIAGRAM_SAVED) {
-<<<<<<< HEAD
-            url += `/${Globals.CURRENTLY_OPENED_DIAGRAM.id}`;
-=======
             url += `/${diagram.id}`;
->>>>>>> dev
         }
         let xhr = new XMLHttpRequest();
 
