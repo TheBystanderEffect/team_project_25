@@ -176,6 +176,10 @@ export class MessageView extends GraphicElement{
         this._destination.copy(destination);
     }
 
+    public getIndex(){
+        return this.index;
+    }
+
     public animate(): void {
         this.source = this.animator(
             this.animation.start.source, 

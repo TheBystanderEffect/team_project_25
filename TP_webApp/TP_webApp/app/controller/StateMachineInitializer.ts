@@ -9,7 +9,7 @@ import { Diagram } from "../model/Diagram";
 import * as Globals from '../globals';
 import { LifelineView } from "../view/LifelineView";
 import { MessageView } from "../view/MessageView";
-import { Message, StoredMessage, MessageKind } from "../model/Message";
+import { Message, StoredMessage, MessageKind, RefMessage } from "../model/Message";
 import { OccurenceSpecification, MessageOccurenceSpecification, OperandOccurenceSpecification } from "../model/OccurenceSpecification";
 import { CommunicationController } from "./CommunicationController";
 import { Serializer } from "./Serializer";
@@ -17,6 +17,11 @@ import { Layer } from "../model/Layer";
 import { BusinessElement } from "../model/BusinessElement";
 import { GraphicElement } from "../view/GraphicElement";
 import { Vector3, Vector2 } from "three";
+import { FragmentView } from "../view/FragmentView";
+import { InteractionOperand } from "../model/InteractionOperand";
+import { InteractionOperator, CombinedFragment } from "../model/CombinedFragment";
+import { Lens } from "ramda/index";
+import * as Config from "../config";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -47,35 +52,6 @@ export function initializeStateTransitions() {
     // .finish(() => {
     //     console.log('layer lopata');
     // });
-
-    StateSequence
-    .start('CREATE_FRAGMENT')
-    .button('sideFragment')
-    .click((e: Event, h: CustomMesh[]) => {
-        for (let obj of h) {
-            if (obj.metadata.parent instanceof LifelineView) {
-                return true;
-            }
-        }
-        return false;
-    },(e: Event, h: CustomMesh[]) => {
-
-        // TODO refactor this
-
-        // for (let obj of h) {
-        //     if (obj.metadata.parent instanceof LayerView) {
-        //         let lifelineNew = new Lifeline('Standard name','',[], obj.metadata.parent.businessElement);
-        //         obj.metadata.parent.businessElement.AddLifeline(lifelineNew);
-        //         LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
-                // for (let child of GLContext.instance.scene.children) {
-                //     GLContext.instance.scene.remove(child);
-                // }
-                // GLContext.instance.scene.add(Globals.CURRENTLY_OPENED_DIAGRAM.diagramView);
-            // }
-        // }
-        console.log("create farag");
-    })
-    .finish(() => {});
 
     StateSequence
     .start('CREATE_LIFELINE')
@@ -447,4 +423,310 @@ export function initializeStateTransitions() {
     },
     moveLifelineStart)
     .finish(() => {});
+
+    let firstHit: Vector3;
+
+    StateSequence
+    .start('CREATE_COMBINED_FRAGMENT')
+    .button('sideFragment')
+    .click((event, hits) => {
+        return hits[0] && hits[0].metadata.parent instanceof LayerView;
+    }, (event, hits) => {
+        let castResult = RaycastControl.simpleDefaultIntersect(event as MouseEvent);
+        for (let h of castResult){
+            if(h.object.parent instanceof LayerView){
+                firstHit = h.point;
+                break;
+            }
+        }
+    })
+    .click((event, hits) => {
+        return hits[0] && hits[0].metadata.parent instanceof LayerView;
+    }, (event, hits) => {
+        let castResult = RaycastControl.simpleDefaultIntersect(event as MouseEvent);
+        for (let h of castResult){
+            if(h.object.parent instanceof LayerView){
+                let layer: Layer = h.object.parent.businessElement as Layer;
+                let secondHit = h.point;
+
+                console.log(firstHit);
+                console.log(secondHit);
+
+                function within(x: number, a: number, b: number) {
+                    let min = Math.min(a,b);
+                    let max = Math.max(a,b);
+                    return x > min && x < max;
+                }
+
+                function isAroundMessage(clickA: Vector3, clickB: Vector3, message: Message):boolean{
+                    return within(message.graphicElement.position.x, clickA.x, clickB.x) 
+                        && within(message.graphicElement.position.y, clickA.y, clickB.y);
+                }
+                
+                function isOutsideCombinedFragment(clickA:Vector3, clickB:Vector3, fragment: CombinedFragment):boolean{
+                    
+                    let T,R,L,B;
+                    let gElement = fragment.children[0].graphicElement as FragmentView;
+                    let gElementBottom = fragment.children[fragment.children.length-1].graphicElement as FragmentView;
+
+                    T = gElement.position.clone().add(new Vector3(0,gElement.height/2,0));
+                    R = gElement.position.clone().add(new Vector3(gElement.width/2,0,0));
+                    L = gElement.position.clone().add(new Vector3(-gElement.width/2,0,0));
+                    B = gElementBottom.position.clone().add(new Vector3(0,-gElementBottom.height/2,0));
+                    
+                    return within(R.x, clickA.x, clickB.x) 
+                        && within(L.x, clickA.x, clickB.x) 
+                        && within(T.y, clickA.y, clickB.y)
+                        && within(B.y, clickA.y, clickB.y);
+                }
+
+                function isInsideInteractionOperand(clickA: Vector3, clickB: Vector3, operand: InteractionOperand):boolean{
+                    let T,R,L,B;
+                    let gElement = operand.graphicElement as FragmentView;
+
+                    T = gElement.position.clone().add(new Vector3(0,gElement.height/2,0));
+                    R = gElement.position.clone().add(new Vector3(gElement.width/2,0,0));
+                    L = gElement.position.clone().add(new Vector3(-gElement.width/2,0,0));
+                    B = gElement.position.clone().add(new Vector3(0,-gElement.height/2,0));
+
+                    return within(clickA.x, L.x, R.x) 
+                        && within(clickB.x, L.x, R.x) 
+                        && within(clickA.y, T.y, B.y)
+                        && within(clickB.y, T.y, B.y);
+                }
+
+                function recursive(parent: InteractionOperand|Layer): InteractionOperand|Layer{
+                        let fragments: CombinedFragment[];
+                        if (parent instanceof Layer) {
+                            fragments = parent.fragments;
+                        } else {
+                            fragments = parent.children;
+                        }
+
+                        for (let fragment of fragments) {
+                            for (let operand of fragment.children) {
+                                if (isInsideInteractionOperand(firstHit, secondHit, operand)) {
+                                    return recursive(operand);
+                                }
+                            }
+                            
+                        }
+                        return parent;
+                }
+
+                let result = recursive(layer);  
+                let resultChildren = 
+                (result instanceof Layer ? result.fragments : result.children)
+                .filter(e => isOutsideCombinedFragment(firstHit, secondHit, e));
+
+                let childMessages = layer.messages.filter(e => isAroundMessage(firstHit, secondHit, e));
+
+                let cutLifelines = layer.lifelines.filter(e => within(e.graphicElement.position.x, firstHit.x, secondHit.x));
+
+                console.log(result);            ///Parrent
+                console.log(resultChildren);    ///Children
+                console.log(childMessages);     ///Messages
+                console.log(cutLifelines);      ///Lifelines
+                
+                let firstMessageOffset = -1;
+                
+                // let clickOff1 = -(firstHit.y - 
+                // ((layer.graphicElement as LayerView).source.y - Config.lifelineOffsetY - Config.firstMessageOffset)) / Config.messageOffset;
+
+                // let clickOff2 = -(secondHit.y - 
+                //     ((layer.graphicElement as LayerView).source.y - Config.lifelineOffsetY - Config.firstMessageOffset)) / Config.messageOffset;
+    
+
+                let fragmentOccurences = 
+                resultChildren
+                .map(e => e.children.map(f => f.startingOccurences.concat(f.endingOccurences)))
+                .reduce((a,v) => a.concat(v), [])
+                .reduce((a,v) => a.concat(v), []);
+
+                let limits = fragmentOccurences
+                .map(e => { 
+                    if (e.startsOperand) {
+                        return (e.startsOperand.graphicElement as FragmentView).getIndexStart();
+                    }
+                    return (e.endsOperand.graphicElement as FragmentView).getIndexEnd();
+                })
+                .reduce((a,v) => {
+                    if (v < a[0])
+                        a[0] = v;
+                    if (v > a[1])
+                        a[1] = v;
+                    return a;
+                }, [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]);
+
+                let messageOccurences = childMessages
+                .map(e => [ e.start, e.end ])
+                .reduce((a,v) => a.concat(v), []);
+
+                limits = messageOccurences
+                .map(e => (e.message.graphicElement as MessageView).getIndex())
+                .reduce((a,v) => {
+                    if (v < a[0])
+                        a[0] = v;
+                    if (v > a[1])
+                        a[1] = v;
+                    return a;
+                }, limits);
+
+                let comb = new CombinedFragment();
+                comb.interactionOperator = InteractionOperator.OPT;
+                comb.diagram = layer.diagram;
+                comb.layer = layer;
+                comb.parent = result instanceof InteractionOperand ? result : null;
+
+                if (comb.parent == null) {
+                    comb.layer.fragments.push(comb);
+                } else {
+                    comb.parent.children.push(comb);
+                }
+
+                let inter = new InteractionOperand();
+                inter.interactionConstraint = 'lopata';
+
+                inter.diagram = comb.diagram;
+                inter.layer = comb.layer;
+                inter.parent = comb;
+                inter.children = resultChildren;
+
+                inter.startingOccurences = [];
+                inter.endingOccurences = [];
+
+                comb.children = [ inter ];
+
+                for (let lifeline of cutLifelines) {
+                    let startIndex = lifeline.occurenceSpecifications
+                    .map(e => {
+                        if (e instanceof MessageOccurenceSpecification) {
+                            return (e.message.graphicElement as MessageView).getIndex();
+                        } else {
+                            if (e instanceof OperandOccurenceSpecification) {
+                                if (e.startsOperand) {
+                                    return (e.startsOperand.graphicElement as FragmentView).getIndexStart();
+                                }
+                                return (e.endsOperand.graphicElement as FragmentView).getIndexEnd();
+                            }
+                        }
+                    })
+                    .filter(e => e < limits[0])
+                    .length;
+
+                    let endIndex = lifeline.occurenceSpecifications
+                    .map(e => {
+                        if (e instanceof MessageOccurenceSpecification) {
+                            return (e.message.graphicElement as MessageView).getIndex();
+                        } else {
+                            if (e instanceof OperandOccurenceSpecification) {
+                                if (e.startsOperand) {
+                                    return (e.startsOperand.graphicElement as FragmentView).getIndexStart();
+                                }
+                                return (e.endsOperand.graphicElement as FragmentView).getIndexEnd();
+                            }
+                        }
+                    })
+                    .filter(e => e <= limits[1])
+                    .length;
+
+                    let occStart = new OperandOccurenceSpecification();
+                    occStart.diagram = inter.diagram;
+                    occStart.layer = inter.layer;
+                    occStart.lifeline = lifeline;
+                    occStart.startsOperand = inter;
+                    occStart.lifeline.occurenceSpecifications.splice(startIndex, 0, occStart);
+
+                    let occEnd = new OperandOccurenceSpecification();
+                    occEnd.diagram = inter.diagram;
+                    occEnd.layer = inter.layer;
+                    occEnd.lifeline = lifeline;
+                    occEnd.endsOperand = inter;
+                    occEnd.lifeline.occurenceSpecifications.splice(endIndex + 1, 0, occEnd);
+
+                    inter.startingOccurences.push(occStart);
+                    inter.endingOccurences.push(occEnd);
+                    
+                }
+
+                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                
+
+                // for(let m of childMessages){
+                //     let start = (m.start.lifeline.graphicElement as LifelineView).source.clone();
+                //     start.y += -Config.firstMessageOffset-Config.messageOffset*(m.graphicElement as MessageView).getIndex();
+                //     console.log(m.graphicElement.position.y);
+                //     console.log(start);
+                // }
+
+                // let start = 1000;
+                // let end = -1000;
+                // for(let l of cutLifelines){
+                //     for(let o of l.occurenceSpecifications){
+                //         if(o instanceof MessageOccurenceSpecification){
+                //             if(o.message.graphicElement.position.y+Config.firstMessageOffset > firstHit.y){
+                //                 // console.log(o.message.graphicElement.position.y);
+                //                 start = (o.message.graphicElement as MessageView).getIndex();
+                //             }
+                //         } else {
+                //             if(o instanceof OperandOccurenceSpecification){
+                //                 if(o.endsOperand){
+                //                     console.log((o.endsOperand.graphicElement as FragmentView).getBottom());
+                //                     // console.log((o.endsOperand.graphicElement as FragmentView).getIndexEnd());
+                                    
+                //                 } else {
+                //                     console.log((o.startsOperand.graphicElement as FragmentView).getTop());
+                //                     // console.log(o.startsOperand.parent);
+                //                 }                          
+                //             }
+                //         }
+                //     }
+                // }
+                // console.log("");
+                
+                // console.log(start);
+                
+
+                for(let f of resultChildren){
+
+                }
+
+                // console.log(newStartOccurenceIndex);
+                
+                
+                break;
+            }
+        }
+    })
+    .finish(() => {});
+
+    StateSequence
+    .start('DELETE_COMBINED_FRAGMENT')
+    .button('sideDeleteFragment')
+    .click((event, hits) => {
+        return hits[0] && hits[0].metadata.parent instanceof FragmentView;
+    }, (event, hits) => {
+        // console.log(hits[0].metadata.parent);
+        let fragment = (hits[0].metadata.parent.businessElement as InteractionOperand).parent;
+        for (let child of fragment.children) {
+            fragment.layer.graphicElement.remove(child.graphicElement);
+            for (let occ of child.endingOccurences) {
+                occ.lifeline.occurenceSpecifications = occ.lifeline.occurenceSpecifications.filter(e => e != occ);
+            }
+        }
+        for (let occ of fragment.children[0].startingOccurences) {
+            occ.lifeline.occurenceSpecifications = occ.lifeline.occurenceSpecifications.filter(e => e != occ);
+        }
+        if (fragment.parent == null) {
+            // root fragment
+            fragment.layer.fragments = fragment.layer.fragments.filter(e => e != fragment);
+        } else {
+            // nonroot fragment
+            fragment.parent.children = fragment.parent.children.filter(e => e != fragment);
+        }
+        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    })
+    .finish(() =>{});
+
+
 }

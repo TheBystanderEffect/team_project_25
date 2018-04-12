@@ -22,8 +22,8 @@ export const messageArrowHeadRadiusTip: number = 0;
 export const messageArrowHeadLength: number = 10;
 export const messageArrowOverlap: number = 2;
 
-export const firstFragmentOffset: number = 25;
-export const fragmentOffset: number = 25;
+export const firstFragmentOffset: number = firstMessageOffset;
+export const fragmentOffset: number = messageOffset;
 export const fragmentTextSize: number = 10;
 export const fragmentOverlap: number = 5;
 export const fragmentBodyRadius: number = 3;

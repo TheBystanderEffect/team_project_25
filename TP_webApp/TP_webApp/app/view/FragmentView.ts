@@ -9,6 +9,7 @@ import { Text3D } from './Text3D';
 import { BusinessElement } from '../model/BusinessElement';
 import { CombinedFragment } from '../model/CombinedFragment';
 import { InteractionOperand } from '../model/InteractionOperand';
+import { OperandView } from './OperandView';
 
 export class FragmentView extends GraphicElement{
     private _widthLength: number;
@@ -108,29 +109,49 @@ export class FragmentView extends GraphicElement{
         this.ballBottomR.position.set(0,0,0);
         this.add(this.ballBottomR);
 
-        this.operatorText = new Text3D(this);
-        this.add(this.operatorText);
-
         this.constraintText = new Text3D(this);
+        this.constraintText.position.set(0,0,0);
         this.add(this.constraintText);
+
+        this.operatorText = new Text3D(this);
+        this.operatorText.position.set(0,0,0);
+        this.add(this.operatorText);
 
         return this;
     }
 
-    public updateLayout(startOffsetY: number,endOffsetY: number, offsetX: number):FragmentView{
+    public findStartingLifeline(){
+        let l = this.businessElement.startingOccurences[0].lifeline;
+        for(let occurence of this.businessElement.startingOccurences){
+            if(l.graphicElement.position.x > occurence.lifeline.graphicElement.position.x){
+                l = occurence.lifeline;
+            }
+        }
+        return l;
+    }
+
+    public findEndingLifeline(){
+        let l = this.businessElement.startingOccurences[0].lifeline;
+        for(let occurence of this.businessElement.startingOccurences){
+            if(l.graphicElement.position.x < occurence.lifeline.graphicElement.position.x){
+                l = occurence.lifeline;
+            }
+        }
+        return l;
+    }
+
+    public updateLayout(startOffsetY: number, endOffsetY: number, offsetX: number):FragmentView{
         this.startOffsetY = startOffsetY;
         this.endOffsetY = endOffsetY;
-        this.offsetX = offsetX;
-        //calculate where the start,end points should be
-        console.log(this.businessElement.startingOccurences[0]);
+        this.offsetX = offsetX+2;
+        //calculate where the start,enstartOffsetYd points should be
+        // console.log(this.businessElement.startingOccurences[0]);
         
-        var start = (this.businessElement.startingOccurences[0].lifeline.graphicElement as LifelineView).source.clone();
-
-        var lastOccurence = this.businessElement.endingOccurences.length-1;
-        var end = (this.businessElement.endingOccurences[lastOccurence].lifeline.graphicElement as LifelineView).source.clone();
+        var start = (this.findStartingLifeline().graphicElement as LifelineView).source.clone();       
+        var end = (this.findEndingLifeline().graphicElement as LifelineView).source.clone();
         start.y += -Config.firstFragmentOffset-Config.fragmentOffset*startOffsetY
         end.y += -Config.firstFragmentOffset-Config.fragmentOffset*endOffsetY
-        console.log(lastOccurence);
+        // console.log(lastOccurence);
         
         // update only if current and correct points mismatch
         if( !(this._source.equals(start) && this._destination.equals(end)) ){
@@ -142,10 +163,12 @@ export class FragmentView extends GraphicElement{
             this.animationProgress = 0;
             // this.redraw();    
         }
-
+        
+        this.constraintText.update(this.businessElement.interactionConstraint.toString());
+        if(this.businessElement.parent.children[0] == this.businessElement){
+            this.operatorText.update(this.businessElement.parent.interactionOperator.toString());
+        }
         this.redraw();
-
-        this.constraintText.updateConstraint(this.businessElement.interactionConstraint.toString());
 
         return this;
     }
@@ -161,6 +184,10 @@ export class FragmentView extends GraphicElement{
         this._heighLength = Math.sqrt(Math.pow(this._destination.y-this._source.y,2));
         this._widthLength = Math.sqrt(Math.pow(this._destination.x-this._source.x,2));
         
+        this._widthLength += this.offsetX*20;
+        this.height = this._heighLength;
+        this.width = this._widthLength;
+
         //////////////////////////////// TOP
         
         this.fragmentTop.rotation.z = Math.PI/2;
@@ -200,6 +227,14 @@ export class FragmentView extends GraphicElement{
         //////////////////////////////// Ball-Bottom-Right
 
         this.ballBottomR.position.copy(new Vector3(this._widthLength/2,-this._heighLength/2,5))
+
+        //////////////////////////////// Constraint position
+
+        this.constraintText.position.copy(new Vector3(0,this._heighLength/2-Config.fragmentTextSize,Config.lifelineRadius));
+
+        //////////////////////////////// Operator position
+
+        this.operatorText.position.copy(new Vector3(-this._widthLength/2+this.operatorText.getWidth()/2+Config.fragmentBallRadius,this._heighLength/2-Config.fragmentTextSize,Config.lifelineRadius));
     }
 
     public resetPosition(){
@@ -220,6 +255,22 @@ export class FragmentView extends GraphicElement{
 
     public set destination(destination:Vector3){
         this._destination.copy(destination);
+    }
+
+    public getTop(){
+        return this.position.y+this.height/2;
+    }
+
+    public getBottom(){
+        return this.position.y-this.height/2;
+    }
+
+    public getIndexStart(){
+        return this.startOffsetY;
+    }
+
+    public getIndexEnd(){
+        return this.endOffsetY;
     }
 
     public animate(): void {

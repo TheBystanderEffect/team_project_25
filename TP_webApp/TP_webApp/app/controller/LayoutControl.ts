@@ -107,7 +107,7 @@ export class LayoutControl{
 
                                 occurencesToDelete.push(occ.message.start);
                                 occurencesToDelete.push(occ.message.end);
-                                console.log("Found message ", occ.message.name);
+                                // console.log("Found message ", occ.message.name);
                                 break;
                             }
                         }
@@ -116,36 +116,28 @@ export class LayoutControl{
                         if (occ instanceof OperandOccurenceSpecification){
 
                             let flag = false;
+                            let fragToDraw;
 
                             if(occ.endsOperand){
                                 occurencesToDelete = occurencesToDelete.concat(inlineOccurences.filter(e => e.endsOperand == occ.endsOperand));
                                 
                                 if(occurencesToDelete.length == occ.endsOperand.endingOccurences.length){
-                                    console.log("Found interaction operand ending"); 
+                                    // console.log("Found interaction operand ending"); 
                                     
                                     offsetX++;
                                     offsetY++;
                                                                         
-                                    let fragToDraw = stack.pop();
+                                    fragToDraw = stack.pop();
                                     
-                                    if(minOffsetX > fragToDraw.offsetX){
-                                        minOffsetX = fragToDraw.offsetX;
-                                    }
-                                    
-                                    if(fragToDraw.offsetX == 0){
-                                        minOffsetX = 0;
-                                    }
-    
                                     if(!fragToDraw.fragment.graphicElement){
                                         flag = true;
                                         layer.graphicElement.add(new FragmentView(fragToDraw.fragment));
                                     }
-                                    (fragToDraw.fragment.graphicElement as FragmentView).updateLayout(fragToDraw.offsetY, offsetY, fragToDraw.offsetX);
+                                    (fragToDraw.fragment.graphicElement as FragmentView).updateLayout(fragToDraw.offsetY, offsetY, fragToDraw.offsetX-minOffsetX);
                                     if(flag){
                                         (fragToDraw.fragment.graphicElement as FragmentView).animationProgress = 0.99999999;
                                     }
                                     
-                                    offsetY++;   
                                     flag = true;
                                 } else {
                                     occurencesToDelete = [];
@@ -161,7 +153,7 @@ export class LayoutControl{
                                 occurencesToDelete = occurencesToDelete.concat(inlineOccurences.filter(e => e.startsOperand == occ.startsOperand));
 
                                 if(occurencesToDelete.length == occ.startsOperand.startingOccurences.length + addedOccurences){
-                                    console.log("Found interaction operand starting");
+                                    // console.log("Found interaction operand starting");
 
                                     stack.push({
                                         fragment: occ.startsOperand,
@@ -171,7 +163,6 @@ export class LayoutControl{
                                     
                                     offsetX--;
                                     offsetY++;
-                                    offsetY++;
 
                                     flag = true;
                                 } else {
@@ -179,7 +170,24 @@ export class LayoutControl{
                                 }
                             }
 
+                            if(fragToDraw){
+                                if(minOffsetX > fragToDraw.offsetX){
+                                    minOffsetX = fragToDraw.offsetX;
+                                }
+                            }
+                            
                             if(flag){
+                                if(fragToDraw){
+                                    if (stack.length == 0){
+                                        if(fragToDraw.offsetX == 0){
+                                            minOffsetX = 0;
+                                        }
+                                        // debugger;
+                                    }
+                                    // console.log("FRAG OFFSET >>>", fragToDraw.offsetX);
+                                    // console.log("MINI OFFSET >>>", minOffsetX);
+                                }
+                                offsetY++;
                                 break;
                             }
                         }

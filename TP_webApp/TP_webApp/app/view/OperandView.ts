@@ -42,7 +42,9 @@ export class OperandView extends GraphicElement{
         this.add(this.operatorText);
     }
     
-    public updateOperator(){
-
+    public updateOperator(operator: InteractionOperator, position: Vector3){
+        this.operatorText = new Text3D(this);
+        this.operatorText.position.set(position.x, position.y, position.z);
+        this.add(this.operatorText);
     }
 }
