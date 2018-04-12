@@ -30,6 +30,9 @@ export class FragmentView extends GraphicElement{
     private _source: Vector3;
     public _destination: Vector3;
 
+    private _height: number;
+    private _width: number;
+
     private animation = {
         start : {
             source: new Vector3(0,0,0),
@@ -140,7 +143,7 @@ export class FragmentView extends GraphicElement{
         return l;
     }
 
-    public updateLayout(startOffsetY: number, endOffsetY: number, offsetX: number):FragmentView{
+    public updateLayout(startOffsetY: number, endOffsetY?: number, offsetX?: number):FragmentView{
         this.startOffsetY = startOffsetY;
         this.endOffsetY = endOffsetY;
         this.offsetX = offsetX+2;
@@ -285,5 +288,21 @@ export class FragmentView extends GraphicElement{
             this.animationProgress
         );
         this.redraw();
+    }
+
+    public get width() {
+        return this._width;
+    }
+
+    public get height() {
+        return this._height;
+    }
+
+    public set width(width: number) {
+        this._width = width;
+    }
+
+    public set height(height: number) {
+        this._height = height;
     }
 }

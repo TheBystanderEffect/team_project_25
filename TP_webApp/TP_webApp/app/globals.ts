@@ -3,7 +3,7 @@ import { Diagram } from './model/Diagram';
 import { Assets } from "./view/Assets";
 
 export let FONT: Font = null;
-export let FONT_URL: string = 'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json';
+export let FONT_URL: string = '/fonts/helvetiker_regular.typeface.json';
 
 export let CURRENTLY_OPENED_DIAGRAM: Diagram = null;
 export let IS_DIAGRAM_SAVED: boolean = false;

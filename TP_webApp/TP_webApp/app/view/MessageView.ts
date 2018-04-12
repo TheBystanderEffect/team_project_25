@@ -7,6 +7,7 @@ import * as Config from "../config"
 import { ASSETS } from "../globals";
 import { Text3D } from './Text3D';
 import { BusinessElement } from '../model/BusinessElement';
+import { LayerView } from './LayerView';
 
 export class MessageView extends GraphicElement{
     private _length: number;
@@ -55,7 +56,9 @@ export class MessageView extends GraphicElement{
         this.add(this.arrowHead)
 
         this.text = new Text3D(this);
-        this.add(this.text);
+        //this.add(this.text); //text will ad itself when approperiate
+
+        this.animationProgress = 0.99999999;
 
         return this;
     }
@@ -63,22 +66,26 @@ export class MessageView extends GraphicElement{
     public updateLayout(index: number):MessageView{
         this.index = index;
         //calculate where the start,end points should be
-        var start = (this.businessElement.start.lifeline.graphicElement as LifelineView).source.clone();
-        var end = (this.businessElement.end.lifeline.graphicElement as LifelineView).source.clone();
+        var start = (this.businessElement.start.lifeline.graphicElement as LifelineView).curPos;
+        var end = (this.businessElement.end.lifeline.graphicElement as LifelineView).curPos;
         start.y += -Config.firstMessageOffset-Config.messageOffset*index
         end.y += -Config.firstMessageOffset-Config.messageOffset*index
 
         //update only if current and correct points mismatch
         if( !(this._source.equals(start) && this._destination.equals(end)) ){
-            this.animation.start.source.copy(this._source);
-            this.animation.start.destination.copy(this._destination);
-            this.animation.end.source.copy(start);
-            this.animation.end.destination.copy(end);
-            this.animationLength = 1;
-            this.animationProgress = 0;
-            // this.redraw();
-        }
-       
+            if(this.shouldAnimate){
+                this.animation.start.source.copy(this._source);
+                this.animation.start.destination.copy(this._destination);
+                this.animation.end.source.copy(start);
+                this.animation.end.destination.copy(end);
+                this.animationLength = 0.4;
+                this.animationProgress = 0;
+            }else{
+                this._source.copy(start);
+                this._destination.copy(end);
+                this.redraw();
+            }
+        } 
         this.text.update(this.businessElement.name);
 
         return this;
@@ -112,7 +119,7 @@ export class MessageView extends GraphicElement{
         this.arrowHead.position.copy(dir).multiplyScalar((this._length-Config.messageArrowHeadLength)/2-Config.lifelineRadius);
         
         this.arrowBody.scale.setY(this._length - Config.lifelineRadius*2 - Config.messageArrowHeadLength + Config.messageArrowOverlap); 
-        this.arrowBody.position.copy(dir).multiplyScalar(-Config.lifelineRadius);
+        this.arrowBody.position.copy(dir).multiplyScalar(-Config.messageArrowHeadLength/2);
 
     } 
     //optimized for always horizontal in one layer messages
@@ -140,7 +147,7 @@ export class MessageView extends GraphicElement{
         this.arrowHead.position.x=dir*((this._length-Config.messageArrowHeadLength)/2-Config.lifelineRadius);
         
         this.arrowBody.scale.setY(this._length - Config.lifelineRadius*2 - Config.messageArrowHeadLength + Config.messageArrowOverlap); 
-        this.arrowBody.position.x=dir*(-Config.lifelineRadius);
+        this.arrowBody.position.x=dir*( - Config.messageArrowHeadLength/2);
 
     }
 
@@ -193,5 +200,8 @@ export class MessageView extends GraphicElement{
         );
         this.redraw();
     }
+     public get layerView():LayerView{
+         return this.parent as LayerView; 
+     }
 
 }

@@ -12,6 +12,10 @@ import { CommunicationController } from "./CommunicationController";
 import { Serializer } from "./Serializer";
 import { Layer } from "../model/Layer";
 import { Vector3 } from "three";
+<<<<<<< HEAD
+=======
+import { createPopup, savePopup } from "../view/Popup";
+>>>>>>> dev
 // StateSequence
 // .start('CREATE_LIFELINE')
 // .button('sideLife')
@@ -262,6 +266,115 @@ export function initializeStateTransitions() {
         .finish(() => {
         CommunicationController.instance.saveDiagram(Serializer.instance.serialize(Globals.CURRENTLY_OPENED_DIAGRAM), () => { });
         Globals.setDiagramSaved(true);
+<<<<<<< HEAD
+=======
+    });
+    StateSequence
+        .start('CREATE_LAYER')
+        .button('sideLayer')
+        .finish(() => {
+        let layer = new Layer();
+        layer.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
+        Globals.CURRENTLY_OPENED_DIAGRAM.layers.push(layer);
+        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    });
+    StateSequence
+        .start('DELETE_LAYER')
+        .button('sideDeleteLayer')
+        .click((event, hits) => {
+        for (let hit of hits) {
+            if (hit.metadata.parent instanceof LayerView) {
+                return true;
+            }
+        }
+        return false;
+    }, (event, hits) => {
+        console.log(hits);
+        for (let hit of hits) {
+            console.log(hit.metadata.parent);
+            if (hit.metadata.parent instanceof LayerView) {
+                let lay = hit.metadata.parent.businessElement;
+                Globals.CURRENTLY_OPENED_DIAGRAM.layers.splice(Globals.CURRENTLY_OPENED_DIAGRAM.layers.indexOf(lay), 1);
+                Globals.CURRENTLY_OPENED_DIAGRAM.graphicElement.remove(lay.graphicElement);
+                console.log(Globals.CURRENTLY_OPENED_DIAGRAM);
+                LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+                break;
+            }
+        }
+    })
+        .finish(() => { });
+    let movedLifeline = null;
+    let moveLifelineStart = StateSequence
+        .start('MOVE_LIFELINE');
+    let lastOffsetX = 0;
+    moveLifelineStart
+        .click((event, hits) => {
+        return hits.length != 0 && hits[0].metadata.parent instanceof LifelineView;
+    }, (event, hits) => {
+        movedLifeline = hits[0].metadata.parent.businessElement;
+        lastOffsetX = event.offsetX;
+    })
+        .drag((ev, hits) => true, (ev, hits) => {
+        movedLifeline.layer.lifelines.sort((a, b) => {
+            return a.graphicElement.position.x - b.graphicElement.position.x;
+        });
+        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    }, (ev, hits) => {
+        // empty
+    }, (ev, hits) => {
+        movedLifeline = null;
+        lastOffsetX = 0;
+    }, (ev, hits) => {
+        movedLifeline.graphicElement.position.x = movedLifeline.graphicElement.position.x + (ev.offsetX - lastOffsetX);
+        movedLifeline.graphicElement.updateMessages();
+        lastOffsetX = ev.offsetX;
+    }, moveLifelineStart)
+        .finish(() => { });
+    let movedMessage = null;
+    let moveMessageStart = StateSequence
+        .start('MOVE_MESSAGE');
+    let lastOffsetY = 0;
+    moveMessageStart
+        .click((event, hits) => {
+        return hits.length != 0 && hits[0].metadata.parent instanceof MessageView;
+    }, (event, hits) => {
+        movedMessage = hits[0].metadata.parent.businessElement;
+        lastOffsetY = event.offsetY;
+    })
+        .drag((ev, hits) => true, (ev, hits) => {
+        movedMessage.layer.messages.sort((a, b) => {
+            return -(a.graphicElement.position.y - b.graphicElement.position.y);
+        });
+        movedMessage.start.lifeline.occurenceSpecifications.sort((a, b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+        movedMessage.end.lifeline.occurenceSpecifications.sort((a, b) => {
+            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+        });
+        LayoutControl.magic(Globals.CURRENTLY_OPENED_DIAGRAM);
+    }, (ev, hits) => {
+        // empty
+    }, (ev, hits) => {
+        movedMessage = null;
+        lastOffsetY = 0;
+    }, (ev, hits) => {
+        //movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - (ev.offsetY - lastOffsetY);
+        movedMessage.graphicElement.source.y = movedMessage.graphicElement.source.y - (ev.offsetY - lastOffsetY);
+        movedMessage.graphicElement.destination.y = movedMessage.graphicElement.destination.y - (ev.offsetY - lastOffsetY);
+        lastOffsetY = ev.offsetY;
+    }, moveLifelineStart)
+        .finish(() => { });
+    StateSequence.start('DIALOG_TEST')
+        .button('createPopupButton')
+        .finish(() => {
+        createPopup({ "name": "default", "type": ['1', '2'] });
+    });
+    StateSequence.start('DIALOG_GET_TEST')
+        .button('submitButton')
+        .finish(() => {
+        savePopup();
+>>>>>>> dev
     });
     StateSequence
         .start('CREATE_LAYER')

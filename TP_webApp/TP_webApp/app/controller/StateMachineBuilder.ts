@@ -10,6 +10,9 @@ export const stateClicked: State = new State('CLICKED');
 export const stateDragged: State = new State('DRAGGED');
 export const stateDialog: State = new State('DIALOG');
 export const stateClickedInternal: State = new State('CLICK_INTERNAL');
+export const stateKeyPressed: State = new State('KEY_PRESSED');
+
+let isSettingEscape: boolean = false;
 
 export class StateSequence {
 
@@ -40,6 +43,9 @@ export class StateSequence {
         };
         newSeq.action = action;
         newSeq.order = this.order + 1;
+
+        newSeq.escape();
+
         return newSeq;
     }
 
@@ -80,17 +86,46 @@ export class StateSequence {
         return null;
     }
 
-    public button(buttonId: string): StateSequence {
+    public button(buttonId: string, action: () => void = () => {}): StateSequence {
         let newSeq: StateSequence = new StateSequence(this.name, this.sequencePool, this.state);
         newSeq.state = stateButton.specialize(newSeq.name + '_' + this.order);
-        newSeq.condition = (event: Event, hits: any, eventType: EventType) => eventType == EventType.BUTTON && (event.target as HTMLButtonElement).id == buttonId;
-        newSeq.action = () => {};
+        newSeq.condition = (event: Event, hits: any, eventType: EventType) => eventType == EventType.BUTTON && event.target.id == buttonId;
+        newSeq.action = action;
         newSeq.order = this.order + 1;
+
+        newSeq.escape();
         return newSeq;
     }
 
     public dialog(callback: (dto: any) => void): StateSequence {
         throw new Error("Not implemented yet");
+    }
+
+    public keypressed(condition: (event: Event, hits: CustomMesh[]) => boolean, action: (event: Event, hits: CustomMesh[]) => void): StateSequence {
+        let newSeq: StateSequence = new StateSequence(this.name, this.sequencePool, this.state);
+        newSeq.state = stateKeyPressed.specialize(newSeq.name + '_' + this.order);
+        newSeq.condition = (event: Event, hits: CustomMesh[], eventType: EventType) => {
+            return eventType == EventType.KEY_PRESSED && condition(event, hits);
+        };
+        newSeq.action = action;
+        newSeq.order = this.order + 1;
+
+        newSeq.escape();
+
+        return newSeq;
+    }
+
+    private escape(): void {
+        if (!isSettingEscape) {
+            isSettingEscape = true;
+            this
+            .keypressed((e: any) => {
+                return e.keyCode == 27
+            }, (e: Event) => {
+            })
+            .finish(() => {});
+            isSettingEscape = false;
+        }
     }
 
     public finish(action: (event: Event, hits: CustomMesh[]) => void): void {

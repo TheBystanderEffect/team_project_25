@@ -1,3 +1,5 @@
+@import '../../../../node_modules/bootstrap/dist/css/bootstrap.css';
+
 .sidenav{
     height: 92%;
    
@@ -36,7 +38,10 @@
     width: 100%
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> dev
 .sidenavButtom{
     display: inline-block;
     position: relative;
@@ -158,6 +163,7 @@ ul li label {
 	padding:12px;
 	width:300px;
 }
+<<<<<<< HEAD
 
 ul li i {
 	font-size:18px;
@@ -222,6 +228,72 @@ ul li input[type='checkbox']:checked ~ .options {
 	max-height:400px;
 }
 
+=======
+
+ul li i {
+	font-size:18px;
+	vertical-align: middle;
+	width:20px;
+	display:inline-block;
+}
+
+ul li span {
+	display:inline;
+	float:right;
+	background:#48515c;
+	border:1px solid #3c434c;
+	border-bottom:1px solid #707781;
+	padding:4px 6px;
+	font-size:10px;
+	-moz-border-radius: 12px;
+	border-radius: 12px;
+	-moz-box-shadow: inset 0 0 10px #111;
+	-webkit-box-shadow: inset 0 0 10px #111;
+	box-shadow: inner 0 0 10px #111;
+	position:relative;
+}
+
+ul li label:hover {
+	background: #566f82; /* fallback colour */
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#566f82), to(#3e505e));
+	background: -webkit-linear-gradient(top, #566f82, #3e505e);
+	background: -moz-linear-gradient(top, #566f82, #3e505e);
+	background: -ms-linear-gradient(top, #566f82, #3e505e);
+	background: -o-linear-gradient(top, #566f82, #3e505e);
+}
+
+ul li label:hover span {
+	background:#3e505e;
+}
+
+ul li input[type='checkbox']:checked ~ label {
+	background: #44c6eb; /* fallback colour */
+	border-top:1px solid #878e98;
+	border-bottom:1px solid #2799db;
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#44c6eb), to(#2799db));
+	background: -webkit-linear-gradient(top, #44c6eb, #2799db);
+	background: -moz-linear-gradient(top, #44c6eb, #2799db);
+	background: -ms-linear-gradient(top, #44c6eb, #2799db);
+	background: -o-linear-gradient(top, #44c6eb, #2799db);
+}
+
+ul li input[type='checkbox']:checked ~ label span {
+	background: #2173a1; /* fallback colour */
+	border-top:1px solid #1b5f85;
+	border-bottom:1px solid #4cb1e4;
+	-moz-box-shadow: inset 0 0 5px #111;
+	-webkit-box-shadow: inset 0 0 5px #111;
+	box-shadow: inner 0 0 5px #111;
+}
+
+ul li input[type='checkbox']:checked ~ .options {
+	height: auto;
+	display:block;
+	min-height:40px;
+	max-height:400px;
+}
+
+>>>>>>> dev
 ul ul {
 	background:#fff; margin:0; padding:0;
 	-moz-box-shadow: inset 0 2px 2px #b3b3b3;
@@ -237,7 +309,15 @@ ul ul li a {
 }
 
 ul ul li a:hover {
+<<<<<<< HEAD
 	color:#44c6eb;
+=======
+	color:#44c6eb !important;
+	cursor: pointer;
+}
+.actv{
+	background-color: #1E90FF !important;
+>>>>>>> dev
 }
 
 ul ul li a span {
@@ -267,3 +347,9 @@ ul ul li:last-child {
 	display: block;
 	overflow: hidden;
 }
+<<<<<<< HEAD
+=======
+li:hover{
+	cursor: pointer;
+}
+>>>>>>> dev

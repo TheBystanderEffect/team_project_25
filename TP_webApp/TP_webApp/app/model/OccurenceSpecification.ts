@@ -54,7 +54,11 @@ export class OperandOccurenceSpecification extends OccurenceSpecification {
     }
 
     public get endsOperand(): InteractionOperand {
+<<<<<<< HEAD
         return this.__endsOperand;
+=======
+        return this.__startsOperand;
+>>>>>>> dev
     }
 
     public set endsOperand(endsOperand: InteractionOperand) {

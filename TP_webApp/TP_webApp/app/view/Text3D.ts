@@ -25,8 +25,6 @@ export class Text3D extends Object3D{
             ASSETS.textBackPlateGeometry,
             ASSETS.textBackPlateMaterial
         )
-        this.backPlane.scale.set(0,0,0)//temp measure to not show before text added
-
         this.add(this.backPlane);
 
         return(this);
@@ -34,6 +32,12 @@ export class Text3D extends Object3D{
 
     public update(newText: string){
         if(this.displayText != newText){
+            //empty string = no show text
+            if(this.displayText == ""){
+                this._link.add(this);
+            }else if(newText == ""){
+                this._link.remove(this);
+            }
             let geom = Text3D.makeText(newText);
             let mat = ASSETS.textMaterial;
             
@@ -46,7 +50,7 @@ export class Text3D extends Object3D{
             this.textmeshBack = new CustomMesh(geom,mat);
             //rotate the back text
             this.textmeshBack.rotateY(Math.PI)
-            //TODO dynamic alignment of text
+            //dynamic alignment of text
             let box = new THREE.Box3().setFromObject( this.textmeshFront );
             this.width = box.getSize().x;
             let height = box.getSize().y;
@@ -62,6 +66,10 @@ export class Text3D extends Object3D{
 
             this.position.set(0,3+Config.messageArrowBodyRadius+height/2,0)
 
+            //if name is only whitespace width is 0 and text should not show
+            if(width==0){
+                this.update("");
+            }
         }
     }
 
@@ -77,5 +85,9 @@ export class Text3D extends Object3D{
             height: 1,
             curveSegments: 12,
         });
+    }
+
+    public get viewObject():GraphicElement{
+        return this._link.viewObject;
     }
 }

@@ -13,46 +13,23 @@ import { InteractionOperand } from "../model/InteractionOperand";
 
 export class LayoutControl{
  
-    public static magic(diagram:Diagram){
-        // console.log("magic")
+    public static layout(diagram:Diagram){
+
         if(!diagram.graphicElement) diagram.graphicElement=new DiagramView(diagram);
 
         diagram.layers.forEach((layer, index) => {
-            //console.log("Layer:"+index);
-            //TODO maybe make last offset min config thingie
-            var dynamicLayerWidth = Config.firstLifelineOffsetX +
-                (layer.lifelines.length - 1) * Config.lifelineOffsetX +
-                Config.firstLifelineOffsetX;
-            if(dynamicLayerWidth < Config.layerWidth){
-                dynamicLayerWidth = Config.layerWidth;
-            }
-
-            var dynamicLayerHeight = Config.lifelineOffsetY + 
-                Config.firstMessageOffset + 
-                (layer.messages.length - 1) * Config.messageOffset
-                +Config.firstMessageOffset;
-            if(dynamicLayerHeight < Config.layerHeight){
-                dynamicLayerHeight = Config.layerHeight;
-            }
-
             if(!layer.graphicElement){
-                diagram.graphicElement.add(new LayerView(layer)); 
-                (layer.graphicElement as LayerView).updateLayout(dynamicLayerWidth,dynamicLayerHeight,index);
+                diagram.graphicElement.add(new LayerView(layer));
             }
-            //console.log(diagram.diagramView.children[0]);
-            (layer.graphicElement as LayerView).updateLayout(dynamicLayerWidth,dynamicLayerHeight,index);
-            //console.log(diagram.diagramView.children[0]);
+            layer.graphicElement.updateLayout(index);
             
             layer.lifelines.forEach((lifeline, index) => {
-                //console.log("Lifeline:"+index);
                 if(!lifeline.graphicElement) {
                     layer.graphicElement.add(new LifelineView(lifeline));
-                    (lifeline.graphicElement as LifelineView).updateLayout(index);
-                }else{
-                    (lifeline.graphicElement as LifelineView).updateLayout(index);
                 }
-                 
+                lifeline.graphicElement.updateLayout(index);
             });
+            
 
             // console.log("Lifelines done")
 
@@ -96,13 +73,9 @@ export class LayoutControl{
                                 //found message to draw
                                 let flag = false;
                                 if(!occ.message.graphicElement){
-                                    flag = true;
                                     layer.graphicElement.add(new MessageView(occ.message));
                                 }
-                                (occ.message.graphicElement as MessageView).updateLayout(offsetY);
-                                if(flag){
-                                    (occ.message.graphicElement as MessageView).animationProgress = 0.99999999;
-                                }
+                                occ.message.graphicElement.updateLayout(offsetY);
                                 offsetY++;
 
                                 occurencesToDelete.push(occ.message.start);
@@ -208,9 +181,5 @@ export class LayoutControl{
             }
 
         });
-        //console.log("Layers done");
-
     }
-
-
 }
