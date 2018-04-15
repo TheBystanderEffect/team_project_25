@@ -122,6 +122,8 @@ export class StateSequence {
             .keypressed((e: any) => {
                 return e.keyCode == 27
             }, (e: Event) => {
+                // TODO REFACTOR
+                $('.actv').removeClass('actv');
             })
             .finish(() => {});
             isSettingEscape = false;

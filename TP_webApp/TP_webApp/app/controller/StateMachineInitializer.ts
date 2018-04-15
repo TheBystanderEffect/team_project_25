@@ -102,7 +102,7 @@ export function initializeStateTransitions() {
         }
     })
     .finish(() => {
-        $('#sideLife').removeClass('actv');
+        $('.actv').removeClass('actv');
     });
 
     StateSequence
@@ -153,11 +153,12 @@ export function initializeStateTransitions() {
                 }
                 
                 LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+                break;
             }
         }
     })
     .finish(() => {
-        $('#sideDeleteLife').removeClass('actv');
+        $('.actv').removeClass('actv');
     });
 
     let startLifeline: Lifeline = null;
@@ -299,7 +300,7 @@ export function initializeStateTransitions() {
     },
     createMessagePreDrag)
 .finish(() => {
-    $('#sideMessage').removeClass('actv');
+    $('.actv').removeClass('actv');
 });
 
     StateSequence
@@ -331,6 +332,8 @@ export function initializeStateTransitions() {
                 msg.graphicElement.parent.remove(msg.graphicElement);
 
                 LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+
+                break;
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
                 // }
@@ -340,7 +343,7 @@ export function initializeStateTransitions() {
 
     })
     .finish(() =>{
-        $('#sideDeleteMessage').removeClass('actv');
+        $('.actv').removeClass('actv');
     })
 
     StateSequence
@@ -351,7 +354,7 @@ export function initializeStateTransitions() {
         .finish(() => {
             CommunicationController.instance.saveDiagram(Globals.CURRENTLY_OPENED_DIAGRAM);
             Globals.setDiagramSaved(true);
-            $('#saveDiagram').removeClass('actv');
+            $('.actv').removeClass('actv');
         });
   
     StateSequence
@@ -366,7 +369,7 @@ export function initializeStateTransitions() {
 
         Globals.CURRENTLY_OPENED_DIAGRAM.layers.push(layer);
         LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
-        $('#sideLayer').removeClass('actv');
+        $('.actv').removeClass('actv');
     });
 
     StateSequence
@@ -398,7 +401,7 @@ export function initializeStateTransitions() {
             }
     }})
     .finish(()=>{
-        $('#sideDeleteLayer').removeClass('actv');
+        $('.actv').removeClass('actv');
     });
 
 
@@ -671,7 +674,7 @@ export function initializeStateTransitions() {
         });
     })
     .finish(() => {
-        $('#rename').removeClass('actv');
+        $('.actv').removeClass('actv');
     });
 
     let messageRenamed: Message = null;
@@ -716,6 +719,6 @@ export function initializeStateTransitions() {
         }
     })
     .finish(()=>{
-        $('#lookAtLayer').removeClass('actv');
+        $('.actv').removeClass('actv');
     });
 }
