@@ -178,8 +178,8 @@ export function initializeStateTransitions() {
     createMessagePreDrag
     .click((e: Event, h: CustomMesh[]) => {
         for (let obj of h) {
-            if (obj.parent instanceof LifelineView) {
-                holdLifelineView = obj.parent;
+            if (obj.viewObject instanceof LifelineView) {
+                holdLifelineView = obj.viewObject;
                 return true;
             }
         }
@@ -191,8 +191,8 @@ export function initializeStateTransitions() {
     })
     .drag((ev, hits) => {
         for (let obj of hits) {
-            if (obj.parent instanceof LifelineView) {
-                endLifeline = obj.parent.businessElement;
+            if (obj.viewObject instanceof LifelineView) {
+                endLifeline = obj.viewObject.businessElement;
                 return startLifeline != endLifeline;
             }
         }
