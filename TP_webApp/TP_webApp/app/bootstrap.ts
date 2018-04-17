@@ -3,6 +3,7 @@ The entry point of the application
 */
 import 'bootstrap';
 import '../wwwroot/css/mock.css';
+import 'jquery-ui/ui/widgets/sortable';
 
 import * as Globals from './globals';
 import { Font, FontLoader } from 'three';

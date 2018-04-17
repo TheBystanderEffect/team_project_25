@@ -364,10 +364,13 @@ export function initializeStateTransitions() {
     })
     .finish(() => {
         let layer = new Layer();
-
+        $('#OrderLayouts').empty();
         layer.diagram = Globals.CURRENTLY_OPENED_DIAGRAM;
-
         Globals.CURRENTLY_OPENED_DIAGRAM.layers.push(layer);
+        for (let index = 0; index < Globals.CURRENTLY_OPENED_DIAGRAM.layers.length; index++) {
+            const element = Globals.CURRENTLY_OPENED_DIAGRAM.layers[index];
+            $('#OrderLayouts').append('<li  class="sortable-item"><a ><i aria-hidden="true"></i> Layout  '+index+' </a></li>')
+        }
         LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
         $('.actv').removeClass('actv');
     });

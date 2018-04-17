@@ -12,7 +12,7 @@ import { LayoutControl } from '../controller/LayoutControl';
 import { CameraControls } from './CameraControls';
 import * as Globals from '../globals';
 import { Serializer } from '../controller/Serializer';
-
+import * as $ from 'jquery';
 
 export function toggleNav() {
     let side = document.getElementById("mySidenav");
@@ -110,3 +110,7 @@ export function makeDeleteViewpointButton(loadBtn: HTMLElement, viewpointId: num
     };
     document.getElementById("diagramOptions").appendChild(btn);
 }
+
+$( function() {
+    $( ".sortable" ).sortable();
+})
