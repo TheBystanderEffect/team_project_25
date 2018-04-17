@@ -697,7 +697,9 @@ export function initializeStateTransitions() {
             LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
         });
     })
-    .finish(() => {});
+    .finish(() => {
+        $('.actv').removeClass('actv');
+    });
 
     StateSequence
     .start('ZoomToLayer')
