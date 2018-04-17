@@ -127,7 +127,7 @@ export class LayoutControl{
 
                                 if(occurencesToDelete.length == occ.startsOperand.startingOccurences.length + addedOccurences){
                                     // console.log("Found interaction operand starting");
-
+                                    
                                     stack.push({
                                         fragment: occ.startsOperand,
                                         offsetY: offsetY,

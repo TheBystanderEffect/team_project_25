@@ -126,7 +126,8 @@ export class FragmentView extends GraphicElement{
     public findStartingLifeline(){
         let l = this.businessElement.startingOccurences[0].lifeline;
         for(let occurence of this.businessElement.startingOccurences){
-            if(l.graphicElement.position.x > occurence.lifeline.graphicElement.position.x){
+            if((l.graphicElement as LifelineView).curPos.x > 
+            (occurence.lifeline.graphicElement as LifelineView).curPos.x){
                 l = occurence.lifeline;
             }
         }
@@ -134,9 +135,10 @@ export class FragmentView extends GraphicElement{
     }
 
     public findEndingLifeline(){
-        let l = this.businessElement.startingOccurences[0].lifeline;
+        let l = this.businessElement.endingOccurences[0].lifeline;
         for(let occurence of this.businessElement.startingOccurences){
-            if(l.graphicElement.position.x < occurence.lifeline.graphicElement.position.x){
+            if((l.graphicElement as LifelineView).curPos.x < 
+            (occurence.lifeline.graphicElement as LifelineView).curPos.x){
                 l = occurence.lifeline;
             }
         }
@@ -146,25 +148,35 @@ export class FragmentView extends GraphicElement{
     public updateLayout(startOffsetY: number, endOffsetY?: number, offsetX?: number):FragmentView{
         this.startOffsetY = startOffsetY;
         this.endOffsetY = endOffsetY;
-        this.offsetX = offsetX+2;
+        this.offsetX = offsetX + 2; /// +2
+      
+
+        // console.log(this.businessElement.interactionConstraint);
+        // console.log(offsetX);
+        
         //calculate where the start,enstartOffsetYd points should be
         // console.log(this.businessElement.startingOccurences[0]);
         
-        var start = (this.findStartingLifeline().graphicElement as LifelineView).source.clone();       
-        var end = (this.findEndingLifeline().graphicElement as LifelineView).source.clone();
+        var start = (this.findStartingLifeline().graphicElement as LifelineView).curPos;       
+        var end = (this.findEndingLifeline().graphicElement as LifelineView).curPos;
         start.y += -Config.firstFragmentOffset-Config.fragmentOffset*startOffsetY
         end.y += -Config.firstFragmentOffset-Config.fragmentOffset*endOffsetY
         // console.log(lastOccurence);
         
         // update only if current and correct points mismatch
         if( !(this._source.equals(start) && this._destination.equals(end)) ){
-            this.animation.start.source.copy(this._source);
-            this.animation.start.destination.copy(this._destination);
-            this.animation.end.source.copy(start);
-            this.animation.end.destination.copy(end);
-            this.animationLength = 1;
-            this.animationProgress = 0;
-            // this.redraw();    
+            if(this.shouldAnimate){
+                this.animation.start.source.copy(this._source);
+                this.animation.start.destination.copy(this._destination);
+                this.animation.end.source.copy(start);
+                this.animation.end.destination.copy(end);
+                this.animationLength = 0.4;
+                this.animationProgress = 0;
+            }else{
+                this._source.copy(start);
+                this._destination.copy(end);
+                this.redraw();
+            }
         }
         
         this.constraintText.update(this.businessElement.interactionConstraint.toString());
@@ -187,7 +199,7 @@ export class FragmentView extends GraphicElement{
         this._heighLength = Math.sqrt(Math.pow(this._destination.y-this._source.y,2));
         this._widthLength = Math.sqrt(Math.pow(this._destination.x-this._source.x,2));
         
-        this._widthLength += this.offsetX*20;
+        this._widthLength += Math.abs(this.offsetX*20);
         this.height = this._heighLength;
         this.width = this._widthLength;
 
@@ -238,6 +250,18 @@ export class FragmentView extends GraphicElement{
         //////////////////////////////// Operator position
 
         this.operatorText.position.copy(new Vector3(-this._widthLength/2+this.operatorText.getWidth()/2+Config.fragmentBallRadius,this._heighLength/2-Config.fragmentTextSize,Config.lifelineRadius));
+    }
+
+    public redrawBySource(source:Vector3){
+        this._source.copy(source);
+        // this._destination.setY(source.y);
+        this.redraw();
+    }
+
+    public redrawByDestination(dest:Vector3){
+        this._destination.copy(dest);
+        // this._source.setY(dest.y);
+        this.redraw();
     }
 
     public resetPosition(){

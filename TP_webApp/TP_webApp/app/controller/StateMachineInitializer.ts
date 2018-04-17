@@ -437,6 +437,7 @@ export function initializeStateTransitions() {
     (ev, hits) => {
         movedLifeline.graphicElement.position.x = movedLifeline.graphicElement.position.x + ((ev as MouseEvent).offsetX - lastOffsetX);
         (movedLifeline.graphicElement as LifelineView).updateMessages();
+        (movedLifeline.graphicElement as LifelineView).updateFragments();
         lastOffsetX = (ev as MouseEvent).offsetX;
     },
     moveLifelineStart)
@@ -722,8 +723,8 @@ export function initializeStateTransitions() {
                 let layer: Layer = h.object.parent.businessElement as Layer;
                 let secondHit = h.point;
 
-                console.log(firstHit);
-                console.log(secondHit);
+                // console.log(firstHit);
+                // console.log(secondHit);
 
                 function within(x: number, a: number, b: number) {
                     let min = Math.min(a,b);
@@ -796,10 +797,10 @@ export function initializeStateTransitions() {
 
                 let cutLifelines = layer.lifelines.filter(e => within(e.graphicElement.position.x, firstHit.x, secondHit.x));
 
-                console.log(result);            ///Parrent
-                console.log(resultChildren);    ///Children
-                console.log(childMessages);     ///Messages
-                console.log(cutLifelines);      ///Lifelines
+                // console.log(result);            ///Parrent
+                // console.log(resultChildren);    ///Children
+                // console.log(childMessages);     ///Messages
+                // console.log(cutLifelines);      ///Lifelines
                 
                 let firstMessageOffset = -1;
                 
@@ -858,7 +859,7 @@ export function initializeStateTransitions() {
                 }
 
                 let inter = new InteractionOperand();
-                inter.interactionConstraint = 'lopata';
+                inter.interactionConstraint = 'newConstraint';
 
                 inter.diagram = comb.diagram;
                 inter.layer = comb.layer;
@@ -923,6 +924,21 @@ export function initializeStateTransitions() {
                 }
 
                 LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+
+                createPopup({
+                    Operator: [
+                        InteractionOperator.ALT,
+                        InteractionOperator.LOOP,
+                        InteractionOperator.OPT,
+                        InteractionOperator.PAR
+                    ],
+                    Constraint: null
+                })
+                .then(({ Operator, Constraint }: { Operator: InteractionOperator, Constraint: string }) => {
+                    comb.interactionOperator = Operator;
+                    inter.interactionConstraint = Constraint;
+                    LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+                });
                 
 
                 // for(let m of childMessages){
@@ -959,11 +975,6 @@ export function initializeStateTransitions() {
                 
                 // console.log(start);
                 
-
-                for(let f of resultChildren){
-
-                }
-
                 // console.log(newStartOccurenceIndex);
                 
                 

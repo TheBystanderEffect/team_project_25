@@ -8,7 +8,8 @@ import { ASSETS } from "../globals";
 import { Text3D } from './Text3D';
 import { BusinessElement } from '../model/BusinessElement';
 import { MessageView } from './MessageView';
-import { MessageOccurenceSpecification } from '../model/OccurenceSpecification';
+import { MessageOccurenceSpecification, OperandOccurenceSpecification, OccurenceSpecification } from '../model/OccurenceSpecification';
+import { FragmentView } from './FragmentView';
 
 export class LifelineView extends GraphicElement {
 
@@ -85,6 +86,36 @@ export class LifelineView extends GraphicElement {
             this.animation.end.pos, 
             this.animationProgress
         ));
+    }
+
+    public updateFragments():void{
+        let occurences = this.businessElement.occurenceSpecifications
+        .filter(e => e instanceof OperandOccurenceSpecification)
+        .map(e => (e as OperandOccurenceSpecification));
+
+        occurences.forEach( occ => {
+            if(occ.startsOperand){
+                if((occ.startsOperand.graphicElement as FragmentView).findStartingLifeline() != this.businessElement){
+                    let t = (occ.startsOperand.graphicElement as FragmentView).destination.clone();
+                    t.x=this.source.x;
+                    (occ.startsOperand.graphicElement as FragmentView).redrawByDestination(t);
+                }else{
+                    let t = (occ.startsOperand.graphicElement as FragmentView).source.clone();
+                    t.x=this.source.x;
+                    (occ.startsOperand.graphicElement as FragmentView).redrawBySource(t);
+                }
+            } else {
+                if((occ.endsOperand.graphicElement as FragmentView).findStartingLifeline() != this.businessElement){
+                    let t = (occ.endsOperand.graphicElement as FragmentView).destination.clone();
+                    t.x=this.source.x;
+                    (occ.endsOperand.graphicElement as FragmentView).redrawByDestination(t);
+                }else{
+                    let t = (occ.endsOperand.graphicElement as FragmentView).source.clone();
+                    t.x=this.source.x;
+                    (occ.endsOperand.graphicElement as FragmentView).redrawBySource(t);
+                }
+            }
+        });
     }
 
     public updateMessages():void{
