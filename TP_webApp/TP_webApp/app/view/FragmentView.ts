@@ -292,6 +292,14 @@ export class FragmentView extends GraphicElement{
         return this.position.y-this.height/2;
     }
 
+    public getRight(){
+        return this.position.x+this.width/2;
+    }
+
+    public getLeft(){
+        return this.position.x-this.width/2;
+    }
+
     public getIndexStart(){
         return this.startOffsetY;
     }

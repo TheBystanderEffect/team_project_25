@@ -16,7 +16,7 @@ import { Serializer } from "./Serializer";
 import { Layer } from "../model/Layer";
 import { BusinessElement } from "../model/BusinessElement";
 import { GraphicElement } from "../view/GraphicElement";
-import { Vector3, Vector2 } from "three";
+import { Vector3, Vector2, Combine } from "three";
 import { FragmentView } from "../view/FragmentView";
 import { InteractionOperand } from "../model/InteractionOperand";
 import { InteractionOperator, CombinedFragment } from "../model/CombinedFragment";
@@ -106,7 +106,7 @@ export function initializeStateTransitions() {
         }
     })
     .finish(() => {
-        $('#sideLife').removeClass('actv');
+        $('.actv').removeClass('actv');
     });
 
     StateSequence
@@ -134,6 +134,8 @@ export function initializeStateTransitions() {
 
                 let toRemove: OccurenceSpecification[] = [];
                 let toRemoveMessages: StoredMessage[] = [];
+                let toRemoveOperands: InteractionOperand[] = [];
+                let toRemoveFragments: CombinedFragment[] = [];
 
                 for (let occurence of lifeline.occurenceSpecifications) {
 
@@ -143,6 +145,23 @@ export function initializeStateTransitions() {
 
                     } else if (occurence instanceof OperandOccurenceSpecification) {
                         // TODO
+                        if(occurence.startsOperand){
+                            for(let occ of occurence.startsOperand.endingOccurences){
+                                toRemove.push(occ);
+                            }
+                            for(let occ of occurence.startsOperand.startingOccurences){
+                                toRemove.push(occ);
+                            }
+                            toRemoveFragments.push(occurence.startsOperand.parent);
+                        } else {
+                            for(let occ of occurence.endsOperand.endingOccurences){
+                                toRemove.push(occ);
+                            }
+                            for(let occ of occurence.endsOperand.startingOccurences){
+                                toRemove.push(occ);
+                            }
+                            toRemoveFragments.push(occurence.endsOperand.parent);
+                        }
                     }
                     
                 }
@@ -155,13 +174,34 @@ export function initializeStateTransitions() {
                     msg.layer.messages.splice(msg.layer.messages.indexOf(msg), 1);
                     msg.graphicElement.parent.remove(msg.graphicElement);
                 }
+
+                for (let remOp of toRemoveOperands){
+                    
+                }
+
+                for (let frag of toRemoveFragments) {
+                    frag.layer.fragments.splice(frag.layer.fragments.indexOf(frag), 1);
+                    for (let op of frag.children){
+                        let occ = (op as InteractionOperand).startingOccurences.map( a => a );
+                        occ.concat((op as InteractionOperand).endingOccurences.map(a => a));
+
+                        
+
+                        if(op.graphicElement.parent != null){
+                            op.graphicElement.parent.remove(op.graphicElement);                    
+                        }
+                    }
+                }
                 
                 LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+                
+                let occurences = lifeline.layer.lifelines.map(e => e.occurenceSpecifications);
+                break;
             }
         }
     })
     .finish(() => {
-        $('#sideDeleteLife').removeClass('actv');
+        $('.actv').removeClass('actv');
     });
 
     let startLifeline: Lifeline = null;
@@ -181,8 +221,8 @@ export function initializeStateTransitions() {
     createMessagePreDrag
     .click((e: Event, h: CustomMesh[]) => {
         for (let obj of h) {
-            if (obj.parent instanceof LifelineView) {
-                holdLifelineView = obj.parent;
+            if (obj.viewObject instanceof LifelineView) {
+                holdLifelineView = obj.viewObject;
                 return true;
             }
         }
@@ -194,8 +234,8 @@ export function initializeStateTransitions() {
     })
     .drag((ev, hits) => {
         for (let obj of hits) {
-            if (obj.parent instanceof LifelineView) {
-                endLifeline = obj.parent.businessElement;
+            if (obj.viewObject instanceof LifelineView) {
+                endLifeline = obj.viewObject.businessElement;
                 return startLifeline != endLifeline;
             }
         }
@@ -303,7 +343,7 @@ export function initializeStateTransitions() {
     },
     createMessagePreDrag)
 .finish(() => {
-    $('#sideMessage').removeClass('actv');
+    $('.actv').removeClass('actv');
 });
 
     StateSequence
@@ -335,6 +375,8 @@ export function initializeStateTransitions() {
                 msg.graphicElement.parent.remove(msg.graphicElement);
 
                 LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+
+                break;
                 // for (let child of GLContext.instance.scene.children) {
                 //     GLContext.instance.scene.remove(child);
                 // }
@@ -344,7 +386,7 @@ export function initializeStateTransitions() {
 
     })
     .finish(() =>{
-        $('#sideDeleteMessage').removeClass('actv');
+        $('.actv').removeClass('actv');
     })
 
     StateSequence
@@ -355,7 +397,7 @@ export function initializeStateTransitions() {
         .finish(() => {
             CommunicationController.instance.saveDiagram(Globals.CURRENTLY_OPENED_DIAGRAM);
             Globals.setDiagramSaved(true);
-            $('#saveDiagram').removeClass('actv');
+            $('.actv').removeClass('actv');
         });
   
     StateSequence
@@ -370,7 +412,7 @@ export function initializeStateTransitions() {
 
         Globals.CURRENTLY_OPENED_DIAGRAM.layers.push(layer);
         LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
-        $('#sideLayer').removeClass('actv');
+        $('.actv').removeClass('actv');
     });
 
     StateSequence
@@ -402,7 +444,7 @@ export function initializeStateTransitions() {
             }
     }})
     .finish(()=>{
-        $('#sideDeleteLayer').removeClass('actv');
+        $('.actv').removeClass('actv');
     });
 
 
@@ -626,20 +668,38 @@ export function initializeStateTransitions() {
     }, (event, hits) => {
         movedMessage = (hits[0].metadata.parent as GraphicElement).businessElement as Message;
         lastOffsetY = (event as MouseEvent).offsetY;
+        console.log(movedMessage.graphicElement.position.y);
+        
     })
     .drag((ev, hits) => true,
     (ev, hits) => {
-        movedMessage.layer.messages.sort((a,b) => {
-            return -(a.graphicElement.position.y - b.graphicElement.position.y);
-        });
-        (movedMessage.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
-        (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
+
+            for(let message of movedMessage.layer.messages){
+                console.log((message as Message).graphicElement.position.y);
+            }
+            (movedMessage.graphicElement as MessageView)
+            let interactionOperands : InteractionOperand[] = [];
+
+            console.log(interactionOperands);
+            
+            for(let operand of interactionOperands){
+                console.log((operand.graphicElement as FragmentView).getTop());
+                console.log((operand.graphicElement as FragmentView).getBottom());
+            }
+
+            movedMessage.layer.messages.sort((a,b) => {
+                return -(a.graphicElement.position.y - b.graphicElement.position.y);
+            });
+            (movedMessage.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+                return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+            });
+            (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
+                return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+            });
+
         LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     },
+
     (ev, hits) => {
         // empty
     },
@@ -676,7 +736,7 @@ export function initializeStateTransitions() {
         });
     })
     .finish(() => {
-        $('#rename').removeClass('actv');
+        $('.actv').removeClass('actv');
     });
 
     let messageRenamed: Message = null;
@@ -696,7 +756,59 @@ export function initializeStateTransitions() {
             LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
         });
     })
-    .finish(() => {});
+    .finish(() => {
+        $('.actv').removeClass('actv');
+    });
+
+    let operandRenamed: InteractionOperand = null;
+    rename
+    .click((event, hits) => {
+        operandRenamed = hits[0].metadata.parent.businessElement;
+        return hits.length != 0 && hits[0].metadata.parent instanceof FragmentView;
+    }, () => {
+        let rename = operandRenamed;
+        let operators =[
+            InteractionOperator.ALT,
+            InteractionOperator.LOOP,
+            InteractionOperator.OPT,
+            InteractionOperator.PAR
+        ];
+        let removed : InteractionOperator[];
+        for(let i = operators.length - 1; i >= 0 ; i--){
+            if(operators[i] == rename.parent.interactionOperator){
+                 removed = operators.splice(i,1);
+                break;
+            }
+        }
+        operators.splice(0,0,removed[0]);
+        if(rename.parent.children[0] == rename){
+            createPopup({
+                Operator: operators,
+                Constraint: rename.interactionConstraint
+            })
+            .then(({ Operator, Constraint }: { Operator: InteractionOperator, Constraint: string }) => {
+                rename.parent.interactionOperator = Operator;
+                rename.interactionConstraint = Constraint;
+                LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+            }); 
+        } else {
+            createPopup({
+                Operator: [
+                    rename.parent.interactionOperator
+                ],
+                Constraint: rename.interactionConstraint
+            })
+            .then(({ Operator, Constraint }: { Operator: InteractionOperator, Constraint: string }) => {
+                rename.parent.interactionOperator = Operator;
+                rename.interactionConstraint = Constraint;
+                LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+            }); 
+        }
+        
+    })
+    .finish(() => {
+        $('.actv').removeClass('actv');
+    });
 
     let firstHit: Vector3;
 
@@ -779,6 +891,8 @@ export function initializeStateTransitions() {
 
                         for (let fragment of fragments) {
                             for (let operand of fragment.children) {
+                                console.log(operand);
+                                
                                 if (isInsideInteractionOperand(firstHit, secondHit, operand)) {
                                     return recursive(operand);
                                 }
@@ -797,10 +911,10 @@ export function initializeStateTransitions() {
 
                 let cutLifelines = layer.lifelines.filter(e => within(e.graphicElement.position.x, firstHit.x, secondHit.x));
 
-                // console.log(result);            ///Parrent
-                // console.log(resultChildren);    ///Children
-                // console.log(childMessages);     ///Messages
-                // console.log(cutLifelines);      ///Lifelines
+                console.log(result);            ///Parrent
+                console.log(resultChildren);    ///Children
+                console.log(childMessages);     ///Messages
+                console.log(cutLifelines);      ///Lifelines
                 
                 let firstMessageOffset = -1;
                 
@@ -865,62 +979,148 @@ export function initializeStateTransitions() {
                 inter.layer = comb.layer;
                 inter.parent = comb;
                 inter.children = resultChildren;
-
+                
                 inter.startingOccurences = [];
                 inter.endingOccurences = [];
-
+                
                 comb.children = [ inter ];
 
-                for (let lifeline of cutLifelines) {
-                    let startIndex = lifeline.occurenceSpecifications
-                    .map(e => {
-                        if (e instanceof MessageOccurenceSpecification) {
-                            return (e.message.graphicElement as MessageView).getIndex();
-                        } else {
-                            if (e instanceof OperandOccurenceSpecification) {
-                                if (e.startsOperand) {
-                                    return (e.startsOperand.graphicElement as FragmentView).getIndexStart();
+                if(resultChildren.length + childMessages.length > 0){
+                    for (let lifeline of cutLifelines) {
+                        let startIndex = lifeline.occurenceSpecifications
+                        .map(e => {
+                            if (e instanceof MessageOccurenceSpecification) {
+                                return (e.message.graphicElement as MessageView).getIndex();
+                            } else {
+                                if (e instanceof OperandOccurenceSpecification) {
+                                    if (e.startsOperand) {
+                                        return (e.startsOperand.graphicElement as FragmentView).getIndexStart();
+                                    }
+                                    return (e.endsOperand.graphicElement as FragmentView).getIndexEnd();
                                 }
-                                return (e.endsOperand.graphicElement as FragmentView).getIndexEnd();
+                            }
+                        })
+                        .filter(e => e < limits[0])
+                        .length;
+
+                        let endIndex = lifeline.occurenceSpecifications
+                        .map(e => {
+                            if (e instanceof MessageOccurenceSpecification) {
+                                return (e.message.graphicElement as MessageView).getIndex();
+                            } else {
+                                if (e instanceof OperandOccurenceSpecification) {
+                                    if (e.startsOperand) {
+                                        return (e.startsOperand.graphicElement as FragmentView).getIndexStart();
+                                    }
+                                    return (e.endsOperand.graphicElement as FragmentView).getIndexEnd();
+                                }
+                            }
+                        })
+                        .filter(e => e <= limits[1])
+                        .length;
+
+                        let occStart = new OperandOccurenceSpecification();
+                        occStart.diagram = inter.diagram;
+                        occStart.layer = inter.layer;
+                        occStart.lifeline = lifeline;
+                        occStart.startsOperand = inter;
+                        occStart.lifeline.occurenceSpecifications.splice(startIndex, 0, occStart);
+                        
+                        let occEnd = new OperandOccurenceSpecification();
+                        occEnd.diagram = inter.diagram;
+                        occEnd.layer = inter.layer;
+                        occEnd.lifeline = lifeline;
+                        occEnd.endsOperand = inter;
+                        occEnd.lifeline.occurenceSpecifications.splice(endIndex + 1, 0, occEnd);
+
+                        inter.startingOccurences.push(occStart);
+                        inter.endingOccurences.push(occEnd);
+                        
+                    }
+                } else {
+                    for(let lifeline of cutLifelines){
+                        let index = [
+                        lifeline.occurenceSpecifications
+                        .map(e => {
+                            if (e instanceof MessageOccurenceSpecification) {
+                                return (e.message.graphicElement as MessageView).getIndex();
+                            } else {
+                                if (e instanceof OperandOccurenceSpecification) {
+                                    if (e.startsOperand) {
+                                        return (e.startsOperand.graphicElement as FragmentView).getIndexStart();
+                                    }
+                                    return (e.endsOperand.graphicElement as FragmentView).getIndexEnd();
+                                }
+                            }
+                        }, []),
+                        lifeline.occurenceSpecifications
+                        .map(e => {
+                            if (e instanceof MessageOccurenceSpecification) {
+                                return (e.message.graphicElement as MessageView).position.y;
+                            } else {
+                                if (e instanceof OperandOccurenceSpecification) {
+                                    if (e.startsOperand) {
+                                        return (e.startsOperand.graphicElement as FragmentView).getTop();
+                                    }
+                                    return (e.endsOperand.graphicElement as FragmentView).getBottom();
+                                }
+                            }
+                        }, [])
+                        ];
+
+                        function sortFunction(a:number[], b:number[]) {
+                            if (a[0] === b[0]) {
+                                return 0;
+                            }
+                            else {
+                                return (a[0] < b[0]) ? -1 : 1;
                             }
                         }
-                    })
-                    .filter(e => e < limits[0])
-                    .length;
 
-                    let endIndex = lifeline.occurenceSpecifications
-                    .map(e => {
-                        if (e instanceof MessageOccurenceSpecification) {
-                            return (e.message.graphicElement as MessageView).getIndex();
-                        } else {
-                            if (e instanceof OperandOccurenceSpecification) {
-                                if (e.startsOperand) {
-                                    return (e.startsOperand.graphicElement as FragmentView).getIndexStart();
-                                }
-                                return (e.endsOperand.graphicElement as FragmentView).getIndexEnd();
+                        index.sort(sortFunction);
+                        let startIndex = 0, endIndex = 0;
+                        
+                        for(let i = 0; i < index[0].length; i++){
+                            console.log(index[0][i]);
+                            console.log(index[1][i] + "<" + firstHit.y);
+                            if(index[1][i]<firstHit.y){
+                                startIndex = index[0][i];
+                                console.log("START" + startIndex);
+                                break;
                             }
+                            startIndex = index[0][i] + 1;
                         }
-                    })
-                    .filter(e => e <= limits[1])
-                    .length;
 
-                    let occStart = new OperandOccurenceSpecification();
-                    occStart.diagram = inter.diagram;
-                    occStart.layer = inter.layer;
-                    occStart.lifeline = lifeline;
-                    occStart.startsOperand = inter;
-                    occStart.lifeline.occurenceSpecifications.splice(startIndex, 0, occStart);
+                        for(let i = 0; i < index[0].length; i++){
+                            console.log(index[0][i]);
+                            console.log(index[1][i] + ">" + secondHit.y);
+                            if(index[1][i]<secondHit.y){
+                                endIndex = index[0][i];
+                                console.log("END" + endIndex);
+                                break;
+                            }
+                            endIndex = index[0][i] + 1;
+                        }
 
-                    let occEnd = new OperandOccurenceSpecification();
-                    occEnd.diagram = inter.diagram;
-                    occEnd.layer = inter.layer;
-                    occEnd.lifeline = lifeline;
-                    occEnd.endsOperand = inter;
-                    occEnd.lifeline.occurenceSpecifications.splice(endIndex + 1, 0, occEnd);
+                        let occStart = new OperandOccurenceSpecification();
+                        occStart.diagram = inter.diagram;
+                        occStart.layer = inter.layer;
+                        occStart.lifeline = lifeline;
+                        occStart.startsOperand = inter;
+                        occStart.lifeline.occurenceSpecifications.splice(startIndex, 0, occStart);
+                        inter.startingOccurences.push(occStart);
+console.log(startIndex);
+                        
+                        let occEnd = new OperandOccurenceSpecification();
+                        occEnd.diagram = inter.diagram;
+                        occEnd.layer = inter.layer;
+                        occEnd.lifeline = lifeline;
+                        occEnd.endsOperand = inter;
+                        occEnd.lifeline.occurenceSpecifications.splice(endIndex + 1, 0, occEnd);
+                        inter.endingOccurences.push(occEnd);
+console.log(endIndex+1);
 
-                    inter.startingOccurences.push(occStart);
-                    inter.endingOccurences.push(occEnd);
-                    
+                    }                    
                 }
 
                 LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
@@ -1012,5 +1212,78 @@ export function initializeStateTransitions() {
     })
     .finish(() =>{});
 
+    let addOperand = StateSequence.start('CREATE_INTERACTION_OPERAND')
+    .button('sideOperand',()=>{
+        $('#sideOperand').addClass('actv');
+    });
 
+    let comb: CombinedFragment = null;
+    addOperand
+    .click((event, hits) => {
+         comb = (hits[0].metadata.parent.businessElement as InteractionOperand).parent;
+        return hits.length != 0 && hits[0].metadata.parent instanceof FragmentView;        
+    }, () => {
+        let inter = new InteractionOperand();
+        if(comb.interactionOperator == InteractionOperator.ALT || comb.interactionOperator == InteractionOperator.PAR){
+            
+            inter.interactionConstraint = 'newConstraint';
+
+            inter.diagram = comb.diagram;
+            inter.layer = comb.layer;
+            inter.parent = comb;
+            inter.children = [];
+            
+            inter.startingOccurences = comb.children[comb.children.length - 1].endingOccurences.map(a => a, []);
+            for(let occ of inter.startingOccurences){
+                occ.startsOperand = inter;
+            }
+            inter.endingOccurences = [];
+            
+            comb.children.push(inter);
+
+            function within(x: number, a: number, b: number) {
+                let min = Math.min(a,b);
+                let max = Math.max(a,b);
+                return x > min && x < max;
+            }
+
+            let left = (comb.children[0].graphicElement as FragmentView).getLeft();
+            let right = (comb.children[0].graphicElement as FragmentView).getRight();
+            let cutLifelines = comb.layer.lifelines.filter(e => within(e.graphicElement.position.x, left, right));
+            let endIndex = -1;
+
+            for(let lifeline of cutLifelines){
+                for(let i = 0; i < lifeline.occurenceSpecifications.length; i++){
+                    let found = inter.startingOccurences.find(e => e == lifeline.occurenceSpecifications[i], null);
+                    if(found != null){
+                        endIndex = i;
+                        break;
+                    }
+                }
+
+                let occEnd = new OperandOccurenceSpecification();
+                occEnd.diagram = inter.diagram;
+                occEnd.layer = inter.layer;
+                occEnd.lifeline = lifeline;
+                occEnd.endsOperand = inter;
+                occEnd.lifeline.occurenceSpecifications.splice(endIndex + 1, 0, occEnd);
+                inter.endingOccurences.push(occEnd);
+            }
+        }
+        
+        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+
+        createPopup({
+            Operator: [inter.parent.interactionOperator],
+            Constraint: null
+        })
+        .then(({ Operator, Constraint }: { Operator: InteractionOperator, Constraint: string }) => {
+            comb.interactionOperator = Operator;
+            inter.interactionConstraint = Constraint;
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+        });
+    })
+    .finish(() => {
+        $('.actv').removeClass('actv');
+    });
 }

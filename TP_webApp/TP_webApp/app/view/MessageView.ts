@@ -187,6 +187,16 @@ export class MessageView extends GraphicElement{
         return this.index;
     }
 
+    public incIndex(){
+        this.index++;
+        return this.index;
+    }
+
+    public decIndex(){
+        this.index--;
+        return this.index;
+    }
+
     public animate(): void {
         this.source = this.animator(
             this.animation.start.source, 

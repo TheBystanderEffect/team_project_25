@@ -98,10 +98,11 @@ export class LayoutControl{
                                     // console.log("Found interaction operand ending"); 
                                     
                                     offsetX++;
-                                    offsetY++;
+                                    // offsetY++;
                                                                         
                                     fragToDraw = stack.pop();
-                                    
+                                    // console.log(fragToDraw);
+
                                     if(!fragToDraw.fragment.graphicElement){
                                         flag = true;
                                         layer.graphicElement.add(new FragmentView(fragToDraw.fragment));
@@ -135,7 +136,7 @@ export class LayoutControl{
                                     });
                                     
                                     offsetX--;
-                                    offsetY++;
+                                    // offsetY++;
 
                                     flag = true;
                                 } else {
