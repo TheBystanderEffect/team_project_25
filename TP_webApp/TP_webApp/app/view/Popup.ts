@@ -19,9 +19,9 @@ export function createPopup(input: { [name: string]: string | string[] }): Promi
             $('#' + key + '_form').append('<label for="field_'+key+'">'+key+':</label>');
            
             if(input[key] == null){
-                $('#' + key + '_form').append('<input class="form-control" type="text" id="field_'+key+'" placeholder="'+key+'">');
+                $('#' + key + '_form').append('<input class="form-control" type="text" id="field_'+key+'" placeholder="'+key+'" maxlength="20">');
             }else{
-                $('#' + key + '_form').append('<input class="form-control" type="text" id="field_'+key+'" placeholder="'+key+'" value="'+input[key]+'">');
+                $('#' + key + '_form').append('<input class="form-control" type="text" id="field_'+key+'" placeholder="'+key+'" value="'+input[key]+'" maxlength="20">');
             }
         }
         
