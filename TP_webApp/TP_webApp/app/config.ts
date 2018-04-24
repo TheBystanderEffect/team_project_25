@@ -11,12 +11,14 @@ export const layerHeight: number = 600;
 export const firstLifelineOffsetX: number = 50;
 export const lifelineOffsetX: number = 200;
 export const lifelineOffsetY: number = 50;
-export const lifelineTextSize: number = 8;
 export const lifelineRadius: number = 2;
+export const lifelineTextSize: number = 10;
+export const lifelineCurveSegments: number = 12;
 
 export const firstMessageOffset: number = 25;
 export const messageOffset: number = 25;
-export const messageTextSize: number = 10;
+export const messageTextSize: number = 8;
+export const messageCurveSegments: number = 12;
 
 export const messageArrowBodyRadius: number = 1.2;
 export const messageArrowHeadRadiusBase: number = 4;

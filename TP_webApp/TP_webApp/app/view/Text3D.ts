@@ -4,7 +4,7 @@ import { CustomMesh } from "./CustomMesh";
 import { FONT, ASSETS } from "../globals";
 import * as Config from "../config"
 import * as THREE from 'three';
-
+//import {Strat} from './Text3D'
 export class Text3D extends Object3D{
 
     private _link: GraphicElement;
@@ -12,8 +12,9 @@ export class Text3D extends Object3D{
     private textmeshFront: CustomMesh;
     private textmeshBack: CustomMesh;
     private backPlane: CustomMesh;
+    private strat: Strat;
     
-    public constructor(link: GraphicElement) {
+    public constructor(link: GraphicElement, strat:Strat) {
         super();
         this._link = link;
         this.displayText = "";
@@ -26,6 +27,8 @@ export class Text3D extends Object3D{
         )
         this.add(this.backPlane);
 
+        this.strat = strat;
+
         return(this);
     }
 
@@ -37,7 +40,14 @@ export class Text3D extends Object3D{
             }else if(newText == ""){
                 this._link.remove(this);
             }
-            let geom = Text3D.makeText(newText);
+            
+            let geom = new TextGeometry( newText, {
+                font: FONT,
+                size: this.strat.size,
+                height: 1,
+                curveSegments: this.strat.curveSegments,
+            });
+            
             let mat = ASSETS.textMaterial;
             
             this.displayText = newText;
@@ -72,17 +82,19 @@ export class Text3D extends Object3D{
         }
     }
 
-    //TODO figure changable text size
-    public static makeText(textString:string):TextGeometry{
-        return new TextGeometry( textString, {
-            font: FONT,
-            size: Config.lifelineTextSize,
-            height: 1,
-            curveSegments: 12,
-        });
-    }
-
     public get viewObject():GraphicElement{
         return this._link.viewObject;
     }
+}
+export abstract class Strat{
+    public abstract size:number;
+    public abstract curveSegments:number;
+}
+export class LifelineStrat extends Strat{
+    public size = Config.lifelineTextSize;
+    public curveSegments = Config.lifelineCurveSegments;
+}
+export class MessageStrat extends Strat{
+    public size = Config.messageTextSize;
+    public curveSegments = Config.messageCurveSegments;
 }

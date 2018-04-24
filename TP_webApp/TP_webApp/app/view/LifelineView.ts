@@ -5,7 +5,7 @@ import { Lifeline } from '../model/Lifeline';
 import * as Config from "../config"
 import { LayerView } from './LayerView';
 import { ASSETS } from "../globals";
-import { Text3D } from './Text3D';
+import { Text3D,LifelineStrat } from './Text3D';
 import { BusinessElement } from '../model/BusinessElement';
 import { MessageView } from './MessageView';
 import { MessageOccurenceSpecification } from '../model/OccurenceSpecification';
@@ -24,16 +24,16 @@ export class LifelineView extends GraphicElement {
         start:{pos: new Vector3(0,0,0)},
         end:{pos: new Vector3(0,0,0)}}
 
-    public constructor(parent: BusinessElement) {
-        super(parent);
+    public constructor(businessElement: BusinessElement) {
+        super(businessElement);
         this.line = new CustomMesh(
             ASSETS.lifelineBodyGeometry,
             ASSETS.lifelineBodyMaterial
         );
         this.add(this.line);
         
-        this.text = new Text3D(this);
-        this.add(this.text);
+        this.text = new Text3D(this,new LifelineStrat());
+        //this.add(this.text);
     }
 
     public updateLayout(index: number): LifelineView {

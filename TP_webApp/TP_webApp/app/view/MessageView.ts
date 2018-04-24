@@ -5,7 +5,7 @@ import { Message } from '../model/Message';
 import { LifelineView } from './LifelineView';
 import * as Config from "../config"
 import { ASSETS } from "../globals";
-import { Text3D } from './Text3D';
+import { Text3D, MessageStrat } from './Text3D';
 import { BusinessElement } from '../model/BusinessElement';
 import { LayerView } from './LayerView';
 
@@ -36,8 +36,8 @@ export class MessageView extends GraphicElement{
 
     private index: number;
 
-    public constructor(parent:BusinessElement) {
-        super(parent);
+    public constructor(businessElement:BusinessElement) {
+        super(businessElement);
         this._source = new Vector3(0,0,0);
         this._destination = new Vector3(0,0,0);
 
@@ -55,7 +55,7 @@ export class MessageView extends GraphicElement{
         this.arrowHead.position.set(0,0,0);
         this.add(this.arrowHead)
 
-        this.text = new Text3D(this);
+        this.text = new Text3D(this, new MessageStrat());
         //this.add(this.text); //text will ad itself when approperiate
 
         this.animationProgress = 0.99999999;
