@@ -61,7 +61,7 @@ export class LayerView extends GraphicElement{
         return this;
     }
 
-    public animate(): void {
+    protected animate(): void {
         this.position.copy(this.animator(
             this.animation.start.pos, 
             this.animation.end.pos, 

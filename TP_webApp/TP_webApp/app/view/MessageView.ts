@@ -183,7 +183,7 @@ export class MessageView extends GraphicElement{
         this._destination.copy(destination);
     }
 
-    public animate(): void {
+    protected animate(): void {
         this.source = this.animator(
             this.animation.start.source, 
             this.animation.end.source, 

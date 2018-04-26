@@ -46,7 +46,7 @@ export abstract class GraphicElement extends Object3D{
         
     }
 
-    public animate() {
+    protected animate() {
         
     }
 
