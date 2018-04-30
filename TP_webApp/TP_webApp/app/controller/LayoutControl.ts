@@ -168,6 +168,7 @@ export class LayoutControl{
                     }
                 }
 
+                // debugger;
                 for(let toDelete of occurencesToDelete){
                     for(let lifelineOcc of occurenceArrays) {
                         if (toDelete == lifelineOcc[0]){
@@ -177,8 +178,13 @@ export class LayoutControl{
                     }
                 }
 
-                occurenceArrays = occurenceArrays.filter(e => e.length != 0);
-
+                // debugger;
+                // occurenceArrays = occurenceArrays.filter(e => e != undefined);
+                occurenceArrays = occurenceArrays.filter(e => {
+                    if(e.length > 0){
+                        return e;
+                    }
+                });
             }
 
         });

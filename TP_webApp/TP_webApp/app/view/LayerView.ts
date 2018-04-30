@@ -48,7 +48,7 @@ export class LayerView extends GraphicElement{
             (this.businessElement.messages.length - 1) * Config.messageOffset +
             fragChildrens * 4 * Config.fragmentOffset +
             Config.firstMessageOffset;
-        console.log(this.businessElement.fragments.length);
+        // console.log(this.businessElement.fragments.length);
         
         if(dynamicLayerHeight < Config.layerHeight){
             dynamicLayerHeight = Config.layerHeight;

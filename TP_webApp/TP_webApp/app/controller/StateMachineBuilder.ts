@@ -3,6 +3,7 @@ import { StateTransition } from "./StateTransition";
 import { Curve, Event } from "three";
 import { CustomMesh } from "../view/CustomMesh";
 import { EventType, EventBus } from "./EventBus";
+import * as $ from 'jquery';
 
 export const stateNeutral: State = new State('NEUTRAL');
 export const stateButton: State = new State('BUTTON');

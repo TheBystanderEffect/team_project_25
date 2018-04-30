@@ -161,6 +161,8 @@ export class FragmentView extends GraphicElement{
         var end = (this.findEndingLifeline().graphicElement as LifelineView).curPos;
         start.y += -Config.firstFragmentOffset-Config.fragmentOffset*startOffsetY
         end.y += -Config.firstFragmentOffset-Config.fragmentOffset*endOffsetY
+        start.x -= this.offsetX * 10;
+        end.x += this.offsetX * 10;
         // console.log(lastOccurence);
         
         // update only if current and correct points mismatch
@@ -199,7 +201,6 @@ export class FragmentView extends GraphicElement{
         this._heighLength = Math.sqrt(Math.pow(this._destination.y-this._source.y,2));
         this._widthLength = Math.sqrt(Math.pow(this._destination.x-this._source.x,2));
         
-        this._widthLength += Math.abs(this.offsetX*20);
         this.height = this._heighLength;
         this.width = this._widthLength;
 

@@ -66,6 +66,48 @@ export class Serializer {
 
                 return message;
             });
+
+            function deserializeCombinedFragment(parent: InteractionOperand, rawCombinedFrag: any) {
+                let comb = new CombinedFragment();
+                comb.interactionOperator = rawCombinedFrag._interactionOperator;
+                
+                comb.layer = layer;
+                comb.diagram = diagram;
+
+                comb.parent = parent;
+                comb.children = rawCombinedFrag._children.map(deserializeInteractionOperand.bind(null, comb));
+
+                return comb;
+            }
+
+            function deserializeInteractionOperand(parent: CombinedFragment, rawInter: any) {
+                let inter = new InteractionOperand();
+                inter.interactionConstraint = rawInter._interactionConstraint;
+                
+                inter.layer = layer;
+                inter.diagram = diagram;
+
+                inter.parent = parent;
+                inter.children = rawInter._children.map(deserializeCombinedFragment.bind(null, inter));
+
+                inter.startingOccurences = rawInter._startingOccurences.map((rawOcc: any) => {
+                    let newOcc = new OperandOccurenceSpecification();
+                    newOcc.startsOperand = inter;
+                    queuedOccurences.push({ occ: newOcc, rawOcc: rawOcc });
+                    return newOcc;
+                });
+
+                inter.endingOccurences = rawInter._endingOccurences.map((rawOcc: any) => {
+                    let newOcc = new OperandOccurenceSpecification();
+                    newOcc.endsOperand = inter;
+                    queuedOccurences.push({ occ: newOcc, rawOcc: rawOcc });
+                    return newOcc;
+                });
+
+                return inter;
+            }
+            
+            layer.fragments = rawLayer._fragments.map(deserializeCombinedFragment.bind(null, null));
             
             return layer;
         });
@@ -73,12 +115,25 @@ export class Serializer {
         for (let queuedOcc of queuedOccurences) {
             let layer: Layer = diagram.layers[queuedOcc.rawOcc.layer];
             let lifeline: Lifeline = layer.lifelines[queuedOcc.rawOcc.lifeline];
-            
-            lifeline.occurenceSpecifications[queuedOcc.rawOcc.index] = queuedOcc.occ;
 
-            queuedOcc.occ.diagram = diagram;
-            queuedOcc.occ.layer = layer;
-            queuedOcc.occ.lifeline = lifeline;
+            if (lifeline.occurenceSpecifications[queuedOcc.rawOcc.index]) {
+                let actualOcc = lifeline.occurenceSpecifications[queuedOcc.rawOcc.index] as OperandOccurenceSpecification;
+                if (actualOcc.startsOperand) {
+                    actualOcc.endsOperand = (queuedOcc.occ as OperandOccurenceSpecification).endsOperand;
+                    actualOcc.endsOperand.endingOccurences
+                    .splice(actualOcc.endsOperand.endingOccurences.indexOf(queuedOcc.occ as OperandOccurenceSpecification), 1, actualOcc);
+                } else {
+                    actualOcc.startsOperand = (queuedOcc.occ as OperandOccurenceSpecification).startsOperand;
+                    actualOcc.startsOperand.startingOccurences
+                    .splice(actualOcc.startsOperand.startingOccurences.indexOf(queuedOcc.occ as OperandOccurenceSpecification), 1, actualOcc);
+                }
+            } else {
+                lifeline.occurenceSpecifications[queuedOcc.rawOcc.index] = queuedOcc.occ;
+                
+                queuedOcc.occ.diagram = diagram;
+                queuedOcc.occ.layer = layer;
+                queuedOcc.occ.lifeline = lifeline;
+            }
         }
 
         return diagram;

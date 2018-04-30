@@ -134,7 +134,6 @@ export function initializeStateTransitions() {
 
                 let toRemove: OccurenceSpecification[] = [];
                 let toRemoveMessages: StoredMessage[] = [];
-                let toRemoveOperands: InteractionOperand[] = [];
                 let toRemoveFragments: CombinedFragment[] = [];
 
                 for (let occurence of lifeline.occurenceSpecifications) {
@@ -144,58 +143,75 @@ export function initializeStateTransitions() {
                         toRemoveMessages.push(occurence.message);
 
                     } else if (occurence instanceof OperandOccurenceSpecification) {
-                        // TODO
-                        if(occurence.startsOperand){
-                            for(let occ of occurence.startsOperand.endingOccurences){
-                                toRemove.push(occ);
-                            }
-                            for(let occ of occurence.startsOperand.startingOccurences){
-                                toRemove.push(occ);
-                            }
-                            toRemoveFragments.push(occurence.startsOperand.parent);
-                        } else {
-                            for(let occ of occurence.endsOperand.endingOccurences){
-                                toRemove.push(occ);
-                            }
-                            for(let occ of occurence.endsOperand.startingOccurences){
-                                toRemove.push(occ);
-                            }
+                        toRemove.push(occurence);
+                        if(occurence.endsOperand){
                             toRemoveFragments.push(occurence.endsOperand.parent);
+                        } else {
+                            toRemoveFragments.push(occurence.startsOperand.parent);
                         }
                     }
-                    
+                }
+
+                let operandsToRemove: InteractionOperand[] = []
+                for (let frag of toRemoveFragments){
+                    for (let operand of frag.children){
+                        for (let occ of toRemove){
+                            if (occ instanceof OperandOccurenceSpecification){
+                                if (occ.endsOperand){
+                                    operand.endingOccurences = operand.endingOccurences.filter(e => e!= occ); 
+                                } 
+                                if (occ.startsOperand){
+                                    operand.startingOccurences = operand.startingOccurences.filter(e => e!= occ); 
+                                }                             
+                            }
+                        }
+                        if(operand.startingOccurences.length == 0 && operand.endingOccurences.length == 0){
+                            operandsToRemove = operandsToRemove.filter(e => e!=operand);
+                            operandsToRemove.push(operand);
+                        }
+                    }
+                }
+
+                if(operandsToRemove.length > 0){
+                    for(let operand of operandsToRemove){
+                        operand.layer.fragments = operand.layer.fragments.filter(e => e!=operand.parent)
+                        operand.graphicElement.parent.remove(operand.graphicElement);      
+                    }
                 }
 
                 for (let occ of toRemove) {
-                    occ.lifeline.occurenceSpecifications.splice(occ.lifeline.occurenceSpecifications.indexOf(occ), 1);
+                    occ.lifeline.occurenceSpecifications = occ.lifeline.occurenceSpecifications.filter(e => e!=occ);
                 }
 
                 for (let msg of toRemoveMessages) {
-                    msg.layer.messages.splice(msg.layer.messages.indexOf(msg), 1);
+                    msg.layer.messages = msg.layer.messages.filter(e => e!=msg);
                     msg.graphicElement.parent.remove(msg.graphicElement);
                 }
 
-                for (let remOp of toRemoveOperands){
-                    
-                }
+                // let occurences: OperandOccurenceSpecification[] = [];
+                // for (let frag of toRemoveFragments) {
+                   
+                //     if (frag.children.length > 0) {
+                //         for(let operand of frag.children){
+                //             for (let comb_child of operand.children) {
+                //                 comb_child.parent = frag.parent;
+                //             }
+                //         }
+                //     }
 
-                for (let frag of toRemoveFragments) {
-                    frag.layer.fragments.splice(frag.layer.fragments.indexOf(frag), 1);
-                    for (let op of frag.children){
-                        let occ = (op as InteractionOperand).startingOccurences.map( a => a );
-                        occ.concat((op as InteractionOperand).endingOccurences.map(a => a));
+                //     frag.layer.fragments = frag.layer.fragments.filter(e => e!=frag);
+                //     for (let op of frag.children){
+                //         occurences = (op as InteractionOperand).startingOccurences.concat();
+                //         occurences.concat((op as InteractionOperand).endingOccurences.map(a => a));
 
-                        
-
-                        if(op.graphicElement.parent != null){
-                            op.graphicElement.parent.remove(op.graphicElement);                    
-                        }
-                    }
-                }
+                //         if(op.graphicElement.parent != null){
+                //             op.graphicElement.parent.remove(op.graphicElement);      
+                //         }
+                //     }
+                // }
                 
+                console.log(lifeline.diagram);
                 LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
-                
-                let occurences = lifeline.layer.lifelines.map(e => e.occurenceSpecifications);
                 break;
             }
         }
@@ -669,35 +685,73 @@ export function initializeStateTransitions() {
         movedMessage = (hits[0].metadata.parent as GraphicElement).businessElement as Message;
         lastOffsetY = (event as MouseEvent).offsetY;
         console.log(movedMessage.graphicElement.position.y);
-        
     })
     .drag((ev, hits) => true,
     (ev, hits) => {
-
-            for(let message of movedMessage.layer.messages){
-                console.log((message as Message).graphicElement.position.y);
-            }
-            (movedMessage.graphicElement as MessageView)
-            let interactionOperands : InteractionOperand[] = [];
-
-            console.log(interactionOperands);
             
-            for(let operand of interactionOperands){
-                console.log((operand.graphicElement as FragmentView).getTop());
-                console.log((operand.graphicElement as FragmentView).getBottom());
-            }
+            (movedMessage.start.lifeline.occurenceSpecifications as OccurenceSpecification[]).sort((a,b) => {
+                if((a instanceof MessageOccurenceSpecification) && (b instanceof MessageOccurenceSpecification)){
+                    return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+                }
+                else if((a instanceof MessageOccurenceSpecification) && (b instanceof OperandOccurenceSpecification)){
+                    if(b.startsOperand){
+                        return -(a.message.graphicElement.position.y - (b.startsOperand.graphicElement as FragmentView).getTop());
+                    } else if(b.endsOperand){
+                        return -(a.message.graphicElement.position.y - (b.endsOperand.graphicElement as FragmentView).getBottom());
+                    }
+                }
+                else if((b instanceof MessageOccurenceSpecification) && (a instanceof OperandOccurenceSpecification)){
+                    if(a.startsOperand){
+                        return (b.message.graphicElement.position.y - (a.startsOperand.graphicElement as FragmentView).getTop());
+                    } else if(a.endsOperand){
+                        return (b.message.graphicElement.position.y - (a.endsOperand.graphicElement as FragmentView).getBottom());
+                    }
+                }
+                else if((a instanceof OperandOccurenceSpecification) && (b instanceof OperandOccurenceSpecification)){
+                    if(a.endsOperand && b.endsOperand){
+                        return -((a.endsOperand.graphicElement as FragmentView).getBottom() - (b.endsOperand.graphicElement as FragmentView).getBottom());
+                    } else if(a.endsOperand && b.startsOperand){
+                        return -((a.endsOperand.graphicElement as FragmentView).getBottom() - (b.startsOperand.graphicElement as FragmentView).getTop());
+                    } else if(a.startsOperand && b.endsOperand){
+                        return -((a.startsOperand.graphicElement as FragmentView).getTop() - (b.endsOperand.graphicElement as FragmentView).getBottom());
+                    } else if(a.startsOperand && b.startsOperand){
+                        return -((a.startsOperand.graphicElement as FragmentView).getTop() - (b.startsOperand.graphicElement as FragmentView).getTop());
+                    }
+                }
+            });
+            
+            (movedMessage.end.lifeline.occurenceSpecifications as OccurenceSpecification[]).sort((a,b) => {
+                if((a instanceof MessageOccurenceSpecification) && (b instanceof MessageOccurenceSpecification)){
+                    let bull = -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+                    return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
+                }
+                else if((a instanceof MessageOccurenceSpecification) && (b instanceof OperandOccurenceSpecification)){
+                    if(b.startsOperand){
+                        return -(a.message.graphicElement.position.y - (b.startsOperand.graphicElement as FragmentView).getTop());
+                    } else if(b.endsOperand){
+                        return -(a.message.graphicElement.position.y - (b.endsOperand.graphicElement as FragmentView).getBottom());
+                    }
+                }
+                else if((b instanceof MessageOccurenceSpecification) && (a instanceof OperandOccurenceSpecification)){
+                    if(a.startsOperand){
+                        return (b.message.graphicElement.position.y - (a.startsOperand.graphicElement as FragmentView).getTop());
+                    } else if(a.endsOperand){
+                        return (b.message.graphicElement.position.y - (a.endsOperand.graphicElement as FragmentView).getBottom());
+                    }
+                } else if((a instanceof OperandOccurenceSpecification) && (b instanceof OperandOccurenceSpecification)){
+                    if(a.endsOperand && b.endsOperand){
+                        return -((a.endsOperand.graphicElement as FragmentView).getBottom() - (b.endsOperand.graphicElement as FragmentView).getBottom());
+                    } else if(a.endsOperand && b.startsOperand){
+                        return -((a.endsOperand.graphicElement as FragmentView).getBottom() - (b.startsOperand.graphicElement as FragmentView).getTop());
+                    } else if(a.startsOperand && b.endsOperand){
+                        return -((a.startsOperand.graphicElement as FragmentView).getTop() - (b.endsOperand.graphicElement as FragmentView).getBottom());
+                    } else if(a.startsOperand && b.startsOperand){
+                        return -((a.startsOperand.graphicElement as FragmentView).getTop() - (b.startsOperand.graphicElement as FragmentView).getTop());
+                    }
+                }
+            });
 
-            movedMessage.layer.messages.sort((a,b) => {
-                return -(a.graphicElement.position.y - b.graphicElement.position.y);
-            });
-            (movedMessage.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-                return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-            });
-            (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-                return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-            });
-
-        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     },
 
     (ev, hits) => {
@@ -767,6 +821,7 @@ export function initializeStateTransitions() {
         return hits.length != 0 && hits[0].metadata.parent instanceof FragmentView;
     }, () => {
         let rename = operandRenamed;
+        
         let operators =[
             InteractionOperator.ALT,
             InteractionOperator.LOOP,
@@ -811,23 +866,44 @@ export function initializeStateTransitions() {
     });
 
     let firstHit: Vector3;
+    let newFragView: FragmentView = null;
 
-    StateSequence
+    let createCombFrag = StateSequence
     .start('CREATE_COMBINED_FRAGMENT')
-    .button('sideFragment')
+    .button('sideFragment', ()=>{
+        $('#sideFragment').addClass('actv');
+    });
+
+    createCombFrag
     .click((event, hits) => {
         return hits[0] && hits[0].metadata.parent instanceof LayerView;
     }, (event, hits) => {
+
         let castResult = RaycastControl.simpleDefaultIntersect(event as MouseEvent);
+        newFragView = new FragmentView(new InteractionOperand());
+
         for (let h of castResult){
             if(h.object.parent instanceof LayerView){
                 firstHit = h.point;
+                h.object.parent.add(newFragView);
+                newFragView.source = new Vector3(
+                    h.point.x,
+                    h.point.y,
+                    0
+                );
                 break;
             }
         }
+        // create combined fragment view
+        
     })
-    .click((event, hits) => {
-        return hits[0] && hits[0].metadata.parent instanceof LayerView;
+    .drag((event, hits) => {
+        for (let obj of hits) {
+            if (obj.viewObject instanceof LayerView) {
+                return true;
+            }
+        }
+        return false;
     }, (event, hits) => {
         let castResult = RaycastControl.simpleDefaultIntersect(event as MouseEvent);
         for (let h of castResult){
@@ -903,8 +979,7 @@ export function initializeStateTransitions() {
                 }
 
                 let result = recursive(layer);  
-                let resultChildren = 
-                (result instanceof Layer ? result.fragments : result.children)
+                let resultChildren = (result instanceof Layer ? result.fragments : result.children)
                 .filter(e => isOutsideCombinedFragment(firstHit, secondHit, e));
 
                 let childMessages = layer.messages.filter(e => isAroundMessage(firstHit, secondHit, e));
@@ -1109,7 +1184,7 @@ export function initializeStateTransitions() {
                         occStart.startsOperand = inter;
                         occStart.lifeline.occurenceSpecifications.splice(startIndex, 0, occStart);
                         inter.startingOccurences.push(occStart);
-console.log(startIndex);
+                        console.log(startIndex);
                         
                         let occEnd = new OperandOccurenceSpecification();
                         occEnd.diagram = inter.diagram;
@@ -1118,7 +1193,7 @@ console.log(startIndex);
                         occEnd.endsOperand = inter;
                         occEnd.lifeline.occurenceSpecifications.splice(endIndex + 1, 0, occEnd);
                         inter.endingOccurences.push(occEnd);
-console.log(endIndex+1);
+                        console.log(endIndex+1);
 
                     }                    
                 }
@@ -1181,12 +1256,37 @@ console.log(endIndex+1);
                 break;
             }
         }
-    })
-    .finish(() => {});
+    },
+    (event, hits) => {},
+    (event, hits) => {
+        // destroy combined fragment view
+        newFragView.parent.remove(newFragView);
+        newFragView = null;
+    },
+    (ev, h) => {
+        // update combined fragment view
+        let castResult = RaycastControl.simpleDefaultIntersect(ev as MouseEvent);
+        for (let h of castResult){
+            if(h.object.parent instanceof LayerView){
+                newFragView.redrawByDestination(new Vector3(
+                    h.point.x,
+                    h.point.y,
+                    0
+                ));
+                break;
+            }
+        }
+    },
+    createCombFrag)
+    .finish(() => {
+        $('.actv').removeClass('actv');
+    });
 
     StateSequence
     .start('DELETE_COMBINED_FRAGMENT')
-    .button('sideDeleteFragment')
+    .button('sideDeleteFragment', () => {
+        $('#sideDeleteFragment').addClass('actv');
+    })
     .click((event, hits) => {
         return hits[0] && hits[0].metadata.parent instanceof FragmentView;
     }, (event, hits) => {
@@ -1210,7 +1310,9 @@ console.log(endIndex+1);
         }
         LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     })
-    .finish(() =>{});
+    .finish(() =>{
+        $('.actv').removeClass('actv');
+    });
 
     let addOperand = StateSequence.start('CREATE_INTERACTION_OPERAND')
     .button('sideOperand',()=>{
@@ -1269,19 +1371,20 @@ console.log(endIndex+1);
                 occEnd.lifeline.occurenceSpecifications.splice(endIndex + 1, 0, occEnd);
                 inter.endingOccurences.push(occEnd);
             }
-        }
-        
-        LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
 
-        createPopup({
-            Operator: [inter.parent.interactionOperator],
-            Constraint: null
-        })
-        .then(({ Operator, Constraint }: { Operator: InteractionOperator, Constraint: string }) => {
-            comb.interactionOperator = Operator;
-            inter.interactionConstraint = Constraint;
+            createPopup({
+                Operator: [inter.parent.interactionOperator],
+                Constraint: null
+            })
+            .then(({ Operator, Constraint }: { Operator: InteractionOperator, Constraint: string }) => {
+                comb.interactionOperator = Operator;
+                inter.interactionConstraint = Constraint;
+                LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+            });
             LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
-        });
+        }
+
+        
     })
     .finish(() => {
         $('.actv').removeClass('actv');
