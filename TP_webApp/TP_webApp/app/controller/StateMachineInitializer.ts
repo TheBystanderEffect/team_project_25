@@ -969,7 +969,7 @@ export function initializeStateTransitions() {
 
                         for (let fragment of fragments) {
                             for (let operand of fragment.children) {
-                                console.log(operand);
+                                // console.log(operand);
                                 
                                 if (isInsideInteractionOperand(firstHit, secondHit, operand)) {
                                     return recursive(operand);
@@ -1038,7 +1038,9 @@ export function initializeStateTransitions() {
                 }, limits);
 
                 let comb = new CombinedFragment();
-                comb.interactionOperator = InteractionOperator.OPT;
+                let inter = new InteractionOperand();
+                
+                comb.interactionOperator = InteractionOperator.ALT;
                 comb.diagram = layer.diagram;
                 comb.layer = layer;
                 comb.parent = result instanceof InteractionOperand ? result : null;
@@ -1049,7 +1051,6 @@ export function initializeStateTransitions() {
                     comb.parent.children.push(comb);
                 }
 
-                let inter = new InteractionOperand();
                 inter.interactionConstraint = 'newConstraint';
 
                 inter.diagram = comb.diagram;

@@ -10,6 +10,7 @@ import { BusinessElement } from '../model/BusinessElement';
 import { CombinedFragment } from '../model/CombinedFragment';
 import { InteractionOperand } from '../model/InteractionOperand';
 import { OperandView } from './OperandView';
+import { LayerView } from './LayerView';
 
 export class FragmentView extends GraphicElement{
     private _widthLength: number;
@@ -148,9 +149,8 @@ export class FragmentView extends GraphicElement{
     public updateLayout(startOffsetY: number, endOffsetY?: number, offsetX?: number):FragmentView{
         this.startOffsetY = startOffsetY;
         this.endOffsetY = endOffsetY;
-        this.offsetX = offsetX + 2; /// +2
-      
-
+        this.offsetX = offsetX + 1;
+        
         // console.log(this.businessElement.interactionConstraint);
         // console.log(offsetX);
         
@@ -337,5 +337,9 @@ export class FragmentView extends GraphicElement{
 
     public set height(height: number) {
         this._height = height;
+    }
+
+    public get layerView():LayerView{
+        return this.parent as LayerView; 
     }
 }

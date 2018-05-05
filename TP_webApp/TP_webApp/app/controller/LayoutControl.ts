@@ -98,7 +98,6 @@ export class LayoutControl{
                                     // console.log("Found interaction operand ending"); 
                                     
                                     offsetX++;
-                                    // offsetY++;
                                                                         
                                     fragToDraw = stack.pop();
                                     // console.log(fragToDraw);
@@ -107,7 +106,11 @@ export class LayoutControl{
                                         flag = true;
                                         layer.graphicElement.add(new FragmentView(fragToDraw.fragment));
                                     }
-                                    (fragToDraw.fragment.graphicElement as FragmentView).updateLayout(fragToDraw.offsetY, offsetY, fragToDraw.offsetX-minOffsetX);
+                                    let drawOffsetX = 0;
+                                    if(fragToDraw.offsetX-minOffsetX > 0){
+                                        drawOffsetX = fragToDraw.offsetX-minOffsetX;
+                                    }
+                                    (fragToDraw.fragment.graphicElement as FragmentView).updateLayout(fragToDraw.offsetY, offsetY, drawOffsetX);
                                     if(flag){
                                         (fragToDraw.fragment.graphicElement as FragmentView).animationProgress = 0.99999999;
                                     }
@@ -156,10 +159,7 @@ export class LayoutControl{
                                         if(fragToDraw.offsetX == 0){
                                             minOffsetX = 0;
                                         }
-                                        // debugger;
                                     }
-                                    // console.log("FRAG OFFSET >>>", fragToDraw.offsetX);
-                                    // console.log("MINI OFFSET >>>", minOffsetX);
                                 }
                                 offsetY++;
                                 break;
@@ -168,7 +168,6 @@ export class LayoutControl{
                     }
                 }
 
-                // debugger;
                 for(let toDelete of occurencesToDelete){
                     for(let lifelineOcc of occurenceArrays) {
                         if (toDelete == lifelineOcc[0]){
@@ -178,8 +177,6 @@ export class LayoutControl{
                     }
                 }
 
-                // debugger;
-                // occurenceArrays = occurenceArrays.filter(e => e != undefined);
                 occurenceArrays = occurenceArrays.filter(e => {
                     if(e.length > 0){
                         return e;
