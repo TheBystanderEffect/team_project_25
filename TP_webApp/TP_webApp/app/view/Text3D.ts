@@ -12,6 +12,7 @@ export class Text3D extends Object3D{
     private textmeshFront: CustomMesh;
     private textmeshBack: CustomMesh;
     private backPlane: CustomMesh;
+    private backPlane2: CustomMesh;
     private width: number; 
     
     public constructor(link: GraphicElement) {
@@ -25,12 +26,20 @@ export class Text3D extends Object3D{
             ASSETS.textBackPlateGeometry,
             ASSETS.textBackPlateMaterial
         )
+        this.backPlane.position.set(0,0,0);
         this.add(this.backPlane);
+
+        this.backPlane2 = new CustomMesh(
+            ASSETS.textBackPlateGeometry,
+            ASSETS.textBackPlateMaterial
+        )
+        this.backPlane2.position.set(0,0,0);
+        this.add(this.backPlane2);
 
         return(this);
     }
 
-    public update(newText: string){
+    public update(newText: string, fragment?: boolean){
         if(this.displayText != newText){
             //empty string = no show text
             if(this.displayText == ""){
@@ -56,6 +65,9 @@ export class Text3D extends Object3D{
             let height = box.getSize().y;
             this.textmeshFront.position.set(-this.width/2,-height/2,1)
             this.textmeshBack.position.set(this.width/2,-height/2,-1)
+            if(fragment){
+                this.textmeshBack.position.set(this.width/2,-height/2,-1-2*Config.lifelineRadius);
+            }
             //add new texts
             this.add(this.textmeshFront);
             this.add(this.textmeshBack);
@@ -63,8 +75,12 @@ export class Text3D extends Object3D{
             //dynamic scaling and positioning
             //TODO make configable
             this.backPlane.scale.set(this.width+10,height+6,1)
-
             this.position.set(0,3+Config.messageArrowBodyRadius+height/2,0)
+            if(fragment){
+                this.backPlane2.scale.set(this.width+10,height+6,1)
+                this.backPlane2.position.z = this.backPlane2.position.z-2*Config.lifelineRadius;
+            }
+
 
             //if name is only whitespace width is 0 and text should not show
             if(this.width==0){

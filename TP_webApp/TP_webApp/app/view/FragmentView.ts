@@ -181,9 +181,9 @@ export class FragmentView extends GraphicElement{
             }
         }
         
-        this.constraintText.update(this.businessElement.interactionConstraint.toString());
+        this.constraintText.update(this.businessElement.interactionConstraint.toString(),true);
         if(this.businessElement.parent.children[0] == this.businessElement){
-            this.operatorText.update(this.businessElement.parent.interactionOperator.toString());
+            this.operatorText.update(this.businessElement.parent.interactionOperator.toString(),true);
         }
         this.redraw();
 

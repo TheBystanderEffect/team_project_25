@@ -51,17 +51,11 @@ export class LayoutControl{
             let offsetY = 0;
             let offsetX = 0;
             let minOffsetX = 0;
-            let stack: { fragment: InteractionOperand, offsetY: number, offsetX: number }[] = [];
-
-            // stack.push({
-            //     fragment: null,
-            //     offsetY: 0,
-            //     offsetX: 0,
-            // });
+            let stack: { fragment: InteractionOperand, startOffsetY: number, endOffsetY: number, offsetX: number }[] = [];
+            let fragmentsToDraw = [];
 
             while(occurenceArrays.map(e => e.length > 0).reduce((a,v) => a || v, false)){
                 let inlineOccurences = occurenceArrays.map(e => e[0]);
-                // console.log(inlineOccurences);
                 
                 let occurencesToDelete:OccurenceSpecification [] = [];
                 
@@ -89,6 +83,7 @@ export class LayoutControl{
                         if (occ instanceof OperandOccurenceSpecification){
 
                             let flag = false;
+                            let goDraw = false;
                             let fragToDraw;
 
                             if(occ.endsOperand){
@@ -97,25 +92,17 @@ export class LayoutControl{
                                 if(occurencesToDelete.length == occ.endsOperand.endingOccurences.length){
                                     // console.log("Found interaction operand ending"); 
                                     
+                                    debugger;
+                                    let frag = stack.pop();
+                                    frag.endOffsetY = offsetY;
+                                    frag.offsetX = offsetX;
+                                    fragmentsToDraw.push(frag);
                                     offsetX++;
-                                                                        
-                                    fragToDraw = stack.pop();
-                                    // console.log(fragToDraw);
 
-                                    if(!fragToDraw.fragment.graphicElement){
-                                        flag = true;
-                                        layer.graphicElement.add(new FragmentView(fragToDraw.fragment));
-                                    }
-                                    let drawOffsetX = 0;
-                                    if(fragToDraw.offsetX-minOffsetX > 0){
-                                        drawOffsetX = fragToDraw.offsetX-minOffsetX;
-                                    }
-                                    (fragToDraw.fragment.graphicElement as FragmentView).updateLayout(fragToDraw.offsetY, offsetY, drawOffsetX);
-                                    if(flag){
-                                        (fragToDraw.fragment.graphicElement as FragmentView).animationProgress = 0.99999999;
-                                    }
-                                    
+                                    goDraw = true;
+
                                     flag = true;
+
                                 } else {
                                     occurencesToDelete = [];
                                 }
@@ -134,24 +121,48 @@ export class LayoutControl{
                                     
                                     stack.push({
                                         fragment: occ.startsOperand,
-                                        offsetY: offsetY,
-                                        offsetX: offsetX,
+                                        startOffsetY: offsetY,
+                                        endOffsetY: null,
+                                        offsetX: null,
                                     });
                                     
                                     offsetX--;
-                                    // offsetY++;
-
+                                    
+                                    goDraw = false;
+                                    
                                     flag = true;
                                 } else {
                                     occurencesToDelete = [];
                                 }
                             }
 
-                            if(fragToDraw){
-                                if(minOffsetX > fragToDraw.offsetX){
-                                    minOffsetX = fragToDraw.offsetX;
+                            if(goDraw){
+                                while(fragmentsToDraw.length > 0){
+                                    fragToDraw = fragmentsToDraw.pop();
+                                    flag = false;
+                                    if(!fragToDraw.fragment.graphicElement){
+                                        flag = true;
+                                        layer.graphicElement.add(new FragmentView(fragToDraw.fragment));
+                                    }
+                                    let drawOffsetX = 0;
+
+                                    if(fragToDraw.offsetX-minOffsetX > 0){
+                                        drawOffsetX = fragToDraw.offsetX-minOffsetX;
+                                    }
+                                    
+                                    (fragToDraw.fragment.graphicElement as FragmentView).updateLayout(fragToDraw.startOffsetY, fragToDraw.endOffsetY, drawOffsetX);
+                                    if(flag){
+                                        (fragToDraw.fragment.graphicElement as FragmentView).animationProgress = 0.9999999;
+                                    }
+                                    flag = true;
+                                    if(fragToDraw){
+                                        if(minOffsetX > fragToDraw.offsetX){
+                                            minOffsetX = fragToDraw.offsetX;
+                                        }
+                                    }
                                 }
                             }
+
                             
                             if(flag){
                                 if(fragToDraw){

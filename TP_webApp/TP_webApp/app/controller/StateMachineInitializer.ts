@@ -26,6 +26,7 @@ import * as Config from "../config";
 import { createPopup } from "../view/Popup";
 import { State } from "./State";
 import * as $ from 'jquery';
+import { Text3D } from "../view/Text3D";
 
 // StateSequence
 // .start('CREATE_LIFELINE')
@@ -684,31 +685,132 @@ export function initializeStateTransitions() {
     let movedFrag2: InteractionOperand = null;
 
     let moveFragmentStart = StateSequence
-    .start('DRAG_FRAGMENT_SOURCE');
+    .start('DRAG_FRAGMENT_INSIDE');
 
-    moveMessageStart
+    moveFragmentStart
     .click((event, hits) => {
-        return hits.length != 0 && hits[0].metadata.parent instanceof FragmentView;
+        let h = null;
+        h = RaycastControl.simpleDefaultIntersect(event as MouseEvent)
+        let f = null;
+        if(h[0] && h[0].object instanceof CustomMesh && h[1] && h[1].object instanceof CustomMesh){
+            let f0 = (h[0].object as CustomMesh).viewObject;
+            let f1 = (h[1].object as CustomMesh).viewObject;            
+            if (f0 instanceof FragmentView && f1 instanceof FragmentView){
+                let p:Vector3 = h[0].point;
+                let between = [];
+                between.push(f0.layerView.getWorldPosition().add(f0.source).x, f1.layerView.getWorldPosition().add(f1.destination).x)
+                if(between[0] < p.x && p.x < between[1]){
+                    if(p.y > f0.destination.y || p.y < f1.source.y ){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+
     }, (event, hits) => {
         movedFrag1 = (hits[0].metadata.parent as GraphicElement).businessElement as InteractionOperand;
         movedFrag2 = (hits[1].metadata.parent as GraphicElement).businessElement as InteractionOperand;
-        console.log(movedFrag2);
         
         lastOffsetY = (event as MouseEvent).offsetY;
     })
     .drag((ev, hits) => true,
     (ev, hits) => {
             
-            let occs: OperandOccurenceSpecification[] = [];
-            // debugger;
-            occs = occs.concat(movedFrag1.startingOccurences);
-            occs = occs.concat(movedFrag1.endingOccurences);
+            let occs: OperandOccurenceSpecification[] = movedFrag1.startingOccurences.concat(movedFrag1.endingOccurences);
 
             sortOccurences(occs as OccurenceSpecification[])
 
             LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
     },
+    (ev, hits) => {
+        // empty
+    },
+    (ev, hits) => {
+        movedFrag1 = null;
+        lastOffsetY = 0;
+    },
+    (ev, hits) => {
+        
+        let frag1 = (movedFrag1.graphicElement as FragmentView);
+        let frag2 = (movedFrag2.graphicElement as FragmentView);
+        
+        if(frag1.position.y > frag2.position.y){
+            let tmp;
+            tmp = frag1;
+            frag1 = frag2;
+            frag2 = tmp;
+            tmp = movedFrag1;
+            movedFrag1 = movedFrag2;
+            movedFrag2 = tmp;
+        }
+                
+        let fragPosition1 = (movedFrag1.graphicElement as FragmentView).source;
+        let fragPosition2 = (movedFrag2.graphicElement as FragmentView).destination;
+        fragPosition1.y = (movedFrag1.graphicElement as FragmentView).source.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        
+        if((frag1.layerView.getWorldPosition().add(frag1.destination).y + Config.lifelineRadius) > fragPosition1.y){
+            fragPosition1.y = frag1.layerView.getWorldPosition().add(frag1.destination).y + Config.lifelineRadius;
+        }
+        if((frag2.layerView.getWorldPosition().add(frag2.source).y - Config.lifelineRadius) < fragPosition1.y){
+            fragPosition1.y = frag2.layerView.getWorldPosition().add(frag2.source).y - Config.lifelineRadius;
+        }
 
+        (movedFrag1.graphicElement as FragmentView).redrawBySource(fragPosition1);
+        
+
+
+        fragPosition2.y = (movedFrag2.graphicElement as FragmentView).destination.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        
+        if((frag2.layerView.getWorldPosition().add(frag2.source).y - Config.lifelineRadius) < fragPosition2.y){
+            fragPosition2.y = frag2.layerView.getWorldPosition().add(frag2.source).y - Config.lifelineRadius;
+        }
+        if((frag1.layerView.getWorldPosition().add(frag1.destination).y + Config.lifelineRadius) > fragPosition2.y){
+            fragPosition2.y = frag1.layerView.getWorldPosition().add(frag1.destination).y + Config.lifelineRadius;
+        }
+
+        (movedFrag2.graphicElement as FragmentView).redrawByDestination(fragPosition2);
+        
+        lastOffsetY = (ev as MouseEvent).offsetY;
+    },
+    moveFragmentStart)
+    .finish(() => { });
+
+    moveFragmentStart = StateSequence
+    .start('DRAG_FRAGMENT_DEST');
+
+    moveFragmentStart
+    .click((event, hits) => {
+        let h = null;
+        h = RaycastControl.simpleDefaultIntersect(event as MouseEvent)
+        let f = null;
+        if(h[0] && h[0].object instanceof CustomMesh){
+            let f = (h[0].object as CustomMesh).viewObject
+            if (f instanceof FragmentView){
+                let p:Vector3 = h[0].point;
+                let between = [];
+                between.push(f.layerView.getWorldPosition().add(f.source).x, f.layerView.getWorldPosition().add(f.destination).x)
+                if(between[0] < p.x && p.x < between[1]){
+                    if((p.y > f.destination.y - Config.lifelineRadius) && (p.y < f.destination.y + Config.lifelineRadius)){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }, (event, hits) => {
+        movedFrag1 = (hits[0].metadata.parent as GraphicElement).businessElement as InteractionOperand;        
+        lastOffsetY = (event as MouseEvent).offsetY;
+    })
+    .drag((ev, hits) => true,
+    (ev, hits) => {
+            
+            let occs: OperandOccurenceSpecification[] = movedFrag1.startingOccurences.concat(movedFrag1.endingOccurences);
+
+            sortOccurences(occs as OccurenceSpecification[])
+
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
     (ev, hits) => {
         // empty
     },
@@ -718,23 +820,242 @@ export function initializeStateTransitions() {
     },
     (ev, hits) => {
 
-        // console.log(lastOffsetY + ' ' + (movedFrag1.graphicElement as FragmentView).source.y);
-        
+        let frag = (movedFrag1.graphicElement as FragmentView);
         let fragPosition = (movedFrag1.graphicElement as FragmentView).destination;
+
         fragPosition.y = (movedFrag1.graphicElement as FragmentView).destination.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        
+        if((frag.layerView.getWorldPosition().add(frag.source).y - Config.lifelineRadius) < fragPosition.y){
+            fragPosition.y = frag.layerView.getWorldPosition().add(frag.source).y - Config.lifelineRadius;
+        }
+
+        let fragParent = movedFrag1.parent.parent;
+        if(fragParent){
+            if((fragParent.graphicElement as FragmentView).getBottom() + Config.lifelineRadius > fragPosition.y){
+                fragPosition.y = (fragParent.graphicElement as FragmentView).getBottom() + Config.lifelineRadius;
+            }
+        }
+
         (movedFrag1.graphicElement as FragmentView).redrawByDestination(fragPosition);
 
-        if(movedFrag2 instanceof InteractionOperand){
-            fragPosition = (movedFrag2.graphicElement as FragmentView).source;
-            fragPosition.y = (movedFrag2.graphicElement as FragmentView).source.y - ((ev as MouseEvent).offsetY - lastOffsetY);
-            (movedFrag2.graphicElement as FragmentView).redrawBySource(fragPosition);
+        lastOffsetY = (ev as MouseEvent).offsetY;
+                
+    },
+    moveFragmentStart)
+    .finish(() => { });
+
+    moveFragmentStart = StateSequence
+    .start('DRAG_FRAGMENT_SOURCE');
+    
+    moveFragmentStart
+    .click((event, hits) => {
+        let h = null;
+        h = RaycastControl.simpleDefaultIntersect(event as MouseEvent)
+        let f = null;
+        if(h[0] && h[0].object instanceof CustomMesh){
+            let f = (h[0].object as CustomMesh).viewObject
+            if (f instanceof FragmentView){
+                let p:Vector3 = h[0].point;
+                let between = [];
+                between.push(f.layerView.getWorldPosition().add(f.source).x, f.layerView.getWorldPosition().add(f.destination).x)
+                if(between[0] < p.x && p.x < between[1]){
+                    if((p.y > f.source.y - Config.lifelineRadius) && (p.y < f.source.y + Config.lifelineRadius)){
+                        return true;
+                    }
+                }
+            }
         }
-        // movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
-        // (movedMessage.graphicElement as MessageView).source.y = (movedMessage.graphicElement as MessageView).source.y - ((ev as MouseEvent).offsetY - lastOffsetY);
-        // (movedMessage.graphicElement as MessageView).destination.y = (movedMessage.graphicElement as MessageView).destination.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        return false;
+    }, (event, hits) => {
+        movedFrag1 = (hits[0].metadata.parent as GraphicElement).businessElement as InteractionOperand;        
+        lastOffsetY = (event as MouseEvent).offsetY;
+    })
+    .drag((ev, hits) => true,
+    (ev, hits) => {
+            
+            let occs: OperandOccurenceSpecification[] = movedFrag1.startingOccurences.concat(movedFrag1.endingOccurences);
+
+            sortOccurences(occs as OccurenceSpecification[])
+
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
+    (ev, hits) => {
+        // empty
+    },
+    (ev, hits) => {
+        movedFrag1 = null;
+        lastOffsetY = 0;
+    },
+    (ev, hits) => {
         
+        let frag = (movedFrag1.graphicElement as FragmentView);
+        let fragPosition = (movedFrag1.graphicElement as FragmentView).source;
+
+        fragPosition.y = (movedFrag1.graphicElement as FragmentView).source.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+
+        if((frag.layerView.getWorldPosition().add(frag.destination).y + Config.lifelineRadius) > fragPosition.y){
+            fragPosition.y = frag.layerView.getWorldPosition().add(frag.destination).y + Config.lifelineRadius;
+        }
+
+        let fragParent = movedFrag1.parent.parent;
+        if(fragParent){
+            if((fragParent.graphicElement as FragmentView).getTop() - Config.lifelineRadius < fragPosition.y){
+                fragPosition.y = (fragParent.graphicElement as FragmentView).getTop() - Config.lifelineRadius;
+            }
+        }
+
+        (movedFrag1.graphicElement as FragmentView).redrawBySource(fragPosition);
+
         lastOffsetY = (ev as MouseEvent).offsetY;
         
+    },
+    moveFragmentStart)
+    .finish(() => { });
+
+    lastOffsetX = 0;
+    moveFragmentStart = StateSequence
+    .start('DRAG_FRAGMENT_RIGHT');
+
+    moveFragmentStart
+    .click((event, hits) => {
+        let h = null;
+        h = RaycastControl.simpleDefaultIntersect(event as MouseEvent)
+        let f = null;
+        if(h[0] && h[0].object instanceof CustomMesh){
+            let f = (h[0].object as CustomMesh).viewObject
+            if (f instanceof FragmentView){
+                let p:Vector3 = h[0].point;
+                let between = [];
+                between.push(f.layerView.getWorldPosition().add(f.source).y, f.layerView.getWorldPosition().add(f.destination).y)
+                if(between[0] > p.y && p.y > between[1]){
+                    if((p.x > f.destination.x - Config.lifelineRadius) && (p.x < f.destination.x + Config.lifelineRadius)){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }, (event, hits) => {
+        movedFrag1 = (hits[0].metadata.parent as GraphicElement).businessElement as InteractionOperand;        
+        lastOffsetX = (event as MouseEvent).offsetX;
+    })
+    .drag((ev, hits) => true,
+    (ev, hits) => {
+            
+            let occs: OperandOccurenceSpecification[] = movedFrag1.startingOccurences.concat(movedFrag1.endingOccurences);
+
+            sortOccurences(occs as OccurenceSpecification[])
+
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
+    (ev, hits) => {
+        // empty
+    },
+    (ev, hits) => {
+        movedFrag1 = null;
+        lastOffsetX = 0;
+    },
+    (ev, hits) => {
+
+        let stop = false;
+        let children = movedFrag1.parent.children.concat();
+
+        for(let movedFrag of children){
+            let frag = (movedFrag.graphicElement as FragmentView);
+            let fragPosition = (movedFrag.graphicElement as FragmentView).destination;
+   
+            fragPosition.x = (movedFrag.graphicElement as FragmentView).destination.x + ((ev as MouseEvent).offsetX - lastOffsetX);
+            
+            if((frag.layerView.getWorldPosition().add(frag.source).x + Config.lifelineRadius) > fragPosition.x){
+                fragPosition.x = frag.layerView.getWorldPosition().add(frag.source).x + Config.lifelineRadius;
+            }
+    
+            let fragParent = movedFrag.parent.parent;
+            if(fragParent){
+                if((fragParent.graphicElement as FragmentView).getRight() - Config.lifelineRadius < fragPosition.x){
+                    fragPosition.x = (fragParent.graphicElement as FragmentView).getRight() - Config.lifelineRadius;
+                    break;
+                }
+            }
+            (movedFrag.graphicElement as FragmentView).redrawByDestination(fragPosition);
+        }
+
+
+        lastOffsetX = (ev as MouseEvent).offsetX;             
+    },
+    moveFragmentStart)
+    .finish(() => { });
+
+    lastOffsetX = 0;
+    moveFragmentStart = StateSequence
+    .start('DRAG_FRAGMENT_LEFT');
+
+    moveFragmentStart
+    .click((event, hits) => {
+        let h = null;
+        h = RaycastControl.simpleDefaultIntersect(event as MouseEvent)
+        let f = null;
+        if(h[0] && h[0].object instanceof CustomMesh){
+            let f = (h[0].object as CustomMesh).viewObject
+            if (f instanceof FragmentView){
+                let p:Vector3 = h[0].point;
+                let between = [];
+                between.push(f.layerView.getWorldPosition().add(f.source).y, f.layerView.getWorldPosition().add(f.destination).y)
+                if(between[0] > p.y && p.y > between[1]){
+                    if((p.x > f.source.x - Config.lifelineRadius) && (p.x < f.source.x + Config.lifelineRadius)){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }, (event, hits) => {
+        movedFrag1 = (hits[0].metadata.parent as GraphicElement).businessElement as InteractionOperand;        
+        lastOffsetX = (event as MouseEvent).offsetX;
+    })
+    .drag((ev, hits) => true,
+    (ev, hits) => {
+            
+            let occs: OperandOccurenceSpecification[] = movedFrag1.startingOccurences.concat(movedFrag1.endingOccurences);
+
+            sortOccurences(occs as OccurenceSpecification[])
+
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
+    (ev, hits) => {
+        // empty
+    },
+    (ev, hits) => {
+        movedFrag1 = null;
+        lastOffsetX = 0;
+    },
+    (ev, hits) => {
+
+        let children = movedFrag1.parent.children.concat();
+
+        for(let movedFrag of children){
+            let frag = (movedFrag.graphicElement as FragmentView);
+            let fragPosition = (movedFrag.graphicElement as FragmentView).source;
+    
+            fragPosition.x = (movedFrag.graphicElement as FragmentView).source.x + ((ev as MouseEvent).offsetX - lastOffsetX);
+            
+            if((frag.layerView.getWorldPosition().add(frag.destination).x + Config.lifelineRadius) < fragPosition.x){
+                fragPosition.x = frag.layerView.getWorldPosition().add(frag.destination).x + Config.lifelineRadius;
+            }
+    
+            let fragParent = movedFrag.parent.parent;
+            console.log(fragParent);
+            if(fragParent){
+                if((fragParent.graphicElement as FragmentView).getLeft() + Config.lifelineRadius > fragPosition.x){
+                    fragPosition.x = (fragParent.graphicElement as FragmentView).getLeft() + Config.lifelineRadius;
+                    break;
+                }
+            }
+            (movedFrag.graphicElement as FragmentView).redrawBySource(fragPosition);
+        }
+
+
+        lastOffsetX = (ev as MouseEvent).offsetX;             
     },
     moveFragmentStart)
     .finish(() => { });
@@ -1045,6 +1366,10 @@ export function initializeStateTransitions() {
                 comb.layer = layer;
                 comb.parent = result instanceof InteractionOperand ? result : null;
 
+                for(let child of resultChildren){
+                    child.parent = inter;
+                }
+
                 if (comb.parent == null) {
                     comb.layer.fragments.push(comb);
                 } else {
@@ -1160,22 +1485,22 @@ export function initializeStateTransitions() {
                         for(let i = 0; i < index[0].length; i++) index[0][i] = i;
 
                         for(let i = 0; i < index[0].length; i++){
-                            console.log(index[0][i]);
-                            console.log(index[1][i] + "<" + firstHit.y);
+                            // console.log(index[0][i]);
+                            // console.log(index[1][i] + "<" + firstHit.y);
                             if(index[1][i]<firstHit.y){
                                 startIndex = index[0][i];
-                                console.log("START" + startIndex);
+                                // console.log("START" + startIndex);
                                 break;
                             }
                             startIndex = index[0][i] + 1;
                         }
 
                         for(let i = 0; i < index[0].length; i++){
-                            console.log(index[0][i]);
-                            console.log(index[1][i] + ">" + secondHit.y);
+                            // console.log(index[0][i]);
+                            // console.log(index[1][i] + ">" + secondHit.y);
                             if(index[1][i]<secondHit.y){
                                 endIndex = index[0][i];
-                                console.log("END" + endIndex);
+                                // console.log("END" + endIndex);
                                 break;
                             }
                             endIndex = index[0][i] + 1;
@@ -1188,7 +1513,7 @@ export function initializeStateTransitions() {
                         occStart.startsOperand = inter;
                         occStart.lifeline.occurenceSpecifications.splice(startIndex, 0, occStart);
                         inter.startingOccurences.push(occStart);
-                        console.log(startIndex);
+                        // console.log(startIndex);
                         
                         let occEnd = new OperandOccurenceSpecification();
                         occEnd.diagram = inter.diagram;
@@ -1197,7 +1522,7 @@ export function initializeStateTransitions() {
                         occEnd.endsOperand = inter;
                         occEnd.lifeline.occurenceSpecifications.splice(endIndex + 1, 0, occEnd);
                         inter.endingOccurences.push(occEnd);
-                        console.log(endIndex+1);
+                        // console.log(endIndex+1);
 
                     }                    
                 }
