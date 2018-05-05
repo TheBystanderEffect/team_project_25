@@ -302,20 +302,10 @@ export function initializeStateTransitions() {
             msg.graphicElement = newMessageView;
             msg.graphicElement.shouldAnimate = true;
 
-            msg.layer.messages.sort((a,b) => {
-                return -(a.graphicElement.position.y - b.graphicElement.position.y);
-            });
-            (msg.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-                return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-            });
-            (msg.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-                return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-            });
+            sortOccurences([msg.start, msg.end]);
 
-            //msg.graphicElement = null;
             newMessageView = new MessageView(newMsg);
             newMessageView.shouldAnimate = false;
-            //holdLifelineView.parent.add(newMessageView);
             msg.graphicElement.businessElement=msg;
 
             newMessageView.position.setY(10000); //advanced programing technique
@@ -544,17 +534,7 @@ export function initializeStateTransitions() {
 
         movedMessage.end.lifeline.occurenceSpecifications.push(movedMessage.end);
 
-        //TODO occurence specifications need to be updated to be linked with the changed lifeline
-
-        movedMessage.layer.messages.sort((a,b) => {
-            return -(a.graphicElement.position.y - b.graphicElement.position.y);
-        });
-        (movedMessage.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
-        (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
+        sortOccurences([movedMessage.start, movedMessage.end]);
 
         LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
                 
@@ -568,7 +548,6 @@ export function initializeStateTransitions() {
         startLifeline = null;
         endLifeline = null;
         movedMessage = null;
-
     },
     (ev, hits) => {
         //onmouseevent
@@ -627,17 +606,7 @@ export function initializeStateTransitions() {
 
         movedMessage.start.lifeline.occurenceSpecifications.push(movedMessage.start);
 
-        //TODO occurence specifications need to be updated to be linked with the changed lifeline
-
-        movedMessage.layer.messages.sort((a,b) => {
-            return -(a.graphicElement.position.y - b.graphicElement.position.y);
-        });
-        (movedMessage.start.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
-        (movedMessage.end.lifeline.occurenceSpecifications as MessageOccurenceSpecification[]).sort((a,b) => {
-            return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-        });
+        sortOccurences([movedMessage.start, movedMessage.end]);
 
         LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
                 
@@ -684,12 +653,95 @@ export function initializeStateTransitions() {
     }, (event, hits) => {
         movedMessage = (hits[0].metadata.parent as GraphicElement).businessElement as Message;
         lastOffsetY = (event as MouseEvent).offsetY;
-        console.log(movedMessage.graphicElement.position.y);
+    })
+    .drag((ev, hits) => true,
+    (ev, hits) => {
+
+            sortOccurences([movedMessage.start, movedMessage.end]);
+
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
+
+    (ev, hits) => {
+        // empty
+    },
+    (ev, hits) => {
+        movedMessage = null;
+        lastOffsetY = 0;
+    },
+    (ev, hits) => {
+
+        movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        (movedMessage.graphicElement as MessageView).source.y = (movedMessage.graphicElement as MessageView).source.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        (movedMessage.graphicElement as MessageView).destination.y = (movedMessage.graphicElement as MessageView).destination.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        
+        lastOffsetY = (ev as MouseEvent).offsetY;
+    },
+    moveMessageStart)
+    .finish(() => { });
+
+    let movedFrag1: InteractionOperand = null;
+    let movedFrag2: InteractionOperand = null;
+
+    let moveFragmentStart = StateSequence
+    .start('DRAG_FRAGMENT_SOURCE');
+
+    moveMessageStart
+    .click((event, hits) => {
+        return hits.length != 0 && hits[0].metadata.parent instanceof FragmentView;
+    }, (event, hits) => {
+        movedFrag1 = (hits[0].metadata.parent as GraphicElement).businessElement as InteractionOperand;
+        movedFrag2 = (hits[1].metadata.parent as GraphicElement).businessElement as InteractionOperand;
+        console.log(movedFrag2);
+        
+        lastOffsetY = (event as MouseEvent).offsetY;
     })
     .drag((ev, hits) => true,
     (ev, hits) => {
             
-            (movedMessage.start.lifeline.occurenceSpecifications as OccurenceSpecification[]).sort((a,b) => {
+            let occs: OperandOccurenceSpecification[] = [];
+            // debugger;
+            occs = occs.concat(movedFrag1.startingOccurences);
+            occs = occs.concat(movedFrag1.endingOccurences);
+
+            sortOccurences(occs as OccurenceSpecification[])
+
+            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+    },
+
+    (ev, hits) => {
+        // empty
+    },
+    (ev, hits) => {
+        movedFrag1 = null;
+        lastOffsetY = 0;
+    },
+    (ev, hits) => {
+
+        // console.log(lastOffsetY + ' ' + (movedFrag1.graphicElement as FragmentView).source.y);
+        
+        let fragPosition = (movedFrag1.graphicElement as FragmentView).destination;
+        fragPosition.y = (movedFrag1.graphicElement as FragmentView).destination.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        (movedFrag1.graphicElement as FragmentView).redrawByDestination(fragPosition);
+
+        if(movedFrag2 instanceof InteractionOperand){
+            fragPosition = (movedFrag2.graphicElement as FragmentView).source;
+            fragPosition.y = (movedFrag2.graphicElement as FragmentView).source.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+            (movedFrag2.graphicElement as FragmentView).redrawBySource(fragPosition);
+        }
+        // movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        // (movedMessage.graphicElement as MessageView).source.y = (movedMessage.graphicElement as MessageView).source.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        // (movedMessage.graphicElement as MessageView).destination.y = (movedMessage.graphicElement as MessageView).destination.y - ((ev as MouseEvent).offsetY - lastOffsetY);
+        
+        lastOffsetY = (ev as MouseEvent).offsetY;
+        
+    },
+    moveFragmentStart)
+    .finish(() => { });
+
+    function sortOccurences(occs: OccurenceSpecification[]){
+        for(let occ of occs){
+            (occ.lifeline.occurenceSpecifications as OccurenceSpecification[]).sort((a,b) => {
                 if((a instanceof MessageOccurenceSpecification) && (b instanceof MessageOccurenceSpecification)){
                     return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
                 }
@@ -719,58 +771,8 @@ export function initializeStateTransitions() {
                     }
                 }
             });
-            
-            (movedMessage.end.lifeline.occurenceSpecifications as OccurenceSpecification[]).sort((a,b) => {
-                if((a instanceof MessageOccurenceSpecification) && (b instanceof MessageOccurenceSpecification)){
-                    let bull = -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-                    return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
-                }
-                else if((a instanceof MessageOccurenceSpecification) && (b instanceof OperandOccurenceSpecification)){
-                    if(b.startsOperand){
-                        return -(a.message.graphicElement.position.y - (b.startsOperand.graphicElement as FragmentView).getTop());
-                    } else if(b.endsOperand){
-                        return -(a.message.graphicElement.position.y - (b.endsOperand.graphicElement as FragmentView).getBottom());
-                    }
-                }
-                else if((b instanceof MessageOccurenceSpecification) && (a instanceof OperandOccurenceSpecification)){
-                    if(a.startsOperand){
-                        return (b.message.graphicElement.position.y - (a.startsOperand.graphicElement as FragmentView).getTop());
-                    } else if(a.endsOperand){
-                        return (b.message.graphicElement.position.y - (a.endsOperand.graphicElement as FragmentView).getBottom());
-                    }
-                } else if((a instanceof OperandOccurenceSpecification) && (b instanceof OperandOccurenceSpecification)){
-                    if(a.endsOperand && b.endsOperand){
-                        return -((a.endsOperand.graphicElement as FragmentView).getBottom() - (b.endsOperand.graphicElement as FragmentView).getBottom());
-                    } else if(a.endsOperand && b.startsOperand){
-                        return -((a.endsOperand.graphicElement as FragmentView).getBottom() - (b.startsOperand.graphicElement as FragmentView).getTop());
-                    } else if(a.startsOperand && b.endsOperand){
-                        return -((a.startsOperand.graphicElement as FragmentView).getTop() - (b.endsOperand.graphicElement as FragmentView).getBottom());
-                    } else if(a.startsOperand && b.startsOperand){
-                        return -((a.startsOperand.graphicElement as FragmentView).getTop() - (b.startsOperand.graphicElement as FragmentView).getTop());
-                    }
-                }
-            });
-
-            LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
-    },
-
-    (ev, hits) => {
-        // empty
-    },
-    (ev, hits) => {
-        movedMessage = null;
-        lastOffsetY = 0;
-    },
-    (ev, hits) => {
-        //movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
-        movedMessage.graphicElement.position.y = movedMessage.graphicElement.position.y - ((ev as MouseEvent).offsetY - lastOffsetY);
-        (movedMessage.graphicElement as MessageView).source.y = (movedMessage.graphicElement as MessageView).source.y - ((ev as MouseEvent).offsetY - lastOffsetY);
-        (movedMessage.graphicElement as MessageView).destination.y = (movedMessage.graphicElement as MessageView).destination.y - ((ev as MouseEvent).offsetY - lastOffsetY);
-        
-        lastOffsetY = (ev as MouseEvent).offsetY;
-    },
-    moveMessageStart)
-    .finish(() => { });
+        }
+    }
 
     let rename = StateSequence.start('RENAME')
     .button('rename',()=>{
@@ -986,10 +988,10 @@ export function initializeStateTransitions() {
 
                 let cutLifelines = layer.lifelines.filter(e => within(e.graphicElement.position.x, firstHit.x, secondHit.x));
 
-                console.log(result);            ///Parrent
-                console.log(resultChildren);    ///Children
-                console.log(childMessages);     ///Messages
-                console.log(cutLifelines);      ///Lifelines
+                // console.log(result);            ///Parrent
+                // console.log(resultChildren);    ///Children
+                // console.log(childMessages);     ///Messages
+                // console.log(cutLifelines);      ///Lifelines
                 
                 let firstMessageOffset = -1;
                 
@@ -1154,7 +1156,8 @@ export function initializeStateTransitions() {
 
                         index.sort(sortFunction);
                         let startIndex = 0, endIndex = 0;
-                        
+                        for(let i = 0; i < index[0].length; i++) index[0][i] = i;
+
                         for(let i = 0; i < index[0].length; i++){
                             console.log(index[0][i]);
                             console.log(index[1][i] + "<" + firstHit.y);
