@@ -66,6 +66,7 @@ export class Text3D extends Object3D{
             this.textmeshFront.position.set(-this.width/2,-height/2,1)
             this.textmeshBack.position.set(this.width/2,-height/2,-1)
             if(fragment){
+                this.textmeshFront.position.set(-this.width/2,-height/2,1+2*Config.lifelineRadius)
                 this.textmeshBack.position.set(this.width/2,-height/2,-1-2*Config.lifelineRadius);
             }
             //add new texts
@@ -77,8 +78,9 @@ export class Text3D extends Object3D{
             this.backPlane.scale.set(this.width+10,height+6,1)
             this.position.set(0,3+Config.messageArrowBodyRadius+height/2,0)
             if(fragment){
+                this.backPlane.position.z = 2*Config.lifelineRadius;
                 this.backPlane2.scale.set(this.width+10,height+6,1)
-                this.backPlane2.position.z = this.backPlane2.position.z-2*Config.lifelineRadius;
+                this.backPlane2.position.z = -2*Config.lifelineRadius;
             }
 
 

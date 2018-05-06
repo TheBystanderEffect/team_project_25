@@ -246,7 +246,7 @@ export class FragmentView extends GraphicElement{
 
         //////////////////////////////// Constraint position
 
-        this.constraintText.position.copy(new Vector3(0,this._heighLength/2-Config.fragmentTextSize,Config.lifelineRadius));
+        this.constraintText.position.copy(new Vector3(0,this._heighLength/2-Config.fragmentTextSize,0));
 
         //////////////////////////////// Operator position
 
