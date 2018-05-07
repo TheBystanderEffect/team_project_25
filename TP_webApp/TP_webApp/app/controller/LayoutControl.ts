@@ -53,9 +53,15 @@ export class LayoutControl{
             let minOffsetX = 0;
             let stack: { fragment: InteractionOperand, startOffsetY: number, endOffsetY: number, offsetX: number }[] = [];
             let fragmentsToDraw = [];
+            let lastOccurences: OccurenceSpecification[] = [];
 
             while(occurenceArrays.map(e => e.length > 0).reduce((a,v) => a || v, false)){
                 let inlineOccurences = occurenceArrays.map(e => e[0]);
+                if (inlineOccurences.map(e =>lastOccurences.indexOf(e) != -1).reduce((a,v) => a && v)) {
+                    console.log(inlineOccurences);
+                    throw new Error("Drawing error");
+                }
+                lastOccurences = inlineOccurences;
                 
                 let occurencesToDelete:OccurenceSpecification [] = [];
                 
@@ -92,7 +98,6 @@ export class LayoutControl{
                                 if(occurencesToDelete.length == occ.endsOperand.endingOccurences.length){
                                     // console.log("Found interaction operand ending"); 
                                     
-                                    debugger;
                                     let frag = stack.pop();
                                     frag.endOffsetY = offsetY;
                                     frag.offsetX = offsetX;

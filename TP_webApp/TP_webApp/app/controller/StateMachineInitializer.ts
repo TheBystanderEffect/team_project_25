@@ -28,36 +28,9 @@ import { State } from "./State";
 import * as $ from 'jquery';
 import { Text3D } from "../view/Text3D";
 
-// StateSequence
-// .start('CREATE_LIFELINE')
-// .button('sideLife')
-// .click((e: Event) => {
-//     // DETECT RAYCAST ON LIFELINE HERE``
-//     return false;
-// },(e: Event) => {
-//     // DIALOG POPUP
-// })
-// .dialog((dto: any) => {
-//     // CREATE LIFELINE HERE
-// })
-// .finish();
 
 export function initializeStateTransitions() {
     
-    // StateSequence
-    // .start('TEST_SEQUENCE')
-    // .button('sideLife')
-    // .button('sideMessage')
-    // .click((e: MouseEvent, hits: CustomMesh[]) => {
-    //     return true;
-    // }, (e: MouseEvent, hits: CustomMesh[]) => {
-    //     console.log('Hits by raycast:')
-    //     console.log(hits);
-    // })
-    // .finish(() => {
-    //     console.log('layer lopata');
-    // });
-
     StateSequence
     .start('CREATE_LIFELINE')
     .button('sideLife',()=>{
@@ -95,6 +68,42 @@ export function initializeStateTransitions() {
                     lifelineNew.layer = obj.metadata.parent.businessElement;
 
                     lifelineNew.layer.lifelines.splice(left, 0, lifelineNew);
+
+                    if((left != 0) && (lifelineNew.layer.lifelines.length-1 != left)){
+                        let leftOperands = lifelineNew.layer.lifelines[left-1].occurenceSpecifications
+                        .filter(e => e instanceof OperandOccurenceSpecification)
+                        .map(e => e as OperandOccurenceSpecification)
+                        .map(e => [ e.startsOperand, e.endsOperand ])
+                        .reduce((a,v) => a.concat(v), [])
+                        .filter(e => e)
+                        .filter((e, i, a) => a.indexOf(e) == i);
+
+                        lifelineNew.occurenceSpecifications = lifelineNew.layer.lifelines[left+1].occurenceSpecifications
+                        .filter(e => {
+                            if (e instanceof OperandOccurenceSpecification) {
+                                if (e.startsOperand) {
+                                    return leftOperands.indexOf(e.startsOperand) != -1;
+                                } else {
+                                    return leftOperands.indexOf(e.endsOperand) != -1;
+                                }
+                            } else return false;
+                        }).map((e: OperandOccurenceSpecification) => {
+                            let newOcc = new OperandOccurenceSpecification();
+                            newOcc.diagram = e.diagram;
+                            newOcc.layer = e.layer;
+                            newOcc.lifeline = lifelineNew;
+                            newOcc.startsOperand = e.startsOperand;
+                            newOcc.endsOperand = e.endsOperand;
+                            if (newOcc.startsOperand) {
+                                newOcc.startsOperand.startingOccurences.splice(newOcc.startsOperand.startingOccurences.indexOf(e)-1,0,newOcc);
+                            }
+                            if (newOcc.endsOperand) {
+                                newOcc.endsOperand.endingOccurences.splice(newOcc.endsOperand.endingOccurences.indexOf(e)-1,0,newOcc);
+                            }
+                            return newOcc;
+                        })
+                        
+                    }
 
                     LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
                 });
@@ -694,7 +703,10 @@ export function initializeStateTransitions() {
         let f = null;
         if(h[0] && h[0].object instanceof CustomMesh && h[1] && h[1].object instanceof CustomMesh){
             let f0 = (h[0].object as CustomMesh).viewObject;
-            let f1 = (h[1].object as CustomMesh).viewObject;            
+            let f1 = (h[1].object as CustomMesh).viewObject;  
+            if(f0 == f1){
+                return false;
+            }          
             if (f0 instanceof FragmentView && f1 instanceof FragmentView){
                 let p:Vector3 = h[0].point;
                 let between = [];
@@ -711,7 +723,7 @@ export function initializeStateTransitions() {
     }, (event, hits) => {
         movedFrag1 = (hits[0].metadata.parent as GraphicElement).businessElement as InteractionOperand;
         movedFrag2 = (hits[1].metadata.parent as GraphicElement).businessElement as InteractionOperand;
-        
+
         lastOffsetY = (event as MouseEvent).offsetY;
     })
     .drag((ev, hits) => true,
@@ -830,6 +842,7 @@ export function initializeStateTransitions() {
         }
 
         let fragParent = movedFrag1.parent.parent;
+
         if(fragParent){
             if((fragParent.graphicElement as FragmentView).getBottom() + Config.lifelineRadius > fragPosition.y){
                 fragPosition.y = (fragParent.graphicElement as FragmentView).getBottom() + Config.lifelineRadius;
@@ -941,7 +954,91 @@ export function initializeStateTransitions() {
     })
     .drag((ev, hits) => true,
     (ev, hits) => {
+        
+            let frag = (movedFrag1.graphicElement as FragmentView);
+            let fragX = frag.getRight();
+            let lifeX = frag.layerView.getWorldPosition().add((frag.findEndingLifeline().graphicElement as LifelineView).position).x;
             
+            while(fragX < lifeX){
+                let rightLife = (movedFrag1.graphicElement as FragmentView).findEndingLifeline();
+
+                let fragOccs: OperandOccurenceSpecification[] = [];
+
+                for(let child of movedFrag1.parent.children){
+                    fragOccs = fragOccs.concat(child.startingOccurences.concat(child.endingOccurences));
+                }
+
+                let occsToDelete = rightLife.occurenceSpecifications
+                .filter(e => e instanceof OperandOccurenceSpecification)
+                .filter((e: OperandOccurenceSpecification) => fragOccs.indexOf(e) != -1);
+                
+                rightLife.occurenceSpecifications = rightLife.occurenceSpecifications
+                .filter(e => occsToDelete.indexOf(e) == -1);
+                
+                for(let child of movedFrag1.parent.children){
+                    child.startingOccurences = child.startingOccurences
+                    .filter(e => occsToDelete.indexOf(e) == -1);
+                }
+                
+                for(let child of movedFrag1.parent.children){
+                    child.endingOccurences = child.endingOccurences
+                    .filter(e => occsToDelete.indexOf(e) == -1);
+                }
+
+                lifeX = frag.layerView.getWorldPosition().add((frag.findEndingLifeline().graphicElement as LifelineView).position).x;                
+            }
+
+            let allLifelines = movedFrag1.layer.lifelines.concat();
+            let selectedLifelines: Lifeline[] = [];
+            let fragmentLifelines: Lifeline[] = [];
+            
+            for(let ll of allLifelines){
+                if(ll.graphicElement.position.x < fragX){
+                    selectedLifelines.push(ll);
+                }
+            }
+
+            for(let occ of movedFrag1.startingOccurences){
+                fragmentLifelines.push(occ.lifeline);
+            }
+
+            selectedLifelines = selectedLifelines
+            .filter(e => fragmentLifelines.indexOf(e) == -1);
+
+            for(let ll of selectedLifelines){
+
+                let leftOperands = movedFrag1.parent.children;
+
+                let newSpecifications = (movedFrag1.graphicElement as FragmentView).findEndingLifeline().occurenceSpecifications
+                .filter(e => {
+                    if (e instanceof OperandOccurenceSpecification) {
+                        if (e.startsOperand) {
+                            return leftOperands.indexOf(e.startsOperand) != -1;
+                        } else {
+                            return leftOperands.indexOf(e.endsOperand) != -1;
+                        }
+                    } else return false;
+                }).map((e: OperandOccurenceSpecification) => {
+                    let newOcc = new OperandOccurenceSpecification();
+                    newOcc.diagram = e.diagram;
+                    newOcc.layer = e.layer;
+                    newOcc.lifeline = ll;
+                    newOcc.startsOperand = e.startsOperand;
+                    newOcc.endsOperand = e.endsOperand;
+                    if (newOcc.startsOperand) {
+                        newOcc.startsOperand.startingOccurences.splice(newOcc.startsOperand.startingOccurences.indexOf(e)-1,0,newOcc);
+                    }
+                    if (newOcc.endsOperand) {
+                        newOcc.endsOperand.endingOccurences.splice(newOcc.endsOperand.endingOccurences.indexOf(e)-1,0,newOcc);
+                    }
+                    return newOcc;
+                })
+
+                for(let occ of newSpecifications){
+                    ll.occurenceSpecifications.push(occ);
+                }
+            }
+
             let occs: OperandOccurenceSpecification[] = movedFrag1.startingOccurences.concat(movedFrag1.endingOccurences);
 
             sortOccurences(occs as OccurenceSpecification[])
@@ -957,8 +1054,24 @@ export function initializeStateTransitions() {
     },
     (ev, hits) => {
 
-        let stop = false;
+        let insideFragments: InteractionOperand[] = [];
         let children = movedFrag1.parent.children.concat();
+
+        for(let child of children){
+            if(child.children.length > 0){
+                if(child.children[0].children.length > 0){
+                    insideFragments = child.children[0].children.concat();
+                }
+            }
+        }
+
+        let lastX = Number.MIN_SAFE_INTEGER;
+        for(let frag of insideFragments){
+            let X = (frag.graphicElement as FragmentView).getRight();
+            if(X > lastX){
+                lastX = X;
+            }
+        }
 
         for(let movedFrag of children){
             let frag = (movedFrag.graphicElement as FragmentView);
@@ -966,8 +1079,8 @@ export function initializeStateTransitions() {
    
             fragPosition.x = (movedFrag.graphicElement as FragmentView).destination.x + ((ev as MouseEvent).offsetX - lastOffsetX);
             
-            if((frag.layerView.getWorldPosition().add(frag.source).x + Config.lifelineRadius) > fragPosition.x){
-                fragPosition.x = frag.layerView.getWorldPosition().add(frag.source).x + Config.lifelineRadius;
+            if((frag.layerView.getWorldPosition().add((frag.findStartingLifeline().graphicElement as LifelineView).position).x + 2*Config.lifelineRadius) > fragPosition.x){
+                fragPosition.x = frag.layerView.getWorldPosition().add((frag.findStartingLifeline().graphicElement as LifelineView).position).x + 2*Config.lifelineRadius;
             }
     
             let fragParent = movedFrag.parent.parent;
@@ -977,10 +1090,13 @@ export function initializeStateTransitions() {
                     break;
                 }
             }
+            if(lastX + Config.lifelineRadius > fragPosition.x){
+                fragPosition.x = lastX + Config.lifelineRadius;
+                break;
+            }
             (movedFrag.graphicElement as FragmentView).redrawByDestination(fragPosition);
         }
-
-
+        
         lastOffsetX = (ev as MouseEvent).offsetX;             
     },
     moveFragmentStart)
@@ -1015,7 +1131,91 @@ export function initializeStateTransitions() {
     })
     .drag((ev, hits) => true,
     (ev, hits) => {
+            let frag = (movedFrag1.graphicElement as FragmentView);
+            let fragX = frag.getLeft();
+            let lifeX = frag.layerView.getWorldPosition().add((frag.findStartingLifeline().graphicElement as LifelineView).position).x;
             
+            while(fragX > lifeX){
+                let rightLife = (movedFrag1.graphicElement as FragmentView).findStartingLifeline();
+
+                let fragOccs: OperandOccurenceSpecification[] = [];
+
+                for(let child of movedFrag1.parent.children){
+                    fragOccs = fragOccs.concat(child.startingOccurences.concat(child.endingOccurences));
+                }
+
+                let occsToDelete = rightLife.occurenceSpecifications
+                .filter(e => e instanceof OperandOccurenceSpecification)
+                .filter((e: OperandOccurenceSpecification) => fragOccs.indexOf(e) != -1);
+                
+                rightLife.occurenceSpecifications = rightLife.occurenceSpecifications
+                .filter(e => occsToDelete.indexOf(e) == -1);
+                
+                for(let child of movedFrag1.parent.children){
+                    child.startingOccurences = child.startingOccurences
+                    .filter(e => occsToDelete.indexOf(e) == -1);
+                }
+                
+                for(let child of movedFrag1.parent.children){
+                    child.endingOccurences = child.endingOccurences
+                    .filter(e => occsToDelete.indexOf(e) == -1);
+                }
+
+                lifeX = frag.layerView.getWorldPosition().add((frag.findStartingLifeline().graphicElement as LifelineView).position).x;
+                
+            }
+
+            let allLifelines = movedFrag1.layer.lifelines.concat();
+            let selectedLifelines: Lifeline[] = [];
+            let fragmentLifelines: Lifeline[] = [];
+            
+            for(let ll of allLifelines){
+                if(ll.graphicElement.position.x > fragX){
+                    selectedLifelines.push(ll);
+                }
+            }
+
+            for(let occ of movedFrag1.startingOccurences){
+                fragmentLifelines.push(occ.lifeline);
+            }
+
+            selectedLifelines = selectedLifelines
+            .filter(e => fragmentLifelines.indexOf(e) == -1);
+
+            for(let ll of selectedLifelines){
+
+                let leftOperands = movedFrag1.parent.children;
+
+                let newSpecifications = (movedFrag1.graphicElement as FragmentView).findStartingLifeline().occurenceSpecifications
+                .filter(e => {
+                    if (e instanceof OperandOccurenceSpecification) {
+                        if (e.startsOperand) {
+                            return leftOperands.indexOf(e.startsOperand) != -1;
+                        } else {
+                            return leftOperands.indexOf(e.endsOperand) != -1;
+                        }
+                    } else return false;
+                }).map((e: OperandOccurenceSpecification) => {
+                    let newOcc = new OperandOccurenceSpecification();
+                    newOcc.diagram = e.diagram;
+                    newOcc.layer = e.layer;
+                    newOcc.lifeline = ll;
+                    newOcc.startsOperand = e.startsOperand;
+                    newOcc.endsOperand = e.endsOperand;
+                    if (newOcc.startsOperand) {
+                        newOcc.startsOperand.startingOccurences.splice(newOcc.startsOperand.startingOccurences.indexOf(e)-1,0,newOcc);
+                    }
+                    if (newOcc.endsOperand) {
+                        newOcc.endsOperand.endingOccurences.splice(newOcc.endsOperand.endingOccurences.indexOf(e)-1,0,newOcc);
+                    }
+                    return newOcc;
+                })
+
+                for(let occ of newSpecifications){
+                    ll.occurenceSpecifications.push(occ);
+                }
+            }
+ 
             let occs: OperandOccurenceSpecification[] = movedFrag1.startingOccurences.concat(movedFrag1.endingOccurences);
 
             sortOccurences(occs as OccurenceSpecification[])
@@ -1032,6 +1232,23 @@ export function initializeStateTransitions() {
     (ev, hits) => {
 
         let children = movedFrag1.parent.children.concat();
+        let insideFragments: InteractionOperand[] = [];
+
+        for(let child of children){
+            if(child.children.length > 0){
+                if(child.children[0].children.length > 0){
+                    insideFragments = child.children[0].children.concat();
+                }
+            }
+        }
+
+        let lastX = Number.MAX_SAFE_INTEGER;
+        for(let frag of insideFragments){
+            let X = (frag.graphicElement as FragmentView).getLeft();
+            if(X < lastX){
+                lastX = X;
+            }
+        }
 
         for(let movedFrag of children){
             let frag = (movedFrag.graphicElement as FragmentView);
@@ -1039,17 +1256,21 @@ export function initializeStateTransitions() {
     
             fragPosition.x = (movedFrag.graphicElement as FragmentView).source.x + ((ev as MouseEvent).offsetX - lastOffsetX);
             
-            if((frag.layerView.getWorldPosition().add(frag.destination).x + Config.lifelineRadius) < fragPosition.x){
-                fragPosition.x = frag.layerView.getWorldPosition().add(frag.destination).x + Config.lifelineRadius;
+            if((frag.layerView.getWorldPosition().add((frag.findEndingLifeline().graphicElement as LifelineView).position).x - 2*Config.lifelineRadius) < fragPosition.x){
+                fragPosition.x = frag.layerView.getWorldPosition().add((frag.findEndingLifeline().graphicElement as LifelineView).position).x - 2*Config.lifelineRadius;
             }
     
             let fragParent = movedFrag.parent.parent;
-            console.log(fragParent);
+
             if(fragParent){
                 if((fragParent.graphicElement as FragmentView).getLeft() + Config.lifelineRadius > fragPosition.x){
                     fragPosition.x = (fragParent.graphicElement as FragmentView).getLeft() + Config.lifelineRadius;
                     break;
                 }
+            }
+            if(lastX - Config.lifelineRadius < fragPosition.x){
+                fragPosition.x = lastX - Config.lifelineRadius;
+                break;
             }
             (movedFrag.graphicElement as FragmentView).redrawBySource(fragPosition);
         }
@@ -1061,8 +1282,11 @@ export function initializeStateTransitions() {
     .finish(() => { });
 
     function sortOccurences(occs: OccurenceSpecification[]){
+        let execAfterChecking: (() => void)[] = [];
+        let broken = false;
+
         for(let occ of occs){
-            (occ.lifeline.occurenceSpecifications as OccurenceSpecification[]).sort((a,b) => {
+            let aclone = ([].concat(occ.lifeline.occurenceSpecifications) as OccurenceSpecification[]).sort((a,b) => {
                 if((a instanceof MessageOccurenceSpecification) && (b instanceof MessageOccurenceSpecification)){
                     return -(a.message.graphicElement.position.y - b.message.graphicElement.position.y);
                 }
@@ -1092,6 +1316,48 @@ export function initializeStateTransitions() {
                     }
                 }
             });
+            let stack: InteractionOperand[] = [];
+            for (let occurence of aclone) {
+                if (occurence instanceof OperandOccurenceSpecification) {
+                    if (occurence.endsOperand && stack[stack.length - 1] != occurence.endsOperand) {
+                        //throw new Error("Operand collision detected");
+                        broken = true;
+                        break;
+                    }
+                    if (occurence.endsOperand) {
+                        stack.pop();
+                    }
+                    if (occurence.startsOperand) {
+                        if (stack.length == 0){
+                            execAfterChecking.push(() => {
+                                if (occurence instanceof OperandOccurenceSpecification) {
+                                    occurence.startsOperand.parent.parent = null;
+                                }
+                            });
+                        } else {
+                            let assignee = stack[stack.length - 1];
+                            execAfterChecking.push(() => {
+                                if (occurence instanceof OperandOccurenceSpecification) {
+                                    occurence.startsOperand.parent.parent = assignee;
+                                }
+                            });
+                        }
+                        stack.push(occurence.startsOperand);
+                    }
+                }
+            }
+            if (broken) {
+                break;
+            } else {
+                execAfterChecking.push(() => {
+                    occ.lifeline.occurenceSpecifications = aclone;
+                });
+            }
+        }
+        if (!broken) {
+            for (let callback of execAfterChecking) {
+                callback();
+            }
         }
     }
 
