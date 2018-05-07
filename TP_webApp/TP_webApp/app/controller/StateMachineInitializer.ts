@@ -956,10 +956,9 @@ export function initializeStateTransitions() {
     (ev, hits) => {
         
             let frag = (movedFrag1.graphicElement as FragmentView);
-            let fragX = frag.getRight();
             let lifeX = frag.layerView.getWorldPosition().add((frag.findEndingLifeline().graphicElement as LifelineView).position).x;
             
-            while(fragX < lifeX){
+            while(frag.getRight() < lifeX){
                 let rightLife = (movedFrag1.graphicElement as FragmentView).findEndingLifeline();
 
                 let fragOccs: OperandOccurenceSpecification[] = [];
@@ -993,7 +992,7 @@ export function initializeStateTransitions() {
             let fragmentLifelines: Lifeline[] = [];
             
             for(let ll of allLifelines){
-                if(ll.graphicElement.position.x < fragX){
+                if(ll.graphicElement.position.x < frag.getRight() && ll.graphicElement.position.x > frag.getLeft()){
                     selectedLifelines.push(ll);
                 }
             }
@@ -1132,10 +1131,9 @@ export function initializeStateTransitions() {
     .drag((ev, hits) => true,
     (ev, hits) => {
             let frag = (movedFrag1.graphicElement as FragmentView);
-            let fragX = frag.getLeft();
             let lifeX = frag.layerView.getWorldPosition().add((frag.findStartingLifeline().graphicElement as LifelineView).position).x;
             
-            while(fragX > lifeX){
+            while(frag.getLeft() > lifeX){
                 let rightLife = (movedFrag1.graphicElement as FragmentView).findStartingLifeline();
 
                 let fragOccs: OperandOccurenceSpecification[] = [];
@@ -1170,7 +1168,7 @@ export function initializeStateTransitions() {
             let fragmentLifelines: Lifeline[] = [];
             
             for(let ll of allLifelines){
-                if(ll.graphicElement.position.x > fragX){
+                if(ll.graphicElement.position.x > frag.getLeft() && ll.graphicElement.position.x < frag.getRight()){
                     selectedLifelines.push(ll);
                 }
             }
