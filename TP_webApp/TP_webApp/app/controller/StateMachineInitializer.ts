@@ -1808,44 +1808,6 @@ export function initializeStateTransitions() {
                     LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
                 });
                 
-
-                // for(let m of childMessages){
-                //     let start = (m.start.lifeline.graphicElement as LifelineView).source.clone();
-                //     start.y += -Config.firstMessageOffset-Config.messageOffset*(m.graphicElement as MessageView).getIndex();
-                //     console.log(m.graphicElement.position.y);
-                //     console.log(start);
-                // }
-
-                // let start = 1000;
-                // let end = -1000;
-                // for(let l of cutLifelines){
-                //     for(let o of l.occurenceSpecifications){
-                //         if(o instanceof MessageOccurenceSpecification){
-                //             if(o.message.graphicElement.position.y+Config.firstMessageOffset > firstHit.y){
-                //                 // console.log(o.message.graphicElement.position.y);
-                //                 start = (o.message.graphicElement as MessageView).getIndex();
-                //             }
-                //         } else {
-                //             if(o instanceof OperandOccurenceSpecification){
-                //                 if(o.endsOperand){
-                //                     console.log((o.endsOperand.graphicElement as FragmentView).getBottom());
-                //                     // console.log((o.endsOperand.graphicElement as FragmentView).getIndexEnd());
-                                    
-                //                 } else {
-                //                     console.log((o.startsOperand.graphicElement as FragmentView).getTop());
-                //                     // console.log(o.startsOperand.parent);
-                //                 }                          
-                //             }
-                //         }
-                //     }
-                // }
-                // console.log("");
-                
-                // console.log(start);
-                
-                // console.log(newStartOccurenceIndex);
-                
-                
                 break;
             }
         }
@@ -1975,6 +1937,45 @@ export function initializeStateTransitions() {
                 LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
             });
             LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+        }
+
+        
+    })
+    .finish(() => {
+        $('.actv').removeClass('actv');
+    });
+
+    let interToDelete: InteractionOperand;
+    let deleteOperand = StateSequence.start('DELETE_INTERACTION_OPERAND')
+    .button('sideDeleteOperand',()=>{
+        $('#sideDeleteOperand').addClass('actv');
+    });
+
+    deleteOperand
+    .click((event, hits) => {
+        interToDelete = hits[0].metadata.parent.businessElement as InteractionOperand;
+        return hits.length != 0 && hits[0].metadata.parent instanceof FragmentView;        
+    }, () => {
+        comb = interToDelete.parent;
+        if(comb.children.length > 1){
+            
+            if(interToDelete != comb.children[0]){
+                if(interToDelete != comb.children[comb.children.length-1]){
+                    let nextOperand = comb.children[comb.children.indexOf(interToDelete)+1];
+                    nextOperand.startingOccurences = interToDelete.startingOccurences;
+                    for(let occ of interToDelete.startingOccurences){
+                        occ.startsOperand = nextOperand;
+                    }
+                }
+
+                for(let occ of interToDelete.endingOccurences){
+                    occ.lifeline.occurenceSpecifications = occ.lifeline.occurenceSpecifications.filter(e => e != occ);
+                } 
+
+                comb.children = comb.children.filter(e => e != interToDelete);
+                comb.layer.graphicElement.remove(interToDelete.graphicElement);           
+                LayoutControl.layout(Globals.CURRENTLY_OPENED_DIAGRAM);
+            }
         }
 
         
