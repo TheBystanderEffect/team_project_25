@@ -142,7 +142,7 @@ export class LayoutControl{
                             }
 
                             if(goDraw){
-                                while(fragmentsToDraw.length > 0){
+                                if(stack.length > 0){
                                     fragToDraw = fragmentsToDraw.pop();
                                     flag = false;
                                     if(!fragToDraw.fragment.graphicElement){
@@ -163,6 +163,31 @@ export class LayoutControl{
                                     if(fragToDraw){
                                         if(minOffsetX > fragToDraw.offsetX){
                                             minOffsetX = fragToDraw.offsetX;
+                                        }
+                                    }
+                                } else {
+                                    while(fragmentsToDraw.length > 0){
+                                        fragToDraw = fragmentsToDraw.pop();
+                                        flag = false;
+                                        if(!fragToDraw.fragment.graphicElement){
+                                            flag = true;
+                                            layer.graphicElement.add(new FragmentView(fragToDraw.fragment));
+                                        }
+                                        let drawOffsetX = 0;
+    
+                                        if(fragToDraw.offsetX-minOffsetX > 0){
+                                            drawOffsetX = fragToDraw.offsetX-minOffsetX;
+                                        }
+                                        
+                                        (fragToDraw.fragment.graphicElement as FragmentView).updateLayout(fragToDraw.startOffsetY, fragToDraw.endOffsetY, drawOffsetX);
+                                        if(flag){
+                                            (fragToDraw.fragment.graphicElement as FragmentView).animationProgress = 0.9999999;
+                                        }
+                                        flag = true;
+                                        if(fragToDraw){
+                                            if(minOffsetX > fragToDraw.offsetX){
+                                                minOffsetX = fragToDraw.offsetX;
+                                            }
                                         }
                                     }
                                 }
@@ -199,7 +224,6 @@ export class LayoutControl{
                     }
                 });
             }
-
         });
     }
 }
