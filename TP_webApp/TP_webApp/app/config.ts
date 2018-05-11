@@ -26,6 +26,7 @@ export const messageArrowOverlap: number = 2;
 
 export const firstFragmentOffset: number = firstMessageOffset;
 export const fragmentOffset: number = messageOffset;
+export const fragmentOffsetX: number = 10;
 export const fragmentTextSize: number = 10;
 export const fragmentOverlap: number = 5;
 export const fragmentBodyRadius: number = 2;

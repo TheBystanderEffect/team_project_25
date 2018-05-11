@@ -28,9 +28,9 @@ export class LayoutControl{
                     layer.graphicElement.add(new LifelineView(lifeline));
                 }
                 lifeline.graphicElement.updateLayout(index);
-            });
-            
+            });         
 
+ 
             // console.log("Lifelines done")
 
             // layer.messages.forEach((message,index) => {
