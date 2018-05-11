@@ -86,11 +86,11 @@ export class StateSequence {
         return null;
     }
 
-    public button(buttonId: string): StateSequence {
+    public button(buttonId: string, action: () => void = () => {}): StateSequence {
         let newSeq: StateSequence = new StateSequence(this.name, this.sequencePool, this.state);
         newSeq.state = stateButton.specialize(newSeq.name + '_' + this.order);
-        newSeq.condition = (event: Event, hits: any, eventType: EventType) => eventType == EventType.BUTTON && (event.target as HTMLButtonElement).id == buttonId;
-        newSeq.action = () => {};
+        newSeq.condition = (event: Event, hits: any, eventType: EventType) => eventType == EventType.BUTTON && event.target.id == buttonId;
+        newSeq.action = action;
         newSeq.order = this.order + 1;
 
         newSeq.escape();
@@ -122,6 +122,8 @@ export class StateSequence {
             .keypressed((e: any) => {
                 return e.keyCode == 27
             }, (e: Event) => {
+                // TODO REFACTOR
+                $('.actv').removeClass('actv');
             })
             .finish(() => {});
             isSettingEscape = false;
