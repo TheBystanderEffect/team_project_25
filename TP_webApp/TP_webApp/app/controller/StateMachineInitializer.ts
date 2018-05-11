@@ -1578,6 +1578,10 @@ export function initializeStateTransitions() {
                 // console.log(childMessages);     ///Messages
                 // console.log(cutLifelines);      ///Lifelines
                 
+                if(cutLifelines.length == 0){
+                    return;
+                }
+
                 let firstMessageOffset = -1;
                 
                 // let clickOff1 = -(firstHit.y - 
