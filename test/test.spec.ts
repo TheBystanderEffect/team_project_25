@@ -15,6 +15,7 @@ import * as mocha from 'mocha';
 import * as R from 'ramda';
 import { Object3D } from 'three';
 import { MessageOccurenceSpecification } from '../TP_webApp/TP_webApp/app/model/OccurenceSpecification';
+import { ElementUtil } from '../TP_webApp/TP_webApp/app/model/ElementUtil';
 
 
 assert.ok(true);
@@ -181,7 +182,6 @@ mocha.describe('Serializer pipeline test', () => {
   l1.messages.push(m4);
 
   var processedDiagram = Serializer.instance.deserialize(Serializer.instance.serialize(diag));
-  mocha.it('should return the same diagram we send to serialization', () => {
     mocha.it('should return the same lifeline contents', () => {
       assert.equal(diag.layers[0].lifelines[0].name, processedDiagram.layers[0].lifelines[0].name); 
       assert.equal(diag.layers[0].lifelines[1].name, processedDiagram.layers[0].lifelines[1].name); 
@@ -193,12 +193,29 @@ mocha.describe('Serializer pipeline test', () => {
       assert.equal(diag.layers[0].messages[2].name, processedDiagram.layers[0].messages[2].name);
       assert.equal(diag.layers[0].messages[3].name, processedDiagram.layers[0].messages[3].name); 
     });
-    mocha.it('should reconstruct circular refferences', () => {
-      assert.equal(diag.layers[0].lifelines[0].occurenceSpecifications[0].lifeline, processedDiagram.layers[0].lifelines[0]);
-      assert.equal((diag.layers[0].lifelines[0].occurenceSpecifications[0] as MessageOccurenceSpecification).message, (processedDiagram.layers[0].lifelines[1].occurenceSpecifications[0] as MessageOccurenceSpecification ).message); 
+    mocha.it('should reconstruct circular refferences', () => {     
+      assert.deepEqual(diag.layers[0].lifelines[0].occurenceSpecifications[0].lifeline, processedDiagram.layers[0].lifelines[0]);      
+      assert.deepEqual((diag.layers[0].lifelines[0].occurenceSpecifications[0] as MessageOccurenceSpecification).message, (processedDiagram.layers[0].lifelines[1].occurenceSpecifications[0] as MessageOccurenceSpecification ).message); 
     });
-  });
 });
+
+mocha.describe('Element Util tests', () => {
+
+  let elementUtil = ElementUtil.instance;
+  
+  let diag = new Diagram();
+  let lay1 = elementUtil.createLayer(diag, 0);
+  let lay2 = elementUtil.createLayer(diag, 0);
+
+  mocha.it('Layers should be insertable in front of other layers', () => {
+    assert.equal(diag.layers[1], lay1, "Inserting layers in front of other layers failed");
+  })
+
+});
+
+// mocha.describe('New test', () => {
+  
+// });
 
 
 
