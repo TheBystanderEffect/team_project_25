@@ -1,0 +1,1 @@
+mongo tp <<< 'if (!db.usedIds.findOne()) { db.usedIds.insert({ id: 1 }) }'

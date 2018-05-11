@@ -20,3 +20,5 @@ V priečinku TP-webApp/TP-webApp
 Spúšťač sa pokúsi naštartovať MongoDB server.
 Pokiaľ je nastavená premenná prostredia MONGOD_DB_PATH, tak jej obsah využije ako cestu k adresáru úložiska údajov pre databázu.
 Inak použije predvolené nastavenie.
+
+Pri prvom spustení je potrebné inicializovať databázu pomocou skriptu initDb.sh prítomného v priečinku TP_webApp/TP_webApp/db.
