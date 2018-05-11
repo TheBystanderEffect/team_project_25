@@ -1963,6 +1963,7 @@ export function initializeStateTransitions() {
                 if(interToDelete != comb.children[comb.children.length-1]){
                     let nextOperand = comb.children[comb.children.indexOf(interToDelete)+1];
                     nextOperand.startingOccurences = interToDelete.startingOccurences;
+                    nextOperand.children = interToDelete.children;
                     for(let occ of interToDelete.startingOccurences){
                         occ.startsOperand = nextOperand;
                     }
