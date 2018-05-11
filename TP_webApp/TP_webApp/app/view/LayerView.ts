@@ -38,17 +38,17 @@ export class LayerView extends GraphicElement{
             dynamicLayerWidth = Config.layerWidth;
         }
 
-        let fragChildrens = 1;
-        for(let frag of this.businessElement.fragments){
-            fragChildrens += frag.children.length;
+        let occsOnLifeL = 0;
+        for(let ll of this.businessElement.lifelines){
+            if(occsOnLifeL < ll.occurenceSpecifications.length){
+                occsOnLifeL = ll.occurenceSpecifications.length;
+            }
         }
 
         var dynamicLayerHeight = Config.lifelineOffsetY + 
             Config.firstMessageOffset + 
             (this.businessElement.messages.length - 1) * Config.messageOffset +
-            fragChildrens * 4 * Config.fragmentOffset +
-            Config.firstMessageOffset;
-        // console.log(this.businessElement.fragments.length);
+            occsOnLifeL * Config.firstMessageOffset;
         
         if(dynamicLayerHeight < Config.layerHeight){
             dynamicLayerHeight = Config.layerHeight;
